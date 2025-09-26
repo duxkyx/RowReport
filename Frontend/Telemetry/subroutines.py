@@ -1,5 +1,4 @@
 from Telemetry import colours
-import matplotlib.pyplot as plt
 import statistics
 from random import randint
 import time

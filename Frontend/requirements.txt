@@ -1,5 +1,4 @@
 gunicorn
-unicorn
 flask
 flask-session
 requests
