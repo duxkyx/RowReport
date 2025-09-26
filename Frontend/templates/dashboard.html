@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RowReport — Dashboard</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='Media/logo.png') }}">
+
+
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Select2 -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <div class="d-flex" style="min-height:100vh;">
+    <!-- SIDEBAR -->
+    <aside class="sidebar d-flex flex-column p-3 text-white vh-100" style="position:sticky;top:0;">
+      <div class="brand mb-3">
+        <img src="{{ url_for('static', filename='Media/heading_resize.png') }}" alt="RowReport">
+      </div>
+
+      <nav class="nav flex-column mb-3">
+        <a href="/dashboard" class="nav-link d-flex align-items-center px-3 py-2 {% if page == 'dashboard' %}active{% endif %}">
+          <i class="fa fa-solid fa-chart-pie me-3"></i> <span>Athlete Dashboard</span>
+        </a>
+        <a href="/dashboard/sessions" class="nav-link d-flex align-items-center px-3 py-2 {% if page == 'sessions' %}active{% endif %}">
+          <i class="fa fa-solid fa-calendar-days me-3"></i> <span>Sessions</span>
+        </a>
+        {% if user.is_coach %}
+        <a href="/dashboard/upload" class="nav-link d-flex align-items-center px-3 py-2 {% if page == 'upload' %}active{% endif %}">
+          <i class="fa fa-solid fa-upload me-3"></i> <span>Upload Data</span>
+        </a>
+        {% endif %}
+        {% if user.is_admin %}
+        <a href="/dashboard/admin" class="nav-link d-flex align-items-center px-3 py-2 {% if page == 'admin' %}active{% endif %}">
+          <i class="fa fa-solid fa-user-gear me-3"></i> <span>Admin</span>
+        </a>
+        {% endif %}
+      </nav>
+
+      <div class="mt-auto pt-3 border-top" style="border-color:rgba(255,255,255,0.03)">
+        <div class="mb-2 muted-sm">Logged in as</div>
+        <div class="fw-semibold">{{ user.email }}</div>
+        <div class="d-flex gap-2 mt-3">
+          <a href="/account" class="btn btn-sm btn-ghost w-50">Account</a>
+          <a href="/logout" class="btn btn-sm btn-danger w-50">Logout</a>
+        </div>
+        <p class="muted-sm mt-3 mb-0">Developed by Ben Loggie</p>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-grow-1 app-main">
+
+      {% if page == 'dashboard' %}
+      <div class="header-row">
+        <div>
+          <div class="title">Welcome {{ user.last_name }}, {{ user.first_name }}</div>
+          <div class="subtle">Data-driven insights for your rowing performance</div>
+        </div>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="summary-grid">
+        <div class="stat-card">
+          <h6>Sessions</h6>
+          <h3>{{ summary.num_sessions }}</h3>
+          <div class="muted-sm mt-2">Total recorded sessions</div>
+        </div>
+        <div class="stat-card">
+          <h6>Strokes Recorded</h6>
+          <h3>{{ summary.total_strokes }}</h3>
+          <div class="muted-sm mt-2">All strokes across sessions</div>
+        </div>
+        <div class="stat-card">
+          <h6>Distance Recorded</h6>
+          <h3>{{ summary.total_distance | round(2) }} m</h3>
+          <div class="muted-sm mt-2">Meters in dataset</div>
+        </div>
+        <div class="stat-card">
+          <h6>User Type</h6>
+          <h3>{{ summary.user_type }}</h3>
+          <div class="muted-sm mt-2">Account role</div>
+        </div>
+      </div>
+
+      <!-- Averages table -->
+      <div class="card-modern mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">User Averages</h5>
+          <div class="muted-sm">Aggregated across sessions</div>
+        </div>
+        <div class="card-body p-0 mt-3">
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Training Zone</th>
+                  <th>Min Angle</th>
+                  <th>Max Angle</th>
+                  <th>Arc Length</th>
+                  <th>Catch Slip</th>
+                  <th>Finish Slip</th>
+                  <th>Power</th>
+                  <th>Legs Drive</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for state, data in averages.items() %}
+                  <tr>
+                    <td class="fw-bold "><i class="bi bi-star-fill text-warning me-1">{{ state }}</i></td>
+                    <td>{{ data.min_angle | round(2) }}</td>
+                    <td>{{ data.max_angle | round(2) }}</td>
+                    <td>{{ data.arc_length | round(2) }}</td>
+                    <td>{{ data.catch_slip | round(2) }}</td>
+                    <td>{{ data.finish_slip | round(2) }}</td>
+                    <td>{{ data.swivel_power | round(2) }}</td>
+                    <td>{{ data.seat_length | round(2) }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+          <div class="panel">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong>Synchronisation Average</strong>
+              <div class="muted-sm">Average timing across crew</div>
+            </div>
+            <div class="panel mb-4">{{ graphs.radar | safe }}</div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="panel">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong>GateForceX Curve</strong>
+              <div class="muted-sm">Force profile over stroke</div>
+            </div>
+            <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
+          </div>
+        </div>
+      </div>
+
+      {% elif page == 'upload' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Upload Data</div>
+          <div class="subtle">Add session telemetry (.txt, .csv)</div>
+        </div>
+      </div>
+
+      <div class="card-modern p-4">
+        <form action="/dashboard/upload" method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">Choose a text file (.txt, .csv)</label>
+            <input class="form-control form-control-sm" type="file" id="file" name="file" accept=".txt,.csv" required>
+          </div>
+          <button type="submit" name="action" class="btn btn-primary" value="upload">Upload</button>
+        </form>
+      </div>
+
+      <!-- modal preserved as-is but styled -->
+      <div class="modal fade" id="uploadSessionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content bg-dark" style="border:0;background:linear-gradient(180deg,#071724,#04101a)">
+            <div class="modal-header border-0">
+              <h5 class="modal-title">Upload Session</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/dashboard/upload" method="POST" enctype="multipart/form-data">
+              <div class="modal-body">
+                <div class="container-fluid">
+                  {% if rowers %}
+                    {% for rower in rowers %}
+                      <div class="row align-items-center mb-3">
+                        <div class="col-md-3"><strong>{{ rower.name }}</strong></div>
+                        <div class="col-md-2">Seat: {{ rower.seat }}</div>
+                        <div class="col-md-2">Side: {{ rower.side }}</div>
+                        <div class="col-md-5">
+                          <select class="form-control user-dropdown" name="user_search_{{ rower.seat }}" style="width:100%">
+                            <option value="">Select user...</option>
+                          </select>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <p>No rowers detected for this session.</p>
+                  {% endif %}
+                </div>
+
+                <hr style="border-color:rgba(255,255,255,0.03)">
+
+                <div class="mb-3">
+                  <label class="form-label">Select training zone</label>
+                  <select class="form-select form-select-sm" name="state_selected">
+                    <option selected>UT1</option>
+                    <option value="UT1">UT1</option>
+                    <option value="UT2">UT2 (Steady)</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Add coach feedback / session description</label>
+                  <textarea class="form-control" rows="5" name="description_input" placeholder="Description..."></textarea>
+                </div>
+
+              </div>
+              <div class="modal-footer border-0">
+                <button type="submit" name="action" class="btn btn-primary" value="confirm_upload">Upload</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {% elif page == 'sessions' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Your Sessions</div>
+          <div class="subtle">Browse or inspect recorded sessions</div>
+        </div>
+      </div>
+
+      <div class="card-modern p-3">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Session ID</th>
+                <th>File Name</th>
+                <th>Training Zone</th>
+                <th>Date</th>
+                <th>Number of Rowers</th>
+                <th>Strokes Recorded</th>
+                <th>Distance (m)</th>
+                <th>Time Elapsed</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for session in sessions %}
+              <tr>
+                <td>{{ session.id }}</td>
+                <td>{{ session.filename }}</td>
+                <td>{{ session.state }}</td>
+                <td>{{ session.date }}</td>
+                <td>{{ session.seats }}</td>
+                <td>{{ session.tstrokes }}</td>
+                <td>{{ session.distance | round(2) }} (m)</td>
+                <td>{{ session.timeelapsed }}</td>
+                <td><a href="/dashboard/sessions/{{ session.id }}/overview" class="btn btn-sm btn-info">View</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {% elif page == 'overview' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Session Details — ID {{ boat_data.id }}</div>
+          <div class="subtle">Overview & session metadata</div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="/dashboard/sessions/{{ boat_data.id }}/overview" class="btn btn-sm btn-primary">Overview</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/average" class="btn btn-sm btn-ghost">Average</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/samples" class="btn btn-sm btn-ghost">Samples</a>
+        </div>
+      </div>
+
+      <div class="card-modern p-4">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>File Name:</strong> {{ boat_data.filename }}</p>
+            <p><strong>Date:</strong> {{ boat_data.date }}</p>
+            <p><strong>Training Zone:</strong> {{ boat_data.state }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Number of Rowers:</strong> {{ boat_data.seats }}</p>
+            <p><strong>Strokes Recorded:</strong> {{ boat_data.tstrokes }}</p>
+            <p><strong>Distance (m):</strong> {{ boat_data.distance | round(2) }}</p>
+            <p><strong>Time Elapsed (h:m:s):</strong> {{ boat_data.timeelapsed }}</p>
+          </div>
+        </div>
+
+        <h5 class="mt-4">Coach Feedback / Session Description</h5>
+        <p>{{ boat_data.description }}</p>
+
+        <h4 class="mt-4">Crew List</h4>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>Side</th>
+                <th>Name</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rower in rowers %}
+              <tr>
+                <td>{{ rower.telemetry.seat }}</td>
+                <td>{{ rower.telemetry.side }}</td>
+                <td>{{ rower.telemetry.name }}</td>
+                <td>
+                  {% if rower.user.user_id %}
+                    {{ rower.user.first_name }} {{rower.user.last_name }} ({{ rower.user.email }})
+                  {% else %}
+                    Unassigned
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <a href="/dashboard/sessions" class="btn btn-ghost">Back to Sessions</a>
+          {% if user.is_coach %}
+          <form action="/dashboard/sessions/{{ boat_data.id }}/overview" method="POST" style="display:inline;">
+            <button type="submit" name='action' value="delete_session" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this session?');">Delete Session</button>
+          </form>
+          {% endif %}
+        </div>
+
+      </div>
+
+      {% elif page == 'average' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Average Session Statistics</div>
+          <div class="subtle">Aggregated seat-by-seat averages</div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="/dashboard/sessions/{{ boat_data.id }}/overview" class="btn btn-sm btn-ghost">Overview</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/average" class="btn btn-sm btn-primary">Average</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/samples" class="btn btn-sm btn-ghost">Samples</a>
+        </div>
+      </div>
+
+      <div class="card-modern p-3 table-responsive">
+        <h5 class="mb-2">Average Data</h5>
+        {% set rating = (boat_data.rating | sum) / (boat_data.rating | length) %}
+        {% set power = (boat_data.averagepower | sum) / (boat_data.averagepower | length) %}
+        {% set dps = (boat_data.distanceperstroke | sum) / (boat_data.distanceperstroke | length) %}
+        {% set mps = (boat_data.meterspersecond | sum) / (boat_data.meterspersecond | length) %}
+
+        <h6 class="muted-sm">Rate {{ rating | round(2) }} (s/m) | Avg Power {{ power | round(2) }} (w) | Distance per Stroke {{ dps | round(2) }} (m) | Boat Speed {{ mps | round(2) }} (m/s)</h6>
+
+        <div class="table-responsive mt-3">
+          <table class="table table-hover align-middle mb-4">
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>Name</th>
+                <th>Drive Time (s)</th>
+                <th>Recovery Time (s)</th>
+                <th>Rhythmn (%)</th>
+                <th>Min Angle (deg)</th>
+                <th>Max Angle (deg)</th>
+                <th>Arc Length (deg)</th>
+                <th>Catch Slip (deg)</th>
+                <th>Finish Slip (deg)</th>
+                <th>Effective Length (deg)</th>
+                <th>Catch Factor (ms)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rower in rowers %}
+                {% set data = rower.telemetry %}
+                {% set drive_time = (data.drive_time | sum) / (data.drive_time | length) %}
+                {% set recovery_time = (data.recovery_time | sum) / (data.recovery_time | length) %}
+                {% set min_angle = (data.min_angle | sum) / (data.min_angle | length) %}
+                {% set max_angle = (data.max_angle | sum) / (data.max_angle | length) %}
+                {% set arc_length = (data.arc_length | sum) / (data.arc_length | length) %}
+                {% set catch_slip = (data.catch_slip | sum) / (data.catch_slip | length) %}
+                {% set finish_slip = (data.finish_slip | sum) / (data.finish_slip | length) %}
+                {% set catch_factor = (data.catch_factor | sum) / (data.catch_factor | length) %}
+
+                <tr>
+                  <td>{{ rower.telemetry.seat }}</td>
+                  <td>{{ rower.user.last_name }}</td>
+                  <td>{{ drive_time | round(2) }}</td>
+                  <td>{{ recovery_time | round(2)}}</td>
+                  <td>{{ ((drive_time / (recovery_time + drive_time)) * 100) | round(2) }}</td>
+                  <td>{{ min_angle | round(2) }}</td>
+                  <td>{{ max_angle | round(2) }}</td>
+                  <td>{{ arc_length | round(2) }}</td>
+                  <td>{{ catch_slip | round(2) }}</td>
+                  <td>{{ finish_slip | round(2) }}</td>
+                  <td>{{ ((arc_length) - (catch_slip + finish_slip)) | round(2) }}</td>
+                  <td>{{ catch_factor | round(2) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-responsive mt-3">
+          <table class="table table-hover align-middle mb-4">
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>Power (w)</th>
+                <th>Max Force (kg)</th>
+                <th>Average Force (kg)</th>
+                <th>Aver / Max Force (%)</th>
+                <th>Position of Peak Force (%)</th>
+                <th>Catch Force Gradient (deg)</th>
+                <th>Finish Force Gradient (deg)</th>
+                <th>Legs Drive (cm)</th>
+                <th>Legs Max Velocity (m/s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rower in rowers %}
+                {% set data = rower.telemetry %}
+                {% set swivel_power = (data.rower_swivel_power | sum) / (data.rower_swivel_power | length) %}
+                {% set max_gate_force_x = (data.max_gate_force_x | sum) / (data.max_gate_force_x | length) %}
+                {% set average_gate_force_x = (data.average_gate_force_x | sum) / (data.average_gate_force_x | length) %}
+                {% set avermax = ((average_gate_force_x / max_gate_force_x) * 100) | round(2) %}
+                {% set position_of_maxf = (data.position_of_maxf | sum) / (data.position_of_maxf | length) %}
+                {% set catch_force_gradient = (data.catch_force_gradient | sum) / (data.catch_force_gradient | length) %}
+                {% set finish_force_gradient = (data.finish_force_gradient | sum) / (data.finish_force_gradient | length) %}
+                {% set seat_length = (data.seat_length | sum) / (data.finish_force_gradient | length) %}
+                {% set legs_max_vel = (data.legs_max_vel | sum) / (data.legs_max_vel | length) %}
+
+                <tr>
+                  <td>{{ rower.telemetry.seat }}</td>
+                  <td>{{ swivel_power | round(2) }}</td>
+                  <td>{{ max_gate_force_x | round(2) }}</td>
+                  <td>{{ average_gate_force_x | round(2) }}</td>
+                  <td>{{ avermax | round(2) }}</td>
+                  <td>{{ position_of_maxf | round(2) }}</td>
+                  <td>{{ catch_force_gradient | round(2) }}</td>
+                  <td>{{ finish_force_gradient | round(2) }}</td>
+                  <td>{{ seat_length | round(2) }}</td>
+                  <td>{{ legs_max_vel | round(2) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Syncronisation</h4>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-4">
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>25% Recovery</th>
+                <th>50% Recovery</th>
+                <th>75% Recovery</th>
+                <th>Hang Start</th>
+                <th>Min Angle</th>
+                <th>Hang End</th>
+                <th>Effect Start</th>
+                <th>Up-to 70% Peak Force</th>
+                <th>Peak Force</th>
+                <th>From 70% Peak Force</th>
+                <th>Effect End</th>
+                <th>Pause Start</th>
+                <th>Max Angle</th>
+                <th>Release</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rower in rowers %}
+                {% set difference_25 = (rower.telemetry.difference_25 | sum) / (rower.telemetry.difference_25 | length) %}
+                {% set difference_50 = (rower.telemetry.difference_50 | sum) / (rower.telemetry.difference_50 | length) %}
+                {% set difference_75 = (rower.telemetry.difference_75 | sum) / (rower.telemetry.difference_75 | length) %}
+                {% set difference_hang = (rower.telemetry.difference_hang | sum) / (rower.telemetry.difference_hang | length) %}
+                {% set difference_min = (rower.telemetry.difference_min | sum) / (rower.telemetry.difference_min | length) %}
+                {% set difference_catch = (rower.telemetry.difference_catch | sum) / (rower.telemetry.difference_catch | length) %}
+                {% set difference_effective_start = (rower.telemetry.difference_effective_start | sum) / (rower.telemetry.difference_effective_start | length) %}
+                {% set difference_70max = (rower.telemetry.difference_70max | sum) / (rower.telemetry.difference_70max | length) %}
+                {% set difference_max = (rower.telemetry.difference_max | sum) / (rower.telemetry.difference_max | length) %}
+                {% set difference_max70 = (rower.telemetry.difference_max70 | sum) / (rower.telemetry.difference_max70 | length) %}
+                {% set difference_effective_end = (rower.telemetry.difference_effective_end | sum) / (rower.telemetry.difference_effective_end | length) %}
+                {% set difference_finish = (rower.telemetry.difference_finish | sum) / (rower.telemetry.difference_finish | length) %}
+                {% set difference_recovery = (rower.telemetry.difference_recovery | sum) / (rower.telemetry.difference_recovery | length) %}
+
+                <tr>
+                  <td>{{ rower.telemetry.seat }}</td>
+                  <td>{{ difference_25 | round(2) }}</td>
+                  <td>{{ difference_50 | round(2) }}</td>
+                  <td>{{ difference_75 | round(2) }}</td>
+                  <td>{{ difference_hang | round(2) }}</td>
+                  <td>{{ difference_min | round(2) }}</td>
+                  <td>{{ difference_catch | round(2) }}</td>
+                  <td>{{ difference_effective_start | round(2) }}</td>
+                  <td>{{ difference_70max | round(2)}}</td>
+                  <td>{{ difference_max | round(2)}}</td>
+                  <td>{{ difference_max70 | round(2)}}</td>
+                  <td>{{ difference_effective_end | round(2)}}</td>
+                  <td>{{ difference_finish | round(2)}}</td>
+                  <td>{{ difference_max | round(2)}}</td>
+                  <td>{{ difference_recovery | round(2)}}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Graphs retained in same placeholders -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-6">
+            <div class="panel">{{ graphs.syncronisation | safe }}</div>
+          </div>
+          <div class="col-lg-6">
+            <div class="panel">{{ graphs.seatposition | safe }}</div>
+          </div>
+        </div>
+
+        <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
+        <div class="panel mb-4">{{ graphs.ratios | safe }}</div>
+
+        <div class="row g-4">
+          <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>
+          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
+
+          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
+          <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+        </div>
+
+      </div>
+
+      {% elif page == 'samples' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Session Sampled Statistics</div>
+          <div class="subtle">8 × samples from the session</div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="/dashboard/sessions/{{ boat_data.id }}/overview" class="btn btn-sm btn-ghost">Overview</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/average" class="btn btn-sm btn-ghost">Average</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/samples" class="btn btn-sm btn-primary">Samples</a>
+        </div>
+      </div>
+
+      {% for sample in range(0, 8) %}
+      <div class="card-modern p-3 mt-3">
+        <h5>Sample {{ sample + 1 }}/8</h5>
+        <h6 class="muted-sm">Rate {{ boat_data.rating[sample] }} (s/m) | Avg Power {{ boat_data.averagepower[sample] }} (w) | Distance per Stroke {{ boat_data.distanceperstroke[sample] }} (m) | Boat Speed {{ boat_data.meterspersecond[sample] }} (m/s)</h6>
+
+        <div class="table-responsive mt-3">
+          <table class="table table-hover align-middle mb-4">
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>Name</th>
+                <th>Drive Time (s)</th>
+                <th>Recovery Time (s)</th>
+                <th>Rhythmn (%)</th>
+                <th>Min Angle (deg)</th>
+                <th>Max Angle (deg)</th>
+                <th>Arc Length (deg)</th>
+                <th>Catch Slip (deg)</th>
+                <th>Finish Slip (deg)</th>
+                <th>Effective Length (deg)</th>
+                <th>Catch Factor (ms)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rower in rowers %}
+                {% set drive_time = rower.telemetry.drive_time[sample] %}
+                {% set recovery_time = rower.telemetry.recovery_time[sample] %}
+                {% set min_angle = rower.telemetry.min_angle[sample] %}
+                {% set max_angle = rower.telemetry.max_angle[sample] %}
+                {% set arc_length = rower.telemetry.arc_length[sample] %}
+                {% set catch_slip = rower.telemetry.catch_slip[sample] %}
+                {% set finish_slip = rower.telemetry.finish_slip[sample] %}
+                {% set catch_factor = rower.telemetry.catch_factor[sample] %}
+
+                <tr>
+                  <td>{{ rower.telemetry.seat }}</td>
+                  <td>{{ rower.user.last_name }}</td>
+                  <td>{{ drive_time }}</td>
+                  <td>{{ recovery_time }}</td>
+                  <td>{{ ((drive_time / (recovery_time + drive_time)) * 100) | round(2) }}</td>
+                  <td>{{ min_angle }}</td>
+                  <td>{{ max_angle }}</td>
+                  <td>{{ arc_length }}</td>
+                  <td>{{ catch_slip }}</td>
+                  <td>{{ finish_slip }}</td>
+                  <td>{{ ((arc_length) - (catch_slip + finish_slip)) | round(2)}}</td>
+                  <td>{{ catch_factor }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-responsive mb-4">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>Power (w)</th>
+                <th>Max Force (kg)</th>
+                <th>Average Force (kg)</th>
+                <th>Aver / Max Force (%)</th>
+                <th>Position of Peak Force (%)</th>
+                <th>Catch Force Gradient (deg)</th>
+                <th>Finish Force Gradient (deg)</th>
+                <th>Legs Drive (cm)</th>
+                <th>Legs Max Velocity (m/s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rower in rowers %}
+                {% set swivel_power = rower.telemetry.rower_swivel_power[sample] %}
+                <tr>
+                  <td>{{ rower.telemetry.seat }}</td>
+                  <td>{{ rower.telemetry.rower_swivel_power[sample] }}</td>
+                  <td>{{ rower.telemetry.max_gate_force_x[sample] }}</td>
+                  <td>{{ rower.telemetry.average_gate_force_x[sample] }}</td>
+                  <td>{{ ((rower.telemetry.average_gate_force_x[sample] / rower.telemetry.max_gate_force_x[sample]) * 100) | round(2) }}</td>
+                  <td>{{ rower.telemetry.position_of_maxf[sample] }}</td>
+                  <td>{{ rower.telemetry.catch_force_gradient[sample] }}</td>
+                  <td>{{ rower.telemetry.finish_force_gradient[sample] }}</td>
+                  <td>{{ rower.telemetry.seat_length[sample] }}</td>
+                  <td>{{ rower.telemetry.legs_max_vel[sample] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Syncronisation</h4>
+        <div class="table-responsive mb-4">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>25% Recovery</th>
+                <th>50% Recovery</th>
+                <th>75% Recovery</th>
+                <th>Hang Start</th>
+                <th>Min Angle</th>
+                <th>Hang End</th>
+                <th>Effect Start</th>
+                <th>Up-to 70% Peak Force</th>
+                <th>Peak Force</th>
+                <th>From 70% Peak Force</th>
+                <th>Effect End</th>
+                <th>Pause Start</th>
+                <th>Max Angle</th>
+                <th>Release</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rower in rowers %}
+                <tr>
+                  <td>{{ rower.telemetry.seat }}</td>
+                  <td>{{ rower.telemetry.difference_25[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_50[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_75[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_hang[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_min[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_catch[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_effective_start[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_70max[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_max[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_max70[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_effective_end[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_finish[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_max[sample] }}</td>
+                  <td>{{ rower.telemetry.difference_recovery[sample] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <div class="col-lg-6"><div class="panel">{{ graphs.syncronisation[sample] | safe }}</div></div>
+          <div class="col-lg-6"><div class="panel">{{ graphs.seatposition[sample] | safe }}</div></div>
+        </div>
+
+        <div class="panel mb-4">{{ graphs.gateforcex[sample] | safe }}</div>
+        <div class="panel mb-4">{{ graphs.ratios[sample] | safe }}</div>
+
+        <div class="row g-4">
+          <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity[sample] | safe }}</div></div>
+          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity[sample] | safe }}</div></div>
+          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle[sample] | safe }}</div></div>
+          <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity[sample] | safe }}</div></div>
+        </div>
+
+      </div>
+      {% endfor %}
+
+      {% elif page == 'admin' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Admin Panel</div>
+          <div class="subtle">User management</div>
+        </div>
+      </div>
+
+      <div class="card-modern p-3">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>User Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in all_users %}
+              <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.first_name }} {{ u.last_name }}</td>
+                <td>{{ u.email }}</td>
+                <td>{% if u.is_admin %} Admin {% elif u.is_coach %} Coach {% elif u.is_athlete %} Athlete {% else %} N/A {% endif %}</td>
+                <td>
+                  <button class="btn btn-sm btn-warning">Edit</button>
+                  <form action="/dashboard/admin/delete_user/{{ u.id }}" method="POST" style="display:inline;">
+                    <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {% endif %}
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // select2 for modal dropdown
+    var modalEl = document.getElementById('uploadSessionModal');
+    if(modalEl){
+      modalEl.addEventListener('shown.bs.modal', function(){
+        $('.user-dropdown').select2({
+          placeholder: "Search for a user",
+          ajax: {
+            url: 'http://localhost:8000/get_all_users',
+            dataType: 'json',
+            delay: 250,
+            processResults: function(data){
+              return { results: data.map(user=>({ id: user.id, text: user.first_name + ' ' + user.last_name + ' (' + user.email + ')' })) };
+            },
+            cache: true
+          },
+          minimumInputLength: 0,
+          dropdownParent: $('#uploadSessionModal')
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      {% if show_upload_modal %}
+        if(modalEl){ var myModal = new bootstrap.Modal(modalEl); myModal.show(); }
+      {% endif %}
+    });
+  </script>
+
+</body>
+</html>

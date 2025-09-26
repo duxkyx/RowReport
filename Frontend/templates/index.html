@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RowReport - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Media/logo.png') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Media/heading.png') }}" alt="RowReport Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}" class="{% if request.path=='/' %}active{% else %}inactive{% endif %}">Home</a></li>
+                <li><a href="{{ url_for('showcase') }}" class="{% if request.path=='/showcase' %}active{% else %}inactive{% endif %}">Showcase</a></li>
+                <li><a href="{{ url_for('login') }}" class="{% if request.path=='/login' %}active{% else %}inactive{% endif %}">Login</a></li>
+                <li><a href="{{ url_for('register') }}" class="{% if request.path=='/register' %}active{% else %}inactive{% endif %}">Register →</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero / Slideshow -->
+    <section id="hero">
+        <div class="hero-content">
+            <h1>Welcome to RowReport</h1>
+            <p>Your rowing analytics and performance tracker</p>
+        </div>
+        <img id="slideshow" class="slideshow" src="{{ url_for('static', filename=images[0]) }}" alt="Slideshow Image">
+    </section>
+
+    <footer>
+        <p>&copy; 2025 RowReport. Developed by Ben Loggie</p>
+    </footer>
+
+    <!-- Slideshow Script -->
+    <script>
+        const images = [
+            {% for img in images %}
+                "{{ url_for('static', filename=img) }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        let index = 0;
+        const slideshow = document.getElementById('slideshow');
+
+        setInterval(() => {
+            index = (index + 1) % images.length;
+            slideshow.src = images[index];
+        }, 10000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RowReport - Showcase</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Media/logo.png') }}">
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='Media/heading.png') }}" alt="RowReport Logo">
+    </div>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('home') }}" class="{% if request.path=='/' %}active{% else %}inactive{% endif %}">Home</a></li>
+            <li><a href="{{ url_for('showcase') }}" class="{% if request.path=='/showcase' %}active{% else %}inactive{% endif %}">Showcase</a></li>
+            <li><a href="{{ url_for('login') }}" class="{% if request.path=='/login' %}active{% else %}inactive{% endif %}">Login</a></li>
+            <li><a href="{{ url_for('register') }}" class="{% if request.path=='/register' %}active{% else %}inactive{% endif %}">Register →</a></li>
+        </ul>
+    </nav>
+</header>
+<section class="feature-section">
+    <div class="feature-content">
+        <h2>Synchronization Spider Graphs</h2>
+        <p>Placeholder for description.</p>
+    </div>
+    <div class="feature-image">Image Placeholder</div>
+</section>
+
+<section class="feature-section">
+    <div class="feature-content">
+        <h2>Stroke Breakdown Ratios</h2>
+        <p>Placeholder for description.</p>
+    </div>
+    <div class="feature-image">Image Placeholder</div>
+</section>
+
+<section class="feature-section">
+    <div class="feature-content">
+        <h2>Gold Standard Comparisons</h2>
+        <p>Placeholder for description.</p>
+    </div>
+    <div class="feature-image">Image Placeholder</div>
+</section>
+
+<footer>
+    <p>© 2025 RowReport. Developed by Ben Loggie.</p>
+</footer>
+
+</body>
+</html>
