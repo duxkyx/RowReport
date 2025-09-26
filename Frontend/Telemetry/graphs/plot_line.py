@@ -3,18 +3,22 @@ import plotly.io as pio
 from Telemetry.colours import seat_colours
 from Telemetry.subroutines import is_2d_list
 
-def plot_line(y_array, x_array, title, yaxis_title, xaxis_title):
+def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names=None):
     fig = go.Figure()
     colours = list(seat_colours.values())
-
 
     if is_2d_list(y_array):
         iterations = 0
         for array in y_array:
+            if names:
+                name_value=f'{names[iterations]} | {iterations + 1}'
+            else:
+                name_value=f'Seat | {iterations}'
+
             fig.add_trace(go.Scatter(
                 x=x_array[iterations], 
                 y=array, 
-                name=f'Seat | {iterations + 1}', 
+                name=name_value, 
                 line=dict(color=colours[iterations])
             ))
             iterations += 1

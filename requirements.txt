@@ -1,3 +1,4 @@
+gunicorn
 fastapi
 psycopg2
 unicorn

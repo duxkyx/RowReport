@@ -13,18 +13,18 @@ from Telemetry.api_requests.get_summary import get_summary
 from Telemetry.api_requests.get_averages import get_averages
 
 # Dashboard
-from Telemetry.graphs.dashboard.avg_syncronisation import get_avg_syncronisation_dashboard
-from Telemetry.graphs.dashboard.avg_syncronisation import get
+from Telemetry.graphs.specific.dashboard.avg_syncronisation import get_avg_syncronisation_dashboard
+from Telemetry.graphs.specific.dashboard.avg_gateforcex import get_avg_gateforcex_dashboard
 
 # Samples - Sessions
-from Telemetry.graphs.sample_plot.sample_syncronisation_plots import get_sample_syncronisation_plots
-from Telemetry.graphs.sample_plot.sample_ratio_plots import get_sample_ratio_plots
-from Telemetry.graphs.sample_plot.sample_line import get_sample_line_plots
+from Telemetry.graphs.specific.sample_plot.sample_syncronisation_plots import get_sample_syncronisation_plots
+from Telemetry.graphs.specific.sample_plot.sample_ratio_plots import get_sample_ratio_plots
+from Telemetry.graphs.specific.sample_plot.sample_line import get_sample_line_plots
 
 # Average - Sessions
-from Telemetry.graphs.average_plot.avg_sync import get_avg_syncronisation_plot
-from Telemetry.graphs.average_plot.avg_ratio import get_avg_ratio_plot
-from Telemetry.graphs.average_plot.avg_line import get_avg_line_plot
+from Telemetry.graphs.specific.average_plot.avg_sync import get_avg_syncronisation_plot
+from Telemetry.graphs.specific.average_plot.avg_ratio import get_avg_ratio_plot
+from Telemetry.graphs.specific.average_plot.avg_line import get_avg_line_plot
 
 # Retrieve data
 from Telemetry.api_requests.get_sessions import get_sessions
@@ -123,7 +123,6 @@ def dashboard():
     
     user_summary = get_summary(session['user']['id'])
     data_averages = get_averages(session['user']['id'])
-    print(data_averages)
 
     returned_graphs = {
         'radar': get_avg_syncronisation_dashboard(session['user']['id']),
