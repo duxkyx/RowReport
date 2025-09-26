@@ -5,3 +5,4 @@ unicorn
 pydantic
 sqlmodel
 flask
+flask-session
