@@ -6,3 +6,5 @@ pydantic
 sqlmodel
 flask
 flask-session
+requests
+os
