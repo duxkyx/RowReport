@@ -1,0 +1,57 @@
+Python-specific ignores
+
+pycache/ *.py[cod] *$py.class *.so
+
+Virtual environment
+
+venv/ env/ .venv/ .env/
+
+Dependency directories
+
+*.egg-info/ dist/ build/ .pip_cache/ .pipenv/
+
+Database-related ignores
+
+*.sqlite3 *.db *.sql
+
+Environment variables
+
+.env *.env Backend/Database/.env
+
+IDE and editor files
+
+.vscode/ .idea/ *.sublime-workspace *.sublime-project
+
+Logs
+
+*.log logs/ .log.
+
+Testing and coverage
+
+.coverage coverage.xml *.cover .pytest_cache/
+
+Render-specific ignores
+
+render.yaml
+
+macOS-specific
+
+.DS_Store
+
+Windows-specific
+
+Thumbs.db ehthumbs.db
+
+Project-specific ignores
+
+Ignore sensitive files or temporary files in Backend
+
+Backend/.sqlite3 Backend/.db Backend/*.log
+
+Ignore start_API in project root
+
+start_API
+
+General ignores
+
+*.bak *.swp *~ *.tmp
