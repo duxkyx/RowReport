@@ -1,10 +1,5 @@
 gunicorn
-fastapi
-psycopg2
 unicorn
-pydantic
-sqlmodel
 flask
 flask-session
 requests
-os
