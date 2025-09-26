@@ -1,5 +1,5 @@
 from sqlmodel import Session, select, or_
-from Backend.Database.models import account_table, rowing_session_table, user_telemetry_data, permissions_table
+from Database.models import account_table, rowing_session_table, user_telemetry_data, permissions_table
 
 # Add session to database
 def add_session(session: Session, data):

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
-from Backend.Database.db import get_session
-from Backend.API.schemas import BoatTelemetryData, UserTelemetryData
-from Backend.Database.crud import telemetry_management as crud
+from Database.db import get_session
+from API.schemas import BoatTelemetryData, UserTelemetryData
+from Database.crud import telemetry_management as crud
 
 router = APIRouter()
 

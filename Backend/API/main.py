@@ -1,8 +1,8 @@
 # API Main
 from fastapi import FastAPI
 from sqlmodel import SQLModel
-from Backend.Database.db import engine
-from Backend.API.routes import sessions, users, retrieve
+from Database.db import engine
+from API.routes import sessions, users, retrieve
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
