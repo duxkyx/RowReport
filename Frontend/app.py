@@ -223,7 +223,8 @@ def upload():
 @app.route('/dashboard/sessions', methods=['GET', 'POST'])
 @login_required
 def sessions():
-    session['cached_rowing_reports'] = get_sessions(session['user']['id'])
+    all_sessions = get_sessions(session['user']['id'])
+    session['cached_rowing_reports'] = all_sessions
     return render_template(
         "dashboard.html", 
         page="sessions", 
@@ -236,7 +237,7 @@ def sessions():
 def session_page(session_id, page_name):
     # Get session from cache
     session_data = None
-    for rowing_session in session['cached_rowing_reports']:
+    for rowing_session in session.get('cached_rowing_reports', []):
         if rowing_session['id'] == session_id:
             session_data = rowing_session
             break
