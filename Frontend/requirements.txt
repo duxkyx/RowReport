@@ -3,4 +3,3 @@ flask
 flask-session
 requests
 plotly
-functools
