@@ -17,19 +17,19 @@ def create_syncronisation_plot(values, names=None):
 
     if is_2d_list(values):
         colours = list(seat_colours.values())
-        iterations = 1
+        iterations = 0
         for x in values:
             if names:
-                name_value=f'{names[iterations-1]} | {iterations}'
+                name_value=f'{iterations + 1} | {names[iterations]}'
             else:
-                name_value=f'Seat | {iterations}'
+                name_value=f'{iterations + 1} | Seat'
 
             fig.add_trace(go.Scatterpolar(
                 r=x + [x[0]],  # close the loop
                 theta=categories + [categories[0]],
                 fill=None,
                 name=name_value,
-                line=dict(color=colours[iterations - 1])
+                line=dict(color=colours[iterations])
             ))
             iterations += 1
 

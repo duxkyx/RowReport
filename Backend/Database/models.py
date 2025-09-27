@@ -38,6 +38,7 @@ class rowing_session_table(SQLModel, table=True):
     serial: str
     latitude: float
     longitude: float
+    seat_sensors: bool
 
     rating: List[float] = Field(sa_column=Column(JSON))
     averagepower: List[float] = Field(sa_column=Column(JSON))
@@ -83,7 +84,6 @@ class user_telemetry_data(SQLModel, table=True):
     seat_posn: List[List[float]] = Field(sa_column=Column(JSON))
     seat_posn_vel: List[List[float]] = Field(sa_column=Column(JSON))
     body_arms_vel: list[list[float]] = Field(sa_column=Column(JSON))
-    percent_of_arc: list[list[float]] = Field(sa_column=Column(JSON))
 
     # Bar Plot
     recovery_time_1: List[float] = Field(sa_column=Column(JSON))

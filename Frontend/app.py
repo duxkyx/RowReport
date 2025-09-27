@@ -1,6 +1,7 @@
 # Main imports
 from flask import Flask, render_template, url_for, request, session, flash, redirect
 from flask_session import Session
+from functools import wraps
 import os
 import requests
 
@@ -35,6 +36,26 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'e9f8a7d9a8fbd0c44a3ff0e1b7351f3c7b1a64e8f9e3b0e59f46a8cbb3e72c9f'
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# Define authetication
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # some logic
+        return f(*args, **kwargs)
+    return decorated_function
+
+def role_required(role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            user = session.get('user')
+            if not user or user.get(role) != True:
+                flash("You do not have permission to access this page.", "danger")
+                return redirect(url_for('dashboard'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 # Home Page
 @app.route('/')
@@ -116,11 +137,8 @@ def login():
     return render_template('login.html')
 
 @app.route('/dashboard', methods=["GET", "POST"])
+@login_required
 def dashboard():
-    # Login check
-    if "user" not in session:
-        return redirect(url_for('login'))
-    
     user_summary = get_summary(session['user']['id'])
     data_averages = get_averages(session['user']['id'])
 
@@ -139,16 +157,12 @@ def dashboard():
     )
 
 @app.route('/dashboard/upload', methods=['GET', 'POST'])
+@login_required
+@role_required('is_coach')
 def upload():
-    # Login check
-    if "user" not in session:
-        return redirect(url_for('login'))
-    
-    if not session['user']['is_coach']:
-        return redirect(url_for('dashboard'))
-    
     if request.method == 'POST':
         button_pressed = request.form.get('action')
+
         if button_pressed == 'upload':
             file = request.files['file']
             if file:
@@ -166,7 +180,8 @@ def upload():
                     page="upload",
                     rowers=Rower_Profiles,
                     user=session['user'], 
-                    show_upload_modal=True
+                    show_upload_modal=True,
+                    apiroute_getallusers=API_Routes.get_all_users
                 )
     
         elif button_pressed == 'confirm_upload':
@@ -175,8 +190,7 @@ def upload():
             Boat_Data = session.get("boat_data")
 
             # Save boat_data to database and store the primary key in the return
-            print(request.form.get('description_input'))
-            Boat_Data['coach_id'] = session.get('user')['id']
+            Boat_Data['coach_id'] = session.get('user')['id'] # The user who uploaded the file
             Boat_Data['description'] = request.form.get('description_input')
             Boat_Data['state'] = request.form.get('state_selected')
 
@@ -184,10 +198,11 @@ def upload():
             response = requests.post(API_Routes.upload_session, json=Boat_Data)
             session_id = response.json()['session_id']
 
-            # Iterate through the rower profiles saved then save to database.
+            # Iterate through the rower profiles then upload to database.
             for rower in Rower_Profiles:
                 seat = str(rower["seat"])
                 user_id = request.form.get(f"user_search_{seat}")
+
                 # Upload user data to DB
                 if user_id:
                     rower['user_id'] = int(user_id)
@@ -198,37 +213,30 @@ def upload():
                 response = requests.post(API_Routes.upload_user_data, json=rower)
 
             redirect(url_for('sessions'))
-            
+        
     return render_template(
         "dashboard.html", 
         page="upload", 
-        user=session['user']
+        user=session['user'],
     )
 
 @app.route('/dashboard/sessions', methods=['GET', 'POST'])
+@login_required
 def sessions():
-    if "user" not in session:
-        return redirect(url_for('login'))
-    
-    returned_sessions = get_sessions(session['user']['id'])
-    session['all_sessions'] = returned_sessions
-
+    session['cached_rowing_reports'] = get_sessions(session['user']['id'])
     return render_template(
         "dashboard.html", 
         page="sessions", 
-        sessions=session['all_sessions'],
+        sessions=session['cached_rowing_reports'],
         user=session['user']
     )
 
 @app.route('/dashboard/sessions/<int:session_id>/<page_name>', methods=['GET', 'POST'])
+@login_required
 def session_page(session_id, page_name):
-    # Is user logged in
-    if "user" not in session:
-        return redirect(url_for('login'))
-    
     # Get session from cache
     session_data = None
-    for rowing_session in session['all_sessions']:
+    for rowing_session in session['cached_rowing_reports']:
         if rowing_session['id'] == session_id:
             session_data = rowing_session
             break
@@ -249,8 +257,7 @@ def session_page(session_id, page_name):
             response = requests.delete(f"{API_Routes.delete_session}/{session_id}")
             if response.status_code == 200:
                 # Update session cache by removing the deleted session
-                session['all_sessions'] = [s for s in session['all_sessions'] if s['id'] != session_id]
-                flash('Session deleted successfully.', 'success')
+                session['cached_rowing_reports'] = [s for s in session['cached_rowing_reports'] if s['id'] != session_id]
                 return redirect(url_for('sessions'))
             else:
                 flash(f'Failed to delete session. Status code: {response.status_code}', 'error')
@@ -271,28 +278,33 @@ def session_page(session_id, page_name):
     # Get Rower Data
     rowing_data = get_rower_data(session_id)
 
+    name_array = []
+    for user_data in rowing_data:
+        name_array.append(user_data['telemetry']['name'])
+        
+
     # Generate graphs
     if page_name == 'samples':
         returned_graphs = {
-            "syncronisation": get_sample_syncronisation_plots(rowing_data),
-            "ratios": get_sample_ratio_plots(rowing_data),
-            "gateforcex": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)'),
-            "gateanglevelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg/s)'),
-            "legsvelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)'),
-            "seatposition": get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position'),
-            "legsvelocitygateangle": get_sample_line_plots(rowing_data, 'percent_of_arc', 'seat_posn_vel', 'Legs Velocity', 'Drive Length %', 'Legs Velocity (mm/s)'),
-            "bodyarmsvelocity": get_sample_line_plots(rowing_data, 'percent_of_arc', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length %', 'Body Arms Vel (deg/s)')
+            "syncronisation": get_sample_syncronisation_plots(rowing_data, names=name_array),
+            "ratios": get_sample_ratio_plots(rowing_data, names=name_array),
+            "gateforcex": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)', names=name_array),
+            "gateanglevelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg/s)', names=name_array),
+            "legsvelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array),
+            "seatposition": get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array),
+            "legsvelocitygateangle": get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length %', 'Legs Velocity (%)', True,True, names=name_array),
+            "bodyarmsvelocity": get_sample_line_plots(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length %', 'Body Arms Vel (%)', True,True, names=name_array)
         }
     elif page_name == 'average':
         returned_graphs = {
-            "syncronisation": get_avg_syncronisation_plot(rowing_data),
-            "ratios": get_avg_ratio_plot(rowing_data),
-            "gateforcex": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)'),
-            "gateanglevelocity": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg)'),
-            "legsvelocity": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)'),
-            "seatposition": get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position'),
-            "legsvelocitygateangle": get_avg_line_plot(rowing_data, 'percent_of_arc', 'seat_posn_vel', 'Legs Velocity', 'Drive Length %', 'Legs Velocity (mm/s)'),
-            "bodyarmsvelocity": get_avg_line_plot(rowing_data, 'percent_of_arc', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length %', 'Body Arms Vel (deg/s)')
+            "syncronisation": get_avg_syncronisation_plot(rowing_data, names=name_array),
+            "ratios": get_avg_ratio_plot(rowing_data, names=name_array),
+            "gateforcex": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)', names=name_array),
+            "gateanglevelocity": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg)', names=name_array),
+            "legsvelocity": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array),
+            "seatposition": get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array),
+            "legsvelocitygateangle": get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array),
+            "bodyarmsvelocity": get_avg_line_plot(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array)
         }
     else:
         returned_graphs = {}
@@ -309,13 +321,9 @@ def session_page(session_id, page_name):
 
 
 @app.route('/dashboard/admin', methods=['GET', 'POST'])
+@login_required
+@role_required('is_admin')
 def admin():
-    if "user" not in session:
-        return redirect(url_for('login'))
-    
-    if not session['user']['is_admin']:
-        return redirect(url_for('dashboard'))
-
     response = requests.get(API_Routes.get_all_users)
     if response.status_code == 200:
         all_users = response.json()
@@ -330,6 +338,8 @@ def admin():
     )
 
 @app.route('/dashboard/admin/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+@role_required('is_admin')
 def delete_user(user_id):
     response = requests.delete(f"{API_Routes.delete_user}/{user_id}")
     if response.status_code == 200:
@@ -339,6 +349,7 @@ def delete_user(user_id):
     return redirect(url_for('admin'))
 
 @app.route('/logout')
+@login_required
 def logout():
     session.pop('user', None)
     return redirect(url_for('login'))

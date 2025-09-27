@@ -1,6 +1,6 @@
 from Telemetry.graphs.plot_syncronisation import create_syncronisation_plot
 
-def get_sample_syncronisation_plots(rowers_data):
+def get_sample_syncronisation_plots(rowers_data, names):
     plots = []
     for sample in range(0,8):
         sample_values = []
@@ -22,7 +22,7 @@ def get_sample_syncronisation_plots(rowers_data):
                 "Release": rower['telemetry']['difference_recovery'][sample]
             }
             sample_values.append(list(values.values()))
-        plot = create_syncronisation_plot(sample_values)
+        plot = create_syncronisation_plot(sample_values, names)
         plots.append(plot)
     
     return plots

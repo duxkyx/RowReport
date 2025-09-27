@@ -11,14 +11,20 @@ DB_PASSWORD = os.getenv("DB_PASSWORD").strip()
 DB_HOST = os.getenv("DB_HOST").strip()
 DB_PORT = os.getenv("DB_PORT", "5432").strip()
 DB_NAME = os.getenv("DB_NAME").strip()
-DB_PGSSLMODE = os.getenv('DB_PGSSLMODE', "require").strip()
-DB_PGCHANNELBINDING = os.getenv('DB_PGCHANNELBINDING', "require").strip()
 
-DATABASE_URL = (
-    f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    f"?sslmode={DB_PGSSLMODE}&channel_binding={DB_PGCHANNELBINDING}"
-)
-print("DATABASE_URL =", DATABASE_URL)
+DB_PGSSLMODE = os.getenv('DB_PGSSLMODE', "empty").strip()
+DB_PGCHANNELBINDING = os.getenv('DB_PGCHANNELBINDING', "empty").strip()
+
+if DB_PGSSLMODE != 'empty':
+    DATABASE_URL = (
+        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"?sslmode={DB_PGSSLMODE}&channel_binding={DB_PGCHANNELBINDING}"
+    )
+else:
+    DATABASE_URL = (
+        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    )
+
 engine = create_engine(DATABASE_URL, echo=True)
 
 def get_session():

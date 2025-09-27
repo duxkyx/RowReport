@@ -33,6 +33,7 @@ class BoatTelemetryData(BaseModel):
     serial: str
     latitude: float
     longitude: float
+    seat_sensors: bool
 
     rating: List[float]
     averagepower: List[float]
@@ -76,7 +77,6 @@ class UserTelemetryData(BaseModel):
     seat_posn: List[List[float]]
     seat_posn_vel: List[List[float]]
     body_arms_vel: list[list[float]]
-    percent_of_arc: list[list[float]]
 
     # Bar plot times
     recovery_time_1: List[float]

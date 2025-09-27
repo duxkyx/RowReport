@@ -180,6 +180,31 @@ def average_Array_into_One(data_List):
 
     return averaged_List
 
+def average_Array_into_One_Percentage(data_list):
+    averaged_list = []
+
+    # Step 1: find the maximum length of the arrays
+    max_length = max(len(arr) for arr in data_list if arr)
+
+    # Step 2: average across arrays index by index
+    for i in range(max_length):
+        values_at_i = [arr[i] for arr in data_list if i < len(arr)]
+        if values_at_i:
+            averaged_list.append(sum(values_at_i) / len(values_at_i))
+
+    # Step 3: normalize to 0–100
+    if averaged_list:
+        old_min, old_max = min(averaged_list), max(averaged_list)
+        if old_max != old_min:  # avoid div by zero
+            averaged_list = [
+                (x - old_min) / (old_max - old_min) * 100
+                for x in averaged_list
+            ]
+        else:
+            averaged_list = [0 for _ in averaged_list]
+
+    return averaged_list
+
 def find_seat_Position_In_Array(seat, profiles):
     index = 0
     for profile in profiles:

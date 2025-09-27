@@ -35,6 +35,7 @@ def get_session_data(file):
             self.Latitude = 0
             self.Longitude = 0
             self.Samples = 0
+            self.SeatSensors = True
             
             self.data = {
                 'Rating': [],
@@ -108,6 +109,7 @@ def get_session_data(file):
                 'GateAngle': [],
                 'GateAngleVel': [],
                 'PercentOfArc': [],
+                'PercentOfMaxForce': [],
 
                 '70MaxGateForceX': [],
                 'Angle_70MaxGateForceX': [],
@@ -334,6 +336,7 @@ def get_session_data(file):
                 List_SeatPosVel = []
                 List_BodyArmsVel = []
                 List_PercentOfArc = []
+                List_PercentOfMaxForce = []
 
                 List_GateAnglePercentage = []
                 List_GateForcePercentage = []
@@ -443,6 +446,10 @@ def get_session_data(file):
                     for angle in List_GateAngles:
                         pofarc = ((angle - Catch) / arcLength) * 100 # Turn into % of cycle
                         List_PercentOfArc.append(pofarc)
+
+                    for gateforce in List_GateForceX:
+                        pofmaxf = (gateforce / max_GateForceX) * 100
+                        List_PercentOfMaxForce.append(pofmaxf)
 
                     # Angles of % on recovery - This finds the angle related to the percentage of recovery.
                     angle_25_recovery = 0
@@ -682,8 +689,8 @@ def get_session_data(file):
                                     Ticks_To_Recovery = iteration
 
                     # Seat Sensor Data
-                    seat_Length = 1
-                    catch_Factor = 1
+                    seat_Length = None
+                    catch_Factor = None
                     try:
                         # Seat Timing Bar Plot
                         BeforeSeat_Length = 0
@@ -881,6 +888,7 @@ def get_session_data(file):
                     data_container['Finish Force Gradient'].append(finishForceGradient)
                     data_container['Catch Factor'].append(catch_Factor)
                     data_container['PercentOfArc'].append(List_PercentOfArc)
+                    data_container['PercentOfMaxForce'].append(List_PercentOfMaxForce)
 
                     # Seat Data
                     data_container['SeatPosn'].append(List_SeatPos)
@@ -890,7 +898,8 @@ def get_session_data(file):
                     try:
                         data_container['SeatMaxVel'].append((max(List_SeatPosVel) / 1000)) # converts mm/s to m/s
                     except:
-                        data_container['SeatMaxVel'].append(0)
+                        data_container['SeatMaxVel'].append(None)
+                        boat_Data.SeatSensors = False
 
 
                     data_container['Position_Of_CSlip'].append(position_Of_CSlip)

@@ -14,6 +14,10 @@ def create_ratio_plot(values, names=None):
     if is_2d_list(values):
         # Each row represents a bar; each value segment is a stacked section
         for idx, row in enumerate(values):
+            if names:
+                name_value=f'{idx + 1} | {names[idx]}'
+            else:
+                name_value=f'{idx + 1} | Seat'
             start = 0
             for i, val in enumerate(row):
                 fig.add_trace(go.Bar(

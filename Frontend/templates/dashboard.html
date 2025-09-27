@@ -103,19 +103,19 @@
               <thead>
                 <tr>
                   <th>Training Zone</th>
-                  <th>Min Angle</th>
-                  <th>Max Angle</th>
-                  <th>Arc Length</th>
-                  <th>Catch Slip</th>
-                  <th>Finish Slip</th>
-                  <th>Power</th>
-                  <th>Legs Drive</th>
+                  <th>Min Angle (deg)</th>
+                  <th>Max Angle (deg)</th>
+                  <th>Arc Length (deg)</th>
+                  <th>Catch Slip (deg)</th>
+                  <th>Finish Slip (deg)</th>
+                  <th>Power (w)</th>
+                  <th>Legs Drive (cm)</th>
                 </tr>
               </thead>
               <tbody>
                 {% for state, data in averages.items() %}
                   <tr>
-                    <td class="fw-bold "><i class="bi bi-star-fill text-warning me-1">{{ state }}</i></td>
+                    <td class="fw-bold "><a style="color: maroon;">{{ state }}</a></td>
                     <td>{{ data.min_angle | round(2) }}</td>
                     <td>{{ data.max_angle | round(2) }}</td>
                     <td>{{ data.arc_length | round(2) }}</td>
@@ -184,6 +184,7 @@
             <form action="/dashboard/upload" method="POST" enctype="multipart/form-data">
               <div class="modal-body">
                 <div class="container-fluid">
+                  <h5>Leave dropdown blank for private report</h5>
                   {% if rowers %}
                     {% for rower in rowers %}
                       <div class="row align-items-center mb-3">
@@ -291,6 +292,7 @@
             <p><strong>File Name:</strong> {{ boat_data.filename }}</p>
             <p><strong>Date:</strong> {{ boat_data.date }}</p>
             <p><strong>Training Zone:</strong> {{ boat_data.state }}</p>
+            <p><strong>Seat Sensors:</strong> {{ boat_data.seat_sensors }}</p>
           </div>
           <div class="col-md-6">
             <p><strong>Number of Rowers:</strong> {{ boat_data.seats }}</p>
@@ -382,7 +384,9 @@
                 <th>Catch Slip (deg)</th>
                 <th>Finish Slip (deg)</th>
                 <th>Effective Length (deg)</th>
-                <th>Catch Factor (ms)</th>
+                {% if boat_data.seat_sensors %}
+                  <th>Catch Factor (ms)</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -395,8 +399,10 @@
                 {% set arc_length = (data.arc_length | sum) / (data.arc_length | length) %}
                 {% set catch_slip = (data.catch_slip | sum) / (data.catch_slip | length) %}
                 {% set finish_slip = (data.finish_slip | sum) / (data.finish_slip | length) %}
-                {% set catch_factor = (data.catch_factor | sum) / (data.catch_factor | length) %}
 
+                {% if boat_data.seat_sensors %}
+                  {% set catch_factor = (data.catch_factor | sum) / (data.catch_factor | length) %}
+                {% endif %}
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
                   <td>{{ rower.user.last_name }}</td>
@@ -409,7 +415,9 @@
                   <td>{{ catch_slip | round(2) }}</td>
                   <td>{{ finish_slip | round(2) }}</td>
                   <td>{{ ((arc_length) - (catch_slip + finish_slip)) | round(2) }}</td>
-                  <td>{{ catch_factor | round(2) }}</td>
+                  {% if boat_data.seat_sensors %}
+                    <td>{{ catch_factor | round(2) }}</td>
+                  {% endif %}
                 </tr>
               {% endfor %}
             </tbody>
@@ -428,8 +436,10 @@
                 <th>Position of Peak Force (%)</th>
                 <th>Catch Force Gradient (deg)</th>
                 <th>Finish Force Gradient (deg)</th>
-                <th>Legs Drive (cm)</th>
-                <th>Legs Max Velocity (m/s)</th>
+                {% if boat_data.seat_sensors %}
+                  <th>Legs Drive (cm)</th>
+                  <th>Legs Max Velocity (m/s)</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -442,8 +452,11 @@
                 {% set position_of_maxf = (data.position_of_maxf | sum) / (data.position_of_maxf | length) %}
                 {% set catch_force_gradient = (data.catch_force_gradient | sum) / (data.catch_force_gradient | length) %}
                 {% set finish_force_gradient = (data.finish_force_gradient | sum) / (data.finish_force_gradient | length) %}
-                {% set seat_length = (data.seat_length | sum) / (data.finish_force_gradient | length) %}
-                {% set legs_max_vel = (data.legs_max_vel | sum) / (data.legs_max_vel | length) %}
+
+                {% if boat_data.seat_sensors %}
+                  {% set seat_length = (data.seat_length | sum) / (data.finish_force_gradient | length) %}
+                  {% set legs_max_vel = (data.legs_max_vel | sum) / (data.legs_max_vel | length) %}
+                {% endif %}
 
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
@@ -454,8 +467,10 @@
                   <td>{{ position_of_maxf | round(2) }}</td>
                   <td>{{ catch_force_gradient | round(2) }}</td>
                   <td>{{ finish_force_gradient | round(2) }}</td>
-                  <td>{{ seat_length | round(2) }}</td>
-                  <td>{{ legs_max_vel | round(2) }}</td>
+                  {% if boat_data.seat_sensors %}
+                    <td>{{ seat_length | round(2) }}</td>
+                    <td>{{ legs_max_vel | round(2) }}</td>
+                  {% endif %}
                 </tr>
               {% endfor %}
             </tbody>
@@ -527,9 +542,11 @@
           <div class="col-lg-6">
             <div class="panel">{{ graphs.syncronisation | safe }}</div>
           </div>
-          <div class="col-lg-6">
-            <div class="panel">{{ graphs.seatposition | safe }}</div>
-          </div>
+          {% if boat_data.seat_sensors %}
+            <div class="col-lg-6">
+              <div class="panel">{{ graphs.seatposition | safe }}</div>
+            </div>
+          {% endif %}
         </div>
 
         <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
@@ -537,10 +554,11 @@
 
         <div class="row g-4">
           <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>
-          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
-
-          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
-          <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+          {% if boat_data.seat_sensors %}
+            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+          {% endif %}
         </div>
 
       </div>
@@ -579,7 +597,9 @@
                 <th>Catch Slip (deg)</th>
                 <th>Finish Slip (deg)</th>
                 <th>Effective Length (deg)</th>
-                <th>Catch Factor (ms)</th>
+                {% if boat_data.seat_sensors %}
+                  <th>Catch Factor (ms)</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -591,7 +611,10 @@
                 {% set arc_length = rower.telemetry.arc_length[sample] %}
                 {% set catch_slip = rower.telemetry.catch_slip[sample] %}
                 {% set finish_slip = rower.telemetry.finish_slip[sample] %}
-                {% set catch_factor = rower.telemetry.catch_factor[sample] %}
+
+                {% if boat_data.seat_sensors %}
+                  {% set catch_factor = rower.telemetry.catch_factor[sample] %}
+                {% endif %}
 
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
@@ -605,7 +628,9 @@
                   <td>{{ catch_slip }}</td>
                   <td>{{ finish_slip }}</td>
                   <td>{{ ((arc_length) - (catch_slip + finish_slip)) | round(2)}}</td>
-                  <td>{{ catch_factor }}</td>
+                  {% if boat_data.seat_sensors %}
+                    <td>{{ catch_factor }}</td>
+                  {% endif %}
                 </tr>
               {% endfor %}
             </tbody>
@@ -624,8 +649,10 @@
                 <th>Position of Peak Force (%)</th>
                 <th>Catch Force Gradient (deg)</th>
                 <th>Finish Force Gradient (deg)</th>
-                <th>Legs Drive (cm)</th>
-                <th>Legs Max Velocity (m/s)</th>
+                {% if boat_data.seat_sensors %}
+                  <th>Legs Drive (cm)</th>
+                  <th>Legs Max Velocity (m/s)</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -640,8 +667,10 @@
                   <td>{{ rower.telemetry.position_of_maxf[sample] }}</td>
                   <td>{{ rower.telemetry.catch_force_gradient[sample] }}</td>
                   <td>{{ rower.telemetry.finish_force_gradient[sample] }}</td>
-                  <td>{{ rower.telemetry.seat_length[sample] }}</td>
-                  <td>{{ rower.telemetry.legs_max_vel[sample] }}</td>
+                  {% if boat_data.seat_sensors %}
+                    <td>{{ rower.telemetry.seat_length[sample] }}</td>
+                    <td>{{ rower.telemetry.legs_max_vel[sample] }}</td>
+                  {% endif %}
                 </tr>
               {% endfor %}
             </tbody>
@@ -695,8 +724,14 @@
         </div>
 
         <div class="row g-4 mb-4">
-          <div class="col-lg-6"><div class="panel">{{ graphs.syncronisation[sample] | safe }}</div></div>
-          <div class="col-lg-6"><div class="panel">{{ graphs.seatposition[sample] | safe }}</div></div>
+          <div class="col-lg-6">
+            <div class="panel">{{ graphs.syncronisation[sample] | safe }}</div>
+          </div>
+          {% if boat_data.seat_sensors %}
+            <div class="col-lg-6">
+              <div class="panel">{{ graphs.seatposition[sample] | safe }}</div>
+            </div>
+          {% endif %}
         </div>
 
         <div class="panel mb-4">{{ graphs.gateforcex[sample] | safe }}</div>
@@ -704,9 +739,12 @@
 
         <div class="row g-4">
           <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity[sample] | safe }}</div></div>
-          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity[sample] | safe }}</div></div>
-          <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle[sample] | safe }}</div></div>
-          <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity[sample] | safe }}</div></div>
+
+          {% if boat_data.seat_sensors %}
+            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity[sample] | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle[sample] | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity[sample] | safe }}</div></div>
+          {% endif %}
         </div>
 
       </div>
@@ -763,12 +801,13 @@
   <script>
     // select2 for modal dropdown
     var modalEl = document.getElementById('uploadSessionModal');
+    const get_users_api_route = "{{ apiroute_getallusers }}";
     if(modalEl){
       modalEl.addEventListener('shown.bs.modal', function(){
         $('.user-dropdown').select2({
           placeholder: "Search for a user",
           ajax: {
-            url: 'http://localhost:8000/get_all_users',
+            url: get_users_api_route,
             dataType: 'json',
             delay: 250,
             processResults: function(data){

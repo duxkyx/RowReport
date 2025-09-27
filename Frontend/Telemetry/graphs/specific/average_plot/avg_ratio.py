@@ -1,7 +1,7 @@
 from Telemetry.graphs.plot_ratio import create_ratio_plot
 from Telemetry.subroutines import calculate_Average as ca
 
-def get_avg_ratio_plot(rowers_data):
+def get_avg_ratio_plot(rowers_data, names):
     sample_values = []
     for rower in rowers_data:
         data = rower['telemetry']
@@ -31,6 +31,6 @@ def get_avg_ratio_plot(rowers_data):
             ca(data['recovery_time_5'])
         ]
         sample_values.append(values)
-    plot = create_ratio_plot(sample_values)
+    plot = create_ratio_plot(sample_values, names)
     
     return plot

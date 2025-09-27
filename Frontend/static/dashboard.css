@@ -97,3 +97,44 @@ height: calc(1.8em + 0.9rem) !important;
 body .form-select option, body .form-select optgroup { background-color: var(--input-bg) !important; color: var(--text) !important; }
 /* focus states */
 
+/* Dark theme for Select2 inside the modal */
+#uploadSessionModal .select2-container--default .select2-selection--single {
+    background-color: #071724;  /* matches your modal background */
+    color: #ffffff;
+    border: 1px solid #0a2a38;
+    border-radius: 0.25rem;
+}
+
+#uploadSessionModal .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #ffffff;
+}
+
+#uploadSessionModal .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #ffffff transparent transparent transparent;
+}
+
+#uploadSessionModal .select2-container--default .select2-results__option {
+    background-color: #071724;
+    color: #ffffff;
+    padding: 6px 12px;
+}
+
+#uploadSessionModal .select2-container--default .select2-results__option--highlighted {
+    background-color: #0a2a38;  /* highlighted option */
+    color: #ffffff;
+}
+
+/* Scrollbar styling for Select2 dropdown */
+#uploadSessionModal .select2-container--default .select2-results__options {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#uploadSessionModal .select2-container--default .select2-results__options::-webkit-scrollbar {
+    width: 6px;
+}
+
+#uploadSessionModal .select2-container--default .select2-results__options::-webkit-scrollbar-thumb {
+    background-color: #0a2a38;
+    border-radius: 3px;
+}

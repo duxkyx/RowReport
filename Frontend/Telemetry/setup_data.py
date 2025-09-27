@@ -11,7 +11,7 @@ class Rower_Sampled_Data:
         self.seat = 'n/a'
         self.side = 'n/a'
         self.strokes = 0
-        
+
         # Initialize empty lists for sampled values
         self.min_angle = []
         self.max_angle = []
@@ -87,6 +87,7 @@ class boat_Sampled_Data:
         self.serial = boat_data.Serial
         self.latitude = boat_data.Latitude
         self.longitude = boat_data.Longitude
+        self.seat_sensors = boat_data.SeatSensors
 
         self.rating = []
         self.averagepower = []

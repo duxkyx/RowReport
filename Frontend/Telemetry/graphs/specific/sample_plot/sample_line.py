@@ -1,20 +1,31 @@
 from Telemetry.graphs.plot_line import plot_line
+from Telemetry.subroutines import average_Array_into_One_Percentage as aaiop
 
-def get_sample_line_plots(rowers_data, xaxis, yaxis, title, xaxis_title, yaxis_title):
+def get_sample_line_plots(rowers_data, xaxis, yaxis, title, xaxis_title, yaxis_title, percentage_x=False, percentage_y=False, names=None):
     plots = []
     for sample in range(0,8):
         y_axis_values = []
         x_axis_values = []
         for rower in rowers_data:
             data = rower['telemetry']
-            y_axis_values.append(data[yaxis][sample])
 
-            if type(xaxis) is list:
-                x_axis_values.append(xaxis[sample])
+            if percentage_x:
+                if type(xaxis) is list:
+                    x_axis_values.append(aaiop(xaxis))
+                else:
+                    x_axis_values.append(aaiop(data[xaxis]))
             else:
-                x_axis_values.append(data[xaxis][sample])
+                if type(xaxis) is list:
+                    x_axis_values.append(xaxis[sample])
+                else:
+                    x_axis_values.append(data[xaxis][sample])
 
-        plot = plot_line(y_axis_values, x_axis_values, title, yaxis_title, xaxis_title)
+            if percentage_y:
+                y_axis_values.append(aaiop(data[yaxis]))
+            else:
+                y_axis_values.append(data[yaxis][sample])
+
+        plot = plot_line(y_axis_values, x_axis_values, title, yaxis_title, xaxis_title, names)
         plots.append(plot)
     
     return plots

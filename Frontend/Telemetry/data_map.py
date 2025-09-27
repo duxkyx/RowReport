@@ -19,7 +19,6 @@ mapping_rower = {
     "SeatPosn": "seat_posn",
     "SeatPosnVel": "seat_posn_vel",
     "BodyArmsVel": "body_arms_vel",
-    "PercentOfArc": "percent_of_arc",
     "SeatLength": "seat_length",
     "Catch Factor": "catch_factor",
     "Recovery Time 1": "recovery_time_1",

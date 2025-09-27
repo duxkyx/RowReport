@@ -1,6 +1,6 @@
 from Telemetry.graphs.plot_ratio import create_ratio_plot
 
-def get_sample_ratio_plots(rowers_data):
+def get_sample_ratio_plots(rowers_data, names):
     plots = []
     for sample in range(0,8):
         sample_values = []
@@ -32,7 +32,7 @@ def get_sample_ratio_plots(rowers_data):
                 data['recovery_time_5'][sample]
             ]
             sample_values.append(values)
-        plot = create_ratio_plot(sample_values)
+        plot = create_ratio_plot(sample_values, names)
         plots.append(plot)
     
     return plots

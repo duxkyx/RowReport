@@ -1,7 +1,7 @@
 # Get the data required for the radar chart on the dashboard
 import requests
 import API_Routes
-from Telemetry.subroutines import average_Array_into_One as aaio
+from Telemetry.subroutines import average_Array_into_One_Percentage as aaio
 
 def get_gateforce_averages(user_id):
     response = requests.get(f"{API_Routes.get_telemetry_data_training_zones}/{user_id}")
@@ -16,11 +16,11 @@ def get_gateforce_averages(user_id):
             # telemetry['gate_force_x'] holds 8 arrays of large sizes
             # average them into one array and store
             UT1_GateForce_Data.append(aaio(telemetry['gate_force_x']))
-            UT1_xaxis.append(aaio(telemetry['percent_of_arc']))
+            UT1_xaxis.append(aaio(telemetry['gate_angle']))
 
         for telemetry in training_zone_data['UT2']:
             UT2_GateForce_Data.append(aaio(telemetry['gate_force_x']))
-            UT2_xaxis.append(aaio(telemetry['percent_of_arc']))
+            UT2_xaxis.append(aaio(telemetry['gate_angle']))
 
         if len(UT1_GateForce_Data) >= 1:
             ut1 = aaio(UT1_GateForce_Data)

@@ -16,7 +16,7 @@ Database-related ignores
 
 Environment variables
 
-.env *.env Backend/Database/.env
+.env *.env Backend/database/.env
 
 IDE and editor files
 

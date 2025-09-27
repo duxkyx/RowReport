@@ -91,6 +91,9 @@ def get_user_averages(session: Session, user_id: int):
         elif session_data.state == "UT2":
             ut2_sessions.append(telemetry)
 
+    def safe_avg(values):
+        return sum(values) / len(values) if values else 0
+
     def compute_averages(session_list):
         if not session_list:
             # Return zeroed summary if no data
@@ -104,16 +107,15 @@ def get_user_averages(session: Session, user_id: int):
                 "seat_length": 0
             }
         
-
-        count = len(session_list)
+        number_of_sessions = len(session_list)
         summary = {
-            "min_angle": sum(sum(r.min_angle) / len(r.min_angle) for r in session_list) / count,
-            "max_angle": sum(sum(r.max_angle) / len(r.max_angle) for r in session_list) / count,
-            "arc_length": sum(sum(r.arc_length) / len(r.arc_length) for r in session_list) / count,
-            "catch_slip": sum(sum(r.catch_slip) / len(r.catch_slip) for r in session_list) / count,
-            "finish_slip": sum(sum(r.finish_slip) / len(r.finish_slip) for r in session_list) / count,
-            "swivel_power": sum(sum(r.rower_swivel_power) / len(r.rower_swivel_power) for r in session_list) / count,
-            "seat_length": sum(sum(r.seat_length) / len(r.seat_length) for r in session_list) / count
+            "min_angle": safe_avg([safe_avg(r.min_angle) for r in session_list if r.min_angle]),
+            "max_angle": safe_avg([safe_avg(r.max_angle) for r in session_list if r.max_angle]),
+            "arc_length": safe_avg([safe_avg(r.arc_length) for r in session_list if r.arc_length]),
+            "catch_slip": safe_avg([safe_avg(r.catch_slip) for r in session_list if r.catch_slip]),
+            "finish_slip": safe_avg([safe_avg(r.finish_slip) for r in session_list if r.finish_slip]),
+            "swivel_power": safe_avg([safe_avg(r.rower_swivel_power) for r in session_list if r.rower_swivel_power]),
+            "seat_length": safe_avg([safe_avg(r.seat_length) for r in session_list if r.seat_length]),
         }
         return summary
 

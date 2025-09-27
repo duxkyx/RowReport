@@ -1,9 +1,9 @@
 import plotly.graph_objects as go
 import plotly.io as pio
 from Telemetry.colours import seat_colours
-from Telemetry.subroutines import is_2d_list
+from Telemetry.subroutines import is_2d_list, average_Array_into_One_Percentage
 
-def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names=None):
+def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names):
     fig = go.Figure()
     colours = list(seat_colours.values())
 
@@ -11,9 +11,9 @@ def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names=None):
         iterations = 0
         for array in y_array:
             if names:
-                name_value=f'{names[iterations]} | {iterations + 1}'
+                name_value=f'{iterations + 1} | {names[iterations]}'
             else:
-                name_value=f'Seat | {iterations}'
+                name_value=f'{iterations + 1} | Seat'
 
             fig.add_trace(go.Scatter(
                 x=x_array[iterations], 
@@ -26,8 +26,7 @@ def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names=None):
         fig.add_trace(go.Scatter(
             x=x_array, 
             y=y_array, 
-            name=f'Seat | {iterations + 1}', 
-            line=dict(color=colours[iterations])
+            name=f'Seat', 
         ))
 
     fig.update_layout(
