@@ -13,7 +13,7 @@ def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names):
             if names:
                 name_value=f'{iterations + 1} | {names[iterations]}'
             else:
-                name_value=f'{iterations + 1} | Seat'
+                name_value=f'{iterations + 1}'
 
             fig.add_trace(go.Scatter(
                 x=x_array[iterations], 
@@ -26,7 +26,24 @@ def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names):
         fig.add_trace(go.Scatter(
             x=x_array, 
             y=y_array, 
-            name=f'Seat', 
+        ))
+
+        fig.update_layout(
+            xaxis=dict(
+                gridcolor='grey',
+                tickmode='array',
+                tickvals=list(range(0, len(x_array))), 
+                ticktext=x_array    
+            )           
+        )
+
+    if title == 'Gate Force %':
+        fig.add_trace(go.Scatter(
+            x=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            y=[20, 60, 85, 95, 100, 100, 95, 80, 55, 25, 0],
+            mode="lines",
+            name="Gold Target",
+            line=dict(color="gold", width=3)
         ))
 
     fig.update_layout(
@@ -35,7 +52,7 @@ def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names):
         xaxis_title = xaxis_title,
         template='plotly_white',
         xaxis=dict(
-            gridcolor='grey',  # Dark navy grid
+            gridcolor='grey',  # Dark navy grid           
         ),
         font=dict(
             color='grey'  # Default font color for text elements like legend

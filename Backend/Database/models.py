@@ -22,6 +22,7 @@ class rowing_session_table(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     coach_id: int = Field(foreign_key='account_table.id') # Coach who uploaded the data
     
+    title: str
     description: Optional[str]
     state: str #UT1, UT2
     filename: str

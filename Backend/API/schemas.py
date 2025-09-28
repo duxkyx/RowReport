@@ -17,6 +17,7 @@ class UserLogin(BaseModel):
 class BoatTelemetryData(BaseModel):
     coach_id: int
 
+    title: str
     description: str
     state: str #UT1, UT2
     filename: str

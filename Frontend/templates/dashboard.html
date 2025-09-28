@@ -184,7 +184,11 @@
             <form action="/dashboard/upload" method="POST" enctype="multipart/form-data">
               <div class="modal-body">
                 <div class="container-fluid">
-                  <h5>Leave dropdown blank for private report</h5>
+                  <div class="mb-3">
+                    <label class="form-label">Enter rowing session Title</label>
+                    <input required class="form-control" type="text" name="title_input" placeholder="Title" required>
+                  </div>
+                  <h6 class="subtle">Leave dropdown blank for private report</h6>
                   {% if rowers %}
                     {% for rower in rowers %}
                       <div class="row align-items-center mb-3">
@@ -243,7 +247,7 @@
             <thead>
               <tr>
                 <th>Session ID</th>
-                <th>File Name</th>
+                <th>Title</th>
                 <th>Training Zone</th>
                 <th>Date</th>
                 <th>Number of Rowers</th>
@@ -257,7 +261,7 @@
               {% for session in sessions %}
               <tr>
                 <td>{{ session.id }}</td>
-                <td>{{ session.filename }}</td>
+                <td>{{ session.title }}</td>
                 <td>{{ session.state }}</td>
                 <td>{{ session.date }}</td>
                 <td>{{ session.seats }}</td>
@@ -281,6 +285,7 @@
         </div>
         <div class="d-flex gap-2">
           <a href="/dashboard/sessions/{{ boat_data.id }}/overview" class="btn btn-sm btn-primary">Overview</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/{{ boat_data.id }}/average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/{{ boat_data.id }}/samples" class="btn btn-sm btn-ghost">Samples</a>
         </div>
@@ -289,6 +294,7 @@
       <div class="card-modern p-4">
         <div class="row">
           <div class="col-md-6">
+            <p><strong>Title:</strong> {{boat_data.title }}</p>
             <p><strong>File Name:</strong> {{ boat_data.filename }}</p>
             <p><strong>Date:</strong> {{ boat_data.date }}</p>
             <p><strong>Training Zone:</strong> {{ boat_data.state }}</p>
@@ -346,6 +352,51 @@
 
       </div>
 
+      {% elif page == 'session' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Session description</div>
+          <div class="subtle">Session description & distribution of the samples</div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="/dashboard/sessions/{{ boat_data.id }}/overview" class="btn btn-sm btn-ghost">Overview</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/session" class="btn btn-sm btn-primary">Session</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/average" class="btn btn-sm btn-ghost">Average</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/samples" class="btn btn-sm btn-ghost">Samples</a>
+        </div>
+      </div>
+
+      <div class="card-modern p-3 table-responsive">
+        <div class="table-responsive mt-3">
+          <table class="table table-hover align-middle mb-4">
+            <thead>
+              <tr>
+                <th>Sample</th>
+                <th>Stroke Rate (s/pm)</th>
+                <th>Avg Power (w)</th>
+                <th>Stroke Time (s)</th>
+                <th>Distance Per Stroke (m)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sample in range(0,8) %}
+                <tr>
+                  <td>{{ sample + 1 }}</td>
+                  <td>{{ boat_data.rating[sample] }}</td>
+                  <td>{{ boat_data.averagepower[sample] }}</td>
+                  <td>{{ boat_data.stroketime[sample] }}</td>
+                  <td>{{ boat_data.distanceperstroke[sample] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      <div class="panel mb-4">{{ graphs.acceleration | safe }}</div>
+      <div class="panel mb-4">{{ graphs.rowing_speed | safe }}</div>
+
+
       {% elif page == 'average' %}
 
       <div class="header-row">
@@ -355,6 +406,7 @@
         </div>
         <div class="d-flex gap-2">
           <a href="/dashboard/sessions/{{ boat_data.id }}/overview" class="btn btn-sm btn-ghost">Overview</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/{{ boat_data.id }}/average" class="btn btn-sm btn-primary">Average</a>
           <a href="/dashboard/sessions/{{ boat_data.id }}/samples" class="btn btn-sm btn-ghost">Samples</a>
         </div>
@@ -405,7 +457,11 @@
                 {% endif %}
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
-                  <td>{{ rower.user.last_name }}</td>
+                  {% if rower.user.user_id %}
+                    {{rower.user.last_name }}
+                  {% else %}
+                    <td>{{ rower.telemetry.name }}</td>
+                  {% endif %}
                   <td>{{ drive_time | round(2) }}</td>
                   <td>{{ recovery_time | round(2)}}</td>
                   <td>{{ ((drive_time / (recovery_time + drive_time)) * 100) | round(2) }}</td>
@@ -478,6 +534,7 @@
         </div>
 
         <h4>Syncronisation</h4>
+        <div class="subtle">Measured in milliseconds as a comparison against the stroke seat.</div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-4">
             <thead>
@@ -542,11 +599,9 @@
           <div class="col-lg-6">
             <div class="panel">{{ graphs.syncronisation | safe }}</div>
           </div>
-          {% if boat_data.seat_sensors %}
-            <div class="col-lg-6">
-              <div class="panel">{{ graphs.seatposition | safe }}</div>
-            </div>
-          {% endif %}
+          <div class="col-lg-6">
+            <div class="panel">{{ graphs.gateforcepercent | safe }}</div>
+          </div>
         </div>
 
         <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
@@ -558,6 +613,7 @@
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.seatposition | safe }}</div></div>
           {% endif %}
         </div>
 
@@ -572,6 +628,7 @@
         </div>
         <div class="d-flex gap-2">
           <a href="/dashboard/sessions/{{ boat_data.id }}/overview" class="btn btn-sm btn-ghost">Overview</a>
+          <a href="/dashboard/sessions/{{ boat_data.id }}/session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/{{ boat_data.id }}/average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/{{ boat_data.id }}/samples" class="btn btn-sm btn-primary">Samples</a>
         </div>
@@ -618,7 +675,11 @@
 
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
-                  <td>{{ rower.user.last_name }}</td>
+                  {% if rower.user.user_id %}
+                    {{rower.user.last_name }}
+                  {% else %}
+                    <td>{{ rower.telemetry.name }}</td>
+                  {% endif %}
                   <td>{{ drive_time }}</td>
                   <td>{{ recovery_time }}</td>
                   <td>{{ ((drive_time / (recovery_time + drive_time)) * 100) | round(2) }}</td>
@@ -678,6 +739,7 @@
         </div>
 
         <h4>Syncronisation</h4>
+        <div class="subtle">Measured in milliseconds as a comparison against the stroke seat.</div>
         <div class="table-responsive mb-4">
           <table class="table table-hover align-middle">
             <thead>

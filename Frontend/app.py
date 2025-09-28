@@ -193,6 +193,7 @@ def upload():
             Boat_Data['coach_id'] = session.get('user')['id'] # The user who uploaded the file
             Boat_Data['description'] = request.form.get('description_input')
             Boat_Data['state'] = request.form.get('state_selected')
+            Boat_Data['title'] = request.form.get('title_input')
 
             # API post
             response = requests.post(API_Routes.upload_session, json=Boat_Data)
@@ -282,7 +283,6 @@ def session_page(session_id, page_name):
     name_array = []
     for user_data in rowing_data:
         name_array.append(user_data['telemetry']['name'])
-        
 
     # Generate graphs
     if page_name == 'samples':
@@ -305,7 +305,17 @@ def session_page(session_id, page_name):
             "legsvelocity": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array),
             "seatposition": get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array),
             "legsvelocitygateangle": get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array),
-            "bodyarmsvelocity": get_avg_line_plot(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array)
+            "bodyarmsvelocity": get_avg_line_plot(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array),
+            "gateforcepercent": get_avg_line_plot(rowing_data, 'gate_angle', 'gate_force_x', 'Gate Force %', 'Drive Length (%)', 'Gate Force (%)', True, True, names=name_array)
+        }
+    elif page_name == 'session':
+        rates = []
+        for rate in session_data['rating']:
+            rates.append(rate)
+
+        returned_graphs = {
+            "acceleration": get_sample_line_plots(session_data, 'normalizedtime', 'acceleration', 'Boat Acceleration', 'Normalized Time (%)', 'Acceleration (m/s)', False, False, rates),
+            "rowing_speed": get_sample_line_plots(session_data, None, 'meterspersecond', 'Boat Speed', 'Samples | Rate', 'Speed (m/s)', False, False, rates)
         }
     else:
         returned_graphs = {}

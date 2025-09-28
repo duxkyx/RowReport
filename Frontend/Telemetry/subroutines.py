@@ -212,7 +212,6 @@ def find_seat_Position_In_Array(seat, profiles):
             return index
         index += 1
 
-
 def find_Column_Position(name, grid, Column_Name_Line):
     incrementer = 0
     for column in grid[Column_Name_Line]:
