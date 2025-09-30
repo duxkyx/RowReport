@@ -1,140 +1,203 @@
-.sidebar-logo-container {
-    margin-top: 10px; /* or 0 if you want it flush */
-    margin-bottom: 10px; /* optional */
-    padding-top: 5px; /* optional */
-}
-
-/* Force dark theme for all tables */
-.table,
-.table th,
-.table td {
-  background-color: transparent !important;
-  color: var(--text) !important;
-  border-color: rgba(255,255,255,0.08) !important;
-}
-
-.table thead th {
-  background-color: #0f1724 !important;
-  color: var(--muted) !important;
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(0,194,168,0.06) !important;
-}
-
-:root{
-    --bg:#071023; /* page background */
-    --panel:#0b1220;
-    --muted:#9aa4b2;
-    --accent:#00c2a8;
-    --accent-strong: rgba(0,194,168,0.12);
-    --text:#e6eef6;
-    --input-bg:#131a24;
-    --input-border: rgba(255,255,255,0.06);
-    }
-
-
-html,body{background:linear-gradient(180deg,var(--bg),#04101a);color:var(--text);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
-
-
 /* Sidebar */
-.sidebar{width:260px;min-width:260px;background:linear-gradient(180deg,var(--panel),#07101a);box-shadow:0 6px 18px rgba(2,6,23,0.7);}
-.sidebar .nav-link{color:var(--muted);border-radius:8px}
-.sidebar .nav-link.active, .sidebar .nav-link:hover{color:var(--text);background:linear-gradient(90deg,rgba(0,194,168,0.06),transparent)}
-.sidebar .brand{padding:20px;text-align:center}
-.brand img{max-width:160px;height:auto}
+.sidebar-logo-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 5px;
+}
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: #0b1220;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.7);
+}
+.sidebar .nav-link {
+    color: #9aa4b2;
+    border-radius: 8px;
+}
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+    color: #fff;
+    background: rgba(0,194,168,0.06);
+}
+.sidebar .brand {
+    padding: 20px;
+    text-align: center;
+}
+.brand img {
+    max-width: 160px;
+    height: auto;
+}
 
+/* Root colors */
+:root {
+    --bg: #ffffff;   /* main page background */
+    --panel: #0b1220;/* sidebar background */
+    --muted: #6c757d;
+    --accent: #841925;
+    --accent-strong: rgba(0,194,168,0.12);
+    --text: #212529; /* dark text */
+    --upload-text: #ffffff;
+    --input-bg: #ffffff;
+    --input-border: rgba(0,0,0,0.15);
+}
 
-/* Main area */
-.app-main{padding:28px;}
-.header-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-.title{font-weight:700;font-size:1.5rem}
-.subtle{color:var(--muted);font-size:.95rem}
+/* Global background */
+html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    margin: 0;
+}
+
+/* Main content */
+.app-main {
+    padding: 28px;
+    background: #ffffff;
+    color: var(--text);
+}
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--text);
+}
+.subtle {
+    color: var(--muted);
+    font-size: .95rem;
+}
 
 
 /* Summary cards */
-.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
-.stat-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.5)}
-.stat-card h6{color:var(--muted);margin-bottom:8px}
-.stat-card h3{font-size:1.5rem;margin:0}
-
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.stat-card {
+    background: #f8f9fa;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.stat-card h6 {
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+.stat-card h3 {
+    font-size: 1.5rem;
+    margin: 0;
+}
 
 /* Tables */
-.card-modern{background:transparent;border:0;padding:0;color:var(--text)}
-.card-modern .card-header{background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text)}
-table thead th{background:transparent;color:var(--muted);border-bottom:1px solid rgba(255,255,255,0.03)}
-table tbody tr td{vertical-align:middle;color:var(--text)}
-
+.card-modern {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.card-modern .card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    color: var(--text);
+    font-weight: 600;
+}
+table thead th {
+    background: #f8f9fa;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+table tbody tr td {
+    vertical-align: middle;
+    color: var(--text);
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(0,194,168,0.06) !important;
+}
 
 /* Panels */
-.panel{background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);padding:12px;border-radius:12px;min-height:220px;display:flex;flex-direction:column;color:var(--text)}
-
+.panel {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
 
 /* Buttons */
-.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:#dff5ef}
-
-
-/* == STRONG FORM + SELECT2 OVERRIDES == */
-/* high specificity and !important so Bootstrap/select2 defaults are overridden */
-body .form-control, body .form-select, body select, body input, body textarea {
-background-color: var(--input-bg) !important;
-color: var(--text) !important;
-border: 1px solid var(--input-border) !important;
-box-shadow: none !important;
+.btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    color: var(--accent);
 }
 
-
-/* remove native bright dropdown arrow on some browsers and style height */
+/* Form controls */
+.form-control {
+    background-color: #fff;
+}
+body .form-select,
+body select,
+body textarea {
+    background-color: #071724 !important;
+    color: var(--upload-text) !important;
+    border: 1px solid var(--input-border) !important;
+    box-shadow: none !important;
+}
 body .form-select {
--webkit-appearance: none !important;
-appearance: none !important;
-background-image: none !important;
-padding-right: 2.6rem !important;
-height: calc(1.8em + 0.9rem) !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    padding-right: 2.6rem !important;
+    height: calc(1.8em + 0.9rem) !important;
+}
+body .form-select option,
+body .form-select optgroup {
+    background-color: #ffff !important;
+    color: var(--upload-text) !important;
 }
 
-
-body .form-select option, body .form-select optgroup { background-color: var(--input-bg) !important; color: var(--text) !important; }
-/* focus states */
-
-/* Dark theme for Select2 inside the modal */
+/* Keep Select2 dark ONLY inside modal */
 #uploadSessionModal .select2-container--default .select2-selection--single {
-    background-color: #071724;  /* matches your modal background */
+    background-color: #071724;
     color: #ffffff;
     border: 1px solid #0a2a38;
     border-radius: 0.25rem;
 }
-
 #uploadSessionModal .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #ffffff;
 }
-
 #uploadSessionModal .select2-container--default .select2-selection--single .select2-selection__arrow b {
     border-color: #ffffff transparent transparent transparent;
 }
-
 #uploadSessionModal .select2-container--default .select2-results__option {
     background-color: #071724;
     color: #ffffff;
     padding: 6px 12px;
 }
-
 #uploadSessionModal .select2-container--default .select2-results__option--highlighted {
-    background-color: #0a2a38;  /* highlighted option */
-    color: #ffffff;
+    background-color: #0a2a38;
+    color: var(--upload-text) ;
 }
-
-/* Scrollbar styling for Select2 dropdown */
 #uploadSessionModal .select2-container--default .select2-results__options {
     max-height: 200px;
     overflow-y: auto;
 }
-
 #uploadSessionModal .select2-container--default .select2-results__options::-webkit-scrollbar {
     width: 6px;
 }
-
 #uploadSessionModal .select2-container--default .select2-results__options::-webkit-scrollbar-thumb {
     background-color: #0a2a38;
     border-radius: 3px;
+}
+.modal-body {
+    color: var(--upload-text);
 }

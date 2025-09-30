@@ -230,7 +230,7 @@ def sessions():
         "dashboard.html", 
         page="sessions", 
         sessions=session['cached_rowing_reports'],
-        user=session['user']
+        user=session['user'],
     )
 
 @app.route('/dashboard/sessions/<int:session_id>/<page_name>', methods=['GET', 'POST'])
@@ -294,7 +294,8 @@ def session_page(session_id, page_name):
             "legsvelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array),
             "seatposition": get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array),
             "legsvelocitygateangle": get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length %', 'Legs Velocity (%)', True,True, names=name_array),
-            "bodyarmsvelocity": get_sample_line_plots(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length %', 'Body Arms Vel (%)', True,True, names=name_array)
+            "bodyarmsvelocity": get_sample_line_plots(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length %', 'Body Arms Vel (%)', True,True, names=name_array),
+            "gateforcepercent": get_sample_line_plots(rowing_data, 'gate_angle', 'gate_force_x', 'Gate Force %', 'Drive Length (%)', 'Gate Force (%)', True, True, names=name_array)
         }
     elif page_name == 'average':
         returned_graphs = {
@@ -358,6 +359,14 @@ def delete_user(user_id):
     else:
         flash(f'Failed to delete session. Status code: {response.status_code}', 'error')
     return redirect(url_for('admin'))
+
+@app.route('/dashboard/account')
+def account():
+    return render_template(
+        'dashboard.html',
+        user=session['user'],
+        page='account'
+    )
 
 @app.route('/logout')
 @login_required

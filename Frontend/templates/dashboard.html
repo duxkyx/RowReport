@@ -49,7 +49,7 @@
         <div class="mb-2 muted-sm">Logged in as</div>
         <div class="fw-semibold">{{ user.email }}</div>
         <div class="d-flex gap-2 mt-3">
-          <a href="/account" class="btn btn-sm btn-ghost w-50">Account</a>
+          <a href="/dashboard/account" class="btn btn-sm btn-ghost w-50">Account</a>
           <a href="/logout" class="btn btn-sm btn-danger w-50">Logout</a>
         </div>
         <p class="muted-sm mt-3 mb-0">Developed by Ben Loggie</p>
@@ -115,7 +115,7 @@
               <tbody>
                 {% for state, data in averages.items() %}
                   <tr>
-                    <td class="fw-bold "><a style="color: maroon;">{{ state }}</a></td>
+                    <td class="fw-bold "><a>{{ state }}</a></td>
                     <td>{{ data.min_angle | round(2) }}</td>
                     <td>{{ data.max_angle | round(2) }}</td>
                     <td>{{ data.arc_length | round(2) }}</td>
@@ -178,7 +178,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content bg-dark" style="border:0;background:linear-gradient(180deg,#071724,#04101a)">
             <div class="modal-header border-0">
-              <h5 class="modal-title">Upload Session</h5>
+              <h5 class="modal-title" style="color: #ffff;">Upload Session</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="/dashboard/upload" method="POST" enctype="multipart/form-data">
@@ -458,7 +458,7 @@
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
                   {% if rower.user.user_id %}
-                    {{rower.user.last_name }}
+                    <td>{{ rower.user.last_name }}</td>
                   {% else %}
                     <td>{{ rower.telemetry.name }}</td>
                   {% endif %}
@@ -595,14 +595,8 @@
         </div>
 
         <!-- Graphs retained in same placeholders -->
-        <div class="row g-4 mb-4">
-          <div class="col-lg-6">
-            <div class="panel">{{ graphs.syncronisation | safe }}</div>
-          </div>
-          <div class="col-lg-6">
-            <div class="panel">{{ graphs.gateforcepercent | safe }}</div>
-          </div>
-        </div>
+        <div class="panel mb-4">{{ graphs.syncronisation | safe }}</div>
+        <div class="panel mb-4">{{ graphs.gateforcepercent | safe }}</div>
 
         <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
         <div class="panel mb-4">{{ graphs.ratios | safe }}</div>
@@ -634,8 +628,15 @@
         </div>
       </div>
 
+      <div class="jump-to-sample mb-3">
+        <span>Jump to sample:</span>
+        {% for s in range(1, 9) %}
+          <a href="#sample-{{ s }}" class="btn btn-sm btn-outline-primary" style="border-color: #841925; color: #04101a;">{{ s }}</a>
+        {% endfor %}
+      </div>
+
       {% for sample in range(0, 8) %}
-      <div class="card-modern p-3 mt-3">
+      <div id="sample-{{ sample + 1 }}" class="card-modern p-3 mt-3">
         <h5>Sample {{ sample + 1 }}/8</h5>
         <h6 class="muted-sm">Rate {{ boat_data.rating[sample] }} (s/m) | Avg Power {{ boat_data.averagepower[sample] }} (w) | Distance per Stroke {{ boat_data.distanceperstroke[sample] }} (m) | Boat Speed {{ boat_data.meterspersecond[sample] }} (m/s)</h6>
 
@@ -676,7 +677,7 @@
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
                   {% if rower.user.user_id %}
-                    {{rower.user.last_name }}
+                    <td>{{ rower.user.last_name }}</td>
                   {% else %}
                     <td>{{ rower.telemetry.name }}</td>
                   {% endif %}
@@ -785,16 +786,9 @@
           </table>
         </div>
 
-        <div class="row g-4 mb-4">
-          <div class="col-lg-6">
-            <div class="panel">{{ graphs.syncronisation[sample] | safe }}</div>
-          </div>
-          {% if boat_data.seat_sensors %}
-            <div class="col-lg-6">
-              <div class="panel">{{ graphs.seatposition[sample] | safe }}</div>
-            </div>
-          {% endif %}
-        </div>
+        <div class="panel mb-4">{{ graphs.syncronisation[sample] | safe }}</div>
+        <div class="panel mb-4">{{ graphs.gateforcepercent[sample] | safe }}</div>
+
 
         <div class="panel mb-4">{{ graphs.gateforcex[sample] | safe }}</div>
         <div class="panel mb-4">{{ graphs.ratios[sample] | safe }}</div>
@@ -806,6 +800,7 @@
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity[sample] | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle[sample] | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity[sample] | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.seatposition[sample] | safe }}</div></div>
           {% endif %}
         </div>
 
@@ -851,6 +846,23 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      {% elif page == 'account' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Account</div>
+          <div class="subtle">Your user information.</div>
+        </div>
+      </div>
+
+      <div class="panel"> 
+        <h3>Profile Details</h3> 
+        <label><strong>User ID:</strong> {{ user.id}}</label>
+        <label><strong>First Name:</strong> {{ user.first_name}}</label>
+        <label><strong>Last Name:</strong> {{ user.last_name}}</label>
+        <label><strong>Email:</strong> {{ user.email}}</label>  
       </div>
 
       {% endif %}
