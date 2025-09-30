@@ -1,0 +1,26 @@
+{
+  "functions": {
+    "Backend/API/main.py": {
+      "runtime": "python3.9",
+      "pythonRequirements": {
+        "file": "Backend/requirements.txt"
+      },
+      "includeFiles": [
+        "Backend/**/*"
+      ]
+    },
+    "Frontend/app.py": {
+      "runtime": "python3.9",
+      "pythonRequirements": {
+        "file": "Frontend/requirements.txt"
+      },
+      "includeFiles": [
+        "Frontend/**/*"
+      ]
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "Backend/API/main.py" },
+    { "src": "/(.*)", "dest": "Frontend/app.py" }
+  ]
+}
