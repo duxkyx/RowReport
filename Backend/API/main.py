@@ -4,7 +4,6 @@ from sqlmodel import SQLModel
 from Database.db import engine
 from API.routes import sessions, users, retrieve
 from fastapi.middleware.cors import CORSMiddleware
-from magnum import Magnum
 
 app = FastAPI()
 
@@ -25,4 +24,3 @@ app.include_router(users.router)
 app.include_router(sessions.router)
 app.include_router(retrieve.router)
 
-handler = Magnum(app)
