@@ -210,7 +210,7 @@ def upload():
                 rower['session_id'] = int(session_id)
                 response = requests.post(api_routes.upload_user_data, json=rower)
 
-            redirect(url_for('sessions'))
+            return redirect(url_for('sessions'))
         
     return render_template(
         "dashboard.html", 
@@ -313,7 +313,8 @@ def session_page(session_id, page_name):
 
         returned_graphs = {
             "acceleration": get_sample_line_plots(session_data, 'normalizedtime', 'acceleration', 'Boat Acceleration', 'Normalized Time (%)', 'Acceleration (m/s)', False, False, rates),
-            "rowing_speed": get_sample_line_plots(session_data, None, 'meterspersecond', 'Boat Speed', 'Samples | Rate', 'Speed (m/s)', False, False, rates)
+            "rowing_speed": get_sample_line_plots(session_data, None, 'meterspersecond', 'Boat Speed', 'Samples | Rate', 'Speed (m/s)', False, False, rates),
+            "power_timeline": get_avg_line_plot(rowing_data, None, 'power_timeline', 'Power Timeline', 'Strokes', 'Power (W)', False, False, names=name_array)
         }
     else:
         returned_graphs = {}

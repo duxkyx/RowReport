@@ -71,6 +71,8 @@ class UserTelemetryData(BaseModel):
     finish_force_gradient: List[float]
     legs_max_vel: List[float]
 
+    power_timeline: List[float]
+
     # 2D arrays
     gate_force_x: List[List[float]]
     gate_angle: List[List[float]]

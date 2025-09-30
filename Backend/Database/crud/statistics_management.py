@@ -11,7 +11,7 @@ def get_statistics(session: Session):
         select(account_table)
     )
     accounts = session.exec(user_statement).all()
-
+    
     return {
         'users': len(accounts),
         'uploads': len(sessions),

@@ -20,6 +20,7 @@ class Rower_Sampled_Data:
         self.finish_slip = []
         self.rower_swivel_power = []
         self.seat_length = []
+        self.power_timeline = []
 
         # 3D arrays
         self.gate_force_x = []

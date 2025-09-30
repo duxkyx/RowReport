@@ -78,6 +78,8 @@ class user_telemetry_data(SQLModel, table=True):
     finish_force_gradient: List[float] = Field(sa_column=Column(JSON))
     legs_max_vel: List[float] = Field(sa_column=Column(JSON))
 
+    power_timeline: List[float] = Field(sa_column=Column(JSON))
+
     # 2D arrays
     gate_force_x: List[List[float]] = Field(sa_column=Column(JSON))
     gate_angle: List[List[float]] = Field(sa_column=Column(JSON))

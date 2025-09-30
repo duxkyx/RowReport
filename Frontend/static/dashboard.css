@@ -134,11 +134,24 @@ table tbody tr td {
 }
 
 /* Buttons */
+.btn-primary {
+    background: var(--accent);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: #fff;
+}
+
 .btn-ghost {
     background: transparent;
     border: 1px solid rgba(0,0,0,0.1);
     color: var(--accent);
 }
+
+.btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
 
 /* Form controls */
 .form-control {
