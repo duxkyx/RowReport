@@ -288,24 +288,31 @@ def session_page(session_id, page_name):
             "ratios": get_sample_ratio_plots(rowing_data, names=name_array),
             "gateforcex": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)', names=name_array),
             "gateanglevelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg/s)', names=name_array),
-            "legsvelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array),
-            "seatposition": get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array),
-            "legsvelocitygateangle": get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length %', 'Legs Velocity (%)', True,True, names=name_array),
-            "bodyarmsvelocity": get_sample_line_plots(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length %', 'Body Arms Vel (%)', True,True, names=name_array),
             "gateforcepercent": get_sample_line_plots(rowing_data, 'gate_angle', 'gate_force_x', 'Gate Force %', 'Drive Length (%)', 'Gate Force (%)', True, True, names=name_array)
         }
+
+        if session_data['seat_sensors']:
+            returned_graphs['legsvelocity'] = get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array)
+            returned_graphs['seatposition'] = get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array)
+            returned_graphs['legsvelocitygateangle'] = get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array)
+            returned_graphs['bodyarmsvelocity'] = get_sample_line_plots(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array)
+
     elif page_name == 'average':
         returned_graphs = {
             "syncronisation": get_avg_syncronisation_plot(rowing_data, names=name_array),
             "ratios": get_avg_ratio_plot(rowing_data, names=name_array),
             "gateforcex": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)', names=name_array),
             "gateanglevelocity": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg)', names=name_array),
-            "legsvelocity": get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array),
-            "seatposition": get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array),
-            "legsvelocitygateangle": get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array),
-            "bodyarmsvelocity": get_avg_line_plot(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array),
             "gateforcepercent": get_avg_line_plot(rowing_data, 'gate_angle', 'gate_force_x', 'Gate Force %', 'Drive Length (%)', 'Gate Force (%)', True, True, names=name_array)
         }
+
+        if session_data['seat_sensors']:
+            returned_graphs['legsvelocity'] = get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array)
+            returned_graphs['seatposition'] = get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array)
+            returned_graphs['legsvelocitygateangle'] = get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array)
+            returned_graphs['bodyarmsvelocity'] = get_avg_line_plot(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array)
+
+
     elif page_name == 'session':
         rates = []
         for rate in session_data['rating']:
