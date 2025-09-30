@@ -161,7 +161,7 @@ body .form-select {
 }
 body .form-select option,
 body .form-select optgroup {
-    background-color: #ffff !important;
+    background-color: #071724 !important;
     color: var(--upload-text) !important;
 }
 
@@ -201,3 +201,4 @@ body .form-select optgroup {
 .modal-body {
     color: var(--upload-text);
 }
+
