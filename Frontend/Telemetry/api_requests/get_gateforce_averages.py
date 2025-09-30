@@ -1,10 +1,10 @@
 # Get the data required for the radar chart on the dashboard
 import requests
-import API_Routes
+import api_routes
 from Telemetry.subroutines import average_Array_into_One_Percentage as aaio
 
 def get_gateforce_averages(user_id):
-    response = requests.get(f"{API_Routes.get_telemetry_data_training_zones}/{user_id}")
+    response = requests.get(f"{api_routes.get_telemetry_data_training_zones}/{user_id}")
     if response.status_code == 200:
         training_zone_data = response.json()
         

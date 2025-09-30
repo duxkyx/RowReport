@@ -1,9 +1,9 @@
 # Get the data required for the radar chart on the dashboard
 import requests
-import API_Routes
+import api_routes
 
 def get_radar_averages(user_id):
-    response = requests.get(f"{API_Routes.get_radar_averages}/{user_id}")
+    response = requests.get(f"{api_routes.get_radar_averages}/{user_id}")
     if response.status_code == 200:
         return response.json()
     else:

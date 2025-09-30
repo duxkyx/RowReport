@@ -6,7 +6,7 @@ import os
 import requests
 
 # API Routes
-import API_Routes
+import api_routes
 
 # 
 from Telemetry.setup_data import set_session_classes
@@ -98,7 +98,7 @@ def register():
             "password": password,
         }
 
-        response = requests.post(API_Routes.create_user, json=payload)
+        response = requests.post(api_routes.create_user, json=payload)
 
         if response.status_code == 200:
             return redirect(url_for('login'))
@@ -122,7 +122,7 @@ def login():
             "password": password
         }
 
-        response = requests.get(API_Routes.check_user, json=payload)
+        response = requests.get(api_routes.check_user, json=payload)
         if response.status_code == 200:
             user_data = response.json()
             session['user'] = user_data
@@ -181,7 +181,7 @@ def upload():
                     rowers=Rower_Profiles,
                     user=session['user'], 
                     show_upload_modal=True,
-                    apiroute_getallusers=API_Routes.get_all_users
+                    apiroute_getallusers=api_routes.get_all_users
                 )
     
         elif button_pressed == 'confirm_upload':
@@ -196,7 +196,7 @@ def upload():
             Boat_Data['title'] = request.form.get('title_input')
 
             # API post
-            response = requests.post(API_Routes.upload_session, json=Boat_Data)
+            response = requests.post(api_routes.upload_session, json=Boat_Data)
             session_id = response.json()['session_id']
 
             # Iterate through the rower profiles then upload to database.
@@ -211,7 +211,7 @@ def upload():
                     rower['user_id'] = None
 
                 rower['session_id'] = int(session_id)
-                response = requests.post(API_Routes.upload_user_data, json=rower)
+                response = requests.post(api_routes.upload_user_data, json=rower)
 
             redirect(url_for('sessions'))
         
@@ -256,7 +256,7 @@ def session_page(session_id, page_name):
 
         try:
             # Make API call to delete session
-            response = requests.delete(f"{API_Routes.delete_session}/{session_id}")
+            response = requests.delete(f"{api_routes.delete_session}/{session_id}")
             if response.status_code == 200:
                 # Update session cache by removing the deleted session
                 session['cached_rowing_reports'] = [s for s in session['cached_rowing_reports'] if s['id'] != session_id]
@@ -336,7 +336,7 @@ def session_page(session_id, page_name):
 @login_required
 @role_required('is_admin')
 def admin():
-    response = requests.get(API_Routes.get_all_users)
+    response = requests.get(api_routes.get_all_users)
     if response.status_code == 200:
         all_users = response.json()
     else:
@@ -353,7 +353,7 @@ def admin():
 @login_required
 @role_required('is_admin')
 def delete_user(user_id):
-    response = requests.delete(f"{API_Routes.delete_user}/{user_id}")
+    response = requests.delete(f"{api_routes.delete_user}/{user_id}")
     if response.status_code == 200:
         flash('Session deleted successfully.', 'success')
     else:
