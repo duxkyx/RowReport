@@ -1,0 +1,15 @@
+# Frontend
+gunicorn
+flask
+flask-session
+requests
+plotly
+
+# Backend
+fastapi
+psycopg2
+pydantic
+sqlmodel
+uvicorn
+dotenv
+pydantic[email]
