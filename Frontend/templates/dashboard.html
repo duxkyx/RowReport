@@ -876,6 +876,7 @@
     // select2 for modal dropdown
     var modalEl = document.getElementById('uploadSessionModal');
     const get_users_api_route = "{{ apiroute_getallusers }}";
+    console.log(get_users_api_route);
     if(modalEl){
       modalEl.addEventListener('shown.bs.modal', function(){
         $('.user-dropdown').select2({

@@ -5,6 +5,9 @@ API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 def api_route(path: str) -> str:
     return str(API_BASE_URL + path)
 
+# Landing page
+get_statistics = api_route("/get_statistics")
+
 create_user = api_route("/register")
 check_user = api_route("/login")
 get_all_users = api_route("/get_all_users")

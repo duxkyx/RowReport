@@ -3,6 +3,7 @@ from sqlmodel import Session
 from Database.db import get_session
 from API.schemas import BoatTelemetryData, UserTelemetryData
 from Database.crud import telemetry_management as crud
+from Database.crud import statistics_management as crud_sm
 
 router = APIRouter()
 
@@ -46,4 +47,12 @@ def get_rower_data(session_id: int, session: Session = Depends(get_session)):
     data = crud.get_rower_data(session, session_id)
     if data is None:
         raise HTTPException(status_code=404, detail="Rower data not found for session")
+    return data
+
+# Landing page statistics
+@router.get("/get_statistics")
+def get_statistics(session: Session = Depends(get_session)):
+    data = crud_sm.get_statistics(session)
+    if data is None:
+        raise HTTPException(status_code=404, detail='No data found.')
     return data

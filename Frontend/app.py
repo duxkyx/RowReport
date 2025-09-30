@@ -38,11 +38,13 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Define authetication
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # some logic
-        return f(*args, **kwargs)
+def login_required(origin):
+    @wraps(origin)
+    def decorated_function(*args, **kwargs): # Positional arguments and key word arguments, returns the data passed.
+        if 'user' in session:
+            return origin(*args, **kwargs)
+        else:
+            return redirect(url_for('login'))
     return decorated_function
 
 def role_required(role):
@@ -60,19 +62,14 @@ def role_required(role):
 # Home Page
 @app.route('/')
 def home():
-    # Automatically load all slideshow images
-    slideshow_folder = os.path.join(app.static_folder, 'Media/Slideshow')
-    images = [f'Media/Slideshow/{img}' for img in os.listdir(slideshow_folder)]
+    response = requests.get(api_routes.get_statistics)
+    stats = {}
+    if response.status_code == 200:
+        stats = response.json()
+
     return render_template(
         'index.html', 
-        images=images
-    )
-
-# Showcase Page
-@app.route('/showcase')
-def showcase():
-    return render_template(
-        'showcase.html'
+        statistics=stats
     )
 
 # Register User Page
