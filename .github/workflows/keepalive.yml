@@ -1,0 +1,16 @@
+name: Keep Render Services Awake
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # Every 5 minutes
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Flask App
+        run: curl --silent --show-error --fail https://row-report.onrender.com/
+
+      - name: Ping FastAPI App
+        run: curl --silent --show-error --fail https://api-row-report.onrender.com/
