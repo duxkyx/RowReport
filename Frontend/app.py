@@ -279,7 +279,10 @@ def session_page(session_id, page_name):
 
     name_array = []
     for user_data in rowing_data:
-        name_array.append(user_data['telemetry']['name'])
+        if user_data['user']['user_id']:
+            name_array.append(user_data['user']['last_name'])
+        else:
+            name_array.append(user_data['telemetry']['name'])
 
     # Generate graphs
     if page_name == 'samples':

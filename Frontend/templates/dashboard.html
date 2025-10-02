@@ -454,6 +454,7 @@
                 <th>Catch Slip (deg)</th>
                 <th>Finish Slip (deg)</th>
                 <th>Effective Length (deg)</th>
+                <th>Effective Length (%)</th>
                 {% if boat_data.seat_sensors %}
                   <th>Catch Factor (ms)</th>
                 {% endif %}
@@ -489,6 +490,7 @@
                   <td>{{ catch_slip | round(2) }}</td>
                   <td>{{ finish_slip | round(2) }}</td>
                   <td>{{ ((arc_length) - (catch_slip + finish_slip)) | round(2) }}</td>
+                  <td>{{ (((arc_length - (catch_slip + finish_slip)) / arc_length) * 100) | round(2) }}</td>
                   {% if boat_data.seat_sensors %}
                     <td>{{ catch_factor | round(2) }}</td>
                   {% endif %}
@@ -673,6 +675,7 @@
                 <th>Catch Slip (deg)</th>
                 <th>Finish Slip (deg)</th>
                 <th>Effective Length (deg)</th>
+                <th>Effective Length (%)</th>
                 {% if boat_data.seat_sensors %}
                   <th>Catch Factor (ms)</th>
                 {% endif %}
@@ -708,6 +711,7 @@
                   <td>{{ catch_slip }}</td>
                   <td>{{ finish_slip }}</td>
                   <td>{{ ((arc_length) - (catch_slip + finish_slip)) | round(2)}}</td>
+                  <td>{{ (((arc_length - (catch_slip + finish_slip)) / arc_length) * 100) | round(2) }}</td>
                   {% if boat_data.seat_sensors %}
                     <td>{{ catch_factor }}</td>
                   {% endif %}

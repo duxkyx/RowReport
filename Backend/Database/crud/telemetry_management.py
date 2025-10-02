@@ -199,12 +199,18 @@ def get_user_telemetry_data(session: Session, user_id: int):
 
 # Gets all sessions for a user - Sessions Page
 def get_user_sessions(session: Session, user_id: int):
-    is_coach_statement = (
+    get_permissions_statement = (
         select(permissions_table)
         .where(permissions_table.user_id == user_id)
     )
-    permissions = session.exec(is_coach_statement).first()
+    permissions = session.exec(get_permissions_statement).first()
 
+    if permissions.is_admin:
+        session_statement = (
+            select(rowing_session_table).order_by(rowing_session_table.id.desc())
+        )
+        session_result = session.exec(session_statement).all()
+        return session_result
     if permissions.is_coach:
         session_statement = (
             select(rowing_session_table).order_by(rowing_session_table.id.desc())
@@ -224,7 +230,11 @@ def get_user_sessions(session: Session, user_id: int):
 # Returns all the rower data for a given session
 def get_rower_data(session: Session, session_id: int):
     # Get all telemetry records for the session
-    telemetry_statement = select(user_telemetry_data).where(user_telemetry_data.session_id == session_id)
+    telemetry_statement = (
+        select(user_telemetry_data)
+        .where(user_telemetry_data.session_id == session_id)
+        .order_by(user_telemetry_data.id.asc())
+    )
     telemetry_results = session.exec(telemetry_statement).all()
     rower_data = []
     for telemetry in telemetry_results:
