@@ -264,18 +264,18 @@ def session_page(session_id, page_name):
             flash(f'Error deleting session: {str(e)}', 'error')
         return redirect(url_for('sessions', session_id=session_id, page_name=page_name))
     
+    # Get Rower Data
+    rowing_data = get_rower_data(session_id)
+
     # Checks if user is valid in session
     if not session['user']['is_coach']:
         is_Authenticated = False
         for rower in rowing_data:
-            if rower.user_id == session['user']['id']:
+            if rower['telemetry']['user_id'] == session['user']['id']:
                 is_Authenticated = True
 
         if not is_Authenticated:
             redirect(url_for('sessions'))
-
-    # Get Rower Data
-    rowing_data = get_rower_data(session_id)
 
     name_array = []
     for user_data in rowing_data:
@@ -309,8 +309,8 @@ def session_page(session_id, page_name):
         if session_data['seat_sensors']:
             returned_graphs['legsvelocity'] = get_avg_line_plot(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array)
             returned_graphs['seatposition'] = get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array)
-            returned_graphs['legsvelocitygateangle'] = get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array)
-            returned_graphs['bodyarmsvelocity'] = get_avg_line_plot(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array)
+            returned_graphs['legsvelocitygateangle'] = get_avg_line_plot(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Velocity', True,False, names=name_array)
+            returned_graphs['bodyarmsvelocity'] = get_avg_line_plot(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Velocity', True,False, names=name_array)
 
 
     elif page_name == 'session':
