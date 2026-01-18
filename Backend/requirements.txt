@@ -4,4 +4,4 @@ pydantic
 sqlmodel
 uvicorn
 python-dotenv
-pydantic
+pydantic[email]
