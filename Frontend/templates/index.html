@@ -37,20 +37,25 @@
             <h4>{{ statistics.users }}</h4>
             <h6>Athletes and Coaches</h6>
         </div>
-                <div class="box">
+        <div class="box">
             <h5>Sessions Uploaded</h5>
             <h4>{{ statistics.uploads }}</h4>
             <h6>Uploaded by coaches</h6>
         </div>
-                <div class="box">
+        <div class="box">
             <h5>Strokes Analysed</h5>
             <h4>{{ statistics.strokes }}</h4>
             <h6>Strokes</h6>
         </div>
-                <div class="box">
+        <div class="box">
             <h5>Distance Analysed</h5>
             <h4>{{ statistics.distance | round(2) }}</h4>
             <h6>Meters</h6>
+        </div>
+        <div class="box">
+            <h5>Power Generated</h5>
+            <h4>{{ statistics.wattage | round(0) | int }}</h4>
+            <h6>Watts</h6>
         </div>
     </section>
 

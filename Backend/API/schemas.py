@@ -32,8 +32,6 @@ class BoatTelemetryData(BaseModel):
     boattype: str
     date: str
     serial: str
-    latitude: float
-    longitude: float
     seat_sensors: bool
 
     rating: List[float]
@@ -45,6 +43,8 @@ class BoatTelemetryData(BaseModel):
     # 2D arrays
     acceleration: List[List[float]]
     normalizedtime: List[List[float]]
+    gps: List[List[float]]
+
 
 class UserTelemetryData(BaseModel):
     user_id: Optional[int] = None
@@ -117,5 +117,4 @@ class UserTelemetryData(BaseModel):
     difference_finish: List[float]
     difference_max: List[float]
     difference_recovery: List[float]
-
 

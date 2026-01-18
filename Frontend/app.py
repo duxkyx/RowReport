@@ -27,6 +27,9 @@ from Telemetry.graphs.specific.average_plot.avg_sync import get_avg_syncronisati
 from Telemetry.graphs.specific.average_plot.avg_ratio import get_avg_ratio_plot
 from Telemetry.graphs.specific.average_plot.avg_line import get_avg_line_plot
 
+# Overview
+from Telemetry.graphs.plot_map import plot_map
+
 # Retrieve data
 from Telemetry.api_requests.get_sessions import get_sessions
 from Telemetry.api_requests.get_rower_data import get_rower_data
@@ -37,7 +40,7 @@ app.secret_key = 'e9f8a7d9a8fbd0c44a3ff0e1b7351f3c7b1a64e8f9e3b0e59f46a8cbb3e72c
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Define authetication
+# Define login required decorator
 def login_required(origin):
     @wraps(origin)
     def decorated_function(*args, **kwargs): # Positional arguments and key word arguments, returns the data passed.
@@ -47,6 +50,7 @@ def login_required(origin):
             return redirect(url_for('login'))
     return decorated_function
 
+# Define role-based access
 def role_required(role):
     def decorator(f):
         @wraps(f)
@@ -66,6 +70,14 @@ def home():
     stats = {}
     if response.status_code == 200:
         stats = response.json()
+    else:
+        stats = {
+            'users': 0,
+            'uploads': 0,
+            'strokes': 0,
+            'distance': 0,
+            'wattage': 0
+        }   
 
     return render_template(
         'index.html', 
@@ -133,6 +145,7 @@ def login():
 
     return render_template('login.html')
 
+# Dashboard Page
 @app.route('/dashboard', methods=["GET", "POST"])
 @login_required
 def dashboard():
@@ -153,6 +166,7 @@ def dashboard():
         graphs=returned_graphs
     )
 
+# Flask setup and render upload page
 @app.route('/dashboard/upload', methods=['GET', 'POST'])
 @login_required
 @role_required('is_coach')
@@ -163,8 +177,16 @@ def upload():
         if button_pressed == 'upload':
             file = request.files['file']
             if file:
-                session_classes = set_session_classes(file)
-
+                try:
+                    session_classes = set_session_classes(file)
+                except Exception as e:
+                    return render_template(
+                        "dashboard.html", 
+                        page="upload", 
+                        user=session['user'],
+                        error=f'Error processing file: {str(e)}: File possibly corrupted or invalid format.'
+                    )
+                
                 Rower_Profiles = session_classes[0]
                 Boat_Data = session_classes[1]
 
@@ -218,6 +240,7 @@ def upload():
         user=session['user'],
     )
 
+# Flask setup and render session selection page
 @app.route('/dashboard/sessions', methods=['GET', 'POST'])
 @login_required
 def sessions():
@@ -230,7 +253,8 @@ def sessions():
         user=session['user'],
     )
 
-@app.route('/dashboard/sessions/<int:session_id>/<page_name>', methods=['GET', 'POST'])
+# Session analytics page
+@app.route('/dashboard/sessions/session_id=<int:session_id>/page=<page_name>', methods=['GET', 'POST'])
 @login_required
 def session_page(session_id, page_name):
     # Get session from cache
@@ -275,7 +299,7 @@ def session_page(session_id, page_name):
                 is_Authenticated = True
 
         if not is_Authenticated:
-            redirect(url_for('sessions'))
+            return redirect(url_for('sessions'))
 
     name_array = []
     for user_data in rowing_data:
@@ -285,22 +309,26 @@ def session_page(session_id, page_name):
             name_array.append(user_data['telemetry']['name'])
 
     # Generate graphs
-    if page_name == 'samples':
-        returned_graphs = {
-            "syncronisation": get_sample_syncronisation_plots(rowing_data, names=name_array),
-            "ratios": get_sample_ratio_plots(rowing_data, names=name_array),
-            "gateforcex": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)', names=name_array),
-            "gateanglevelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg/s)', names=name_array),
-            "gateforcepercent": get_sample_line_plots(rowing_data, 'gate_angle', 'gate_force_x', 'Gate Force %', 'Drive Length (%)', 'Gate Force (%)', True, True, names=name_array)
-        }
+    returned_graphs = {}
+    selected_sample = None
+    if request.method == 'POST':
+        if page_name == 'samples':
+            selected_sample = int(request.form.get('sample_id'))
+            returned_graphs = {
+                "syncronisation": get_sample_syncronisation_plots(rowing_data, names=name_array),
+                "ratios": get_sample_ratio_plots(rowing_data, names=name_array),
+                "gateforcex": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_force_x', 'GateForceX', '% Of Cycle', 'Gate Force X (kg)', names=name_array),
+                "gateanglevelocity": get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'gate_angle_vel', 'GateAngle Velocity', '% Of Cycle', 'Gate Angle Vel (deg/s)', names=name_array),
+                "gateforcepercent": get_sample_line_plots(rowing_data, 'gate_angle', 'gate_force_x', 'Gate Force %', 'Drive Length (%)', 'Gate Force (%)', True, True, names=name_array)
+            }
 
-        if session_data['seat_sensors']:
-            returned_graphs['legsvelocity'] = get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array)
-            returned_graphs['seatposition'] = get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array)
-            returned_graphs['legsvelocitygateangle'] = get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array)
-            returned_graphs['bodyarmsvelocity'] = get_sample_line_plots(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array)
+            if session_data['seat_sensors']:
+                returned_graphs['legsvelocity'] = get_sample_line_plots(rowing_data, session_data['normalizedtime'], 'seat_posn_vel', 'Legs Velocity','% Of Cycle', 'Legs Vel (deg)', names=name_array)
+                returned_graphs['seatposition'] = get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn', 'Seat Position', 'Gate Angle (deg)', 'Seat Position', names=name_array)
+                returned_graphs['legsvelocitygateangle'] = get_sample_line_plots(rowing_data, 'gate_angle', 'seat_posn_vel', 'Legs Velocity', 'Drive Length (%)', 'Legs Velocity (%)', True,True, names=name_array)
+                returned_graphs['bodyarmsvelocity'] = get_sample_line_plots(rowing_data, 'gate_angle', 'body_arms_vel', 'Body + Arms Velocity', 'Drive Length (%)', 'Body Arms Vel (%)', True,True, names=name_array)
 
-    elif page_name == 'average':
+    if page_name == 'average':
         returned_graphs = {
             "syncronisation": get_avg_syncronisation_plot(rowing_data, names=name_array),
             "ratios": get_avg_ratio_plot(rowing_data, names=name_array),
@@ -324,10 +352,13 @@ def session_page(session_id, page_name):
         returned_graphs = {
             "acceleration": get_sample_line_plots(session_data, 'normalizedtime', 'acceleration', 'Boat Acceleration', 'Normalized Time (%)', 'Acceleration (m/s)', False, False, rates),
             "rowing_speed": get_sample_line_plots(session_data, None, 'meterspersecond', 'Boat Speed', 'Samples | Rate', 'Speed (m/s)', False, False, rates),
-            "power_timeline": get_avg_line_plot(rowing_data, None, 'power_timeline', 'Power Timeline', 'Strokes', 'Power (W)', False, False, names=name_array)
+            "power_timeline": get_avg_line_plot(rowing_data, None, 'power_timeline', 'Power Timeline', 'Strokes', 'Power (W)', False, False, names=name_array),
         }
-    else:
-        returned_graphs = {}
+
+    elif page_name == 'overview':
+        returned_graphs = {
+            "map": plot_map(session_data)
+        }
 
     # Render the page with the correct data
     return render_template(
@@ -336,10 +367,11 @@ def session_page(session_id, page_name):
         rowers=rowing_data,
         boat_data=session_data,
         user=session['user'],
-        graphs=returned_graphs
+        graphs=returned_graphs,
+        sample_selected=selected_sample
     )
 
-
+# Admin page
 @app.route('/dashboard/admin', methods=['GET', 'POST'])
 @login_required
 @role_required('is_admin')
@@ -357,6 +389,7 @@ def admin():
         user=session['user']
     )
 
+# Delete user route
 @app.route('/dashboard/admin/delete_user/<int:user_id>', methods=['POST'])
 @login_required
 @role_required('is_admin')
@@ -368,7 +401,9 @@ def delete_user(user_id):
         flash(f'Failed to delete session. Status code: {response.status_code}', 'error')
     return redirect(url_for('admin'))
 
+# View account details page
 @app.route('/dashboard/account')
+@login_required
 def account():
     return render_template(
         'dashboard.html',
@@ -376,11 +411,13 @@ def account():
         page='account'
     )
 
+# Logout route
 @app.route('/logout')
 @login_required
 def logout():
     session.pop('user', None)
     return redirect(url_for('login'))
 
+# Run the app
 if __name__ == '__main__':
     app.run(debug=True)

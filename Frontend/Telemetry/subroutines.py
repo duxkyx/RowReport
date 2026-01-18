@@ -219,7 +219,7 @@ def find_Column_Position(name, grid, Column_Name_Line):
             return incrementer
         incrementer += 1
 
-# Check if input is a 3D list
+# Check if input is a 2D list
 def is_2d_list(lst):
     return (
         isinstance(lst, list) and

@@ -2,6 +2,7 @@ from Telemetry.file_analyser import get_session_data
 from Telemetry.section_data import section_rower_data, section_boat_data
 from Telemetry.subroutines import convert
 
+
 class Rower_Sampled_Data:
     def __init__(self):
         self.user_id = ''

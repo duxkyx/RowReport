@@ -15,14 +15,14 @@ def create_ratio_plot(values, names=None):
         # Each row represents a bar; each value segment is a stacked section
         for idx, row in enumerate(values):
             if names:
-                name_value=f'{idx + 1} | {names[idx]}'
+                name_value=f'{names[idx]} | {idx + 1} Seat'
             else:
                 name_value=f'{idx + 1} | Seat'
             start = 0
             for i, val in enumerate(row):
                 fig.add_trace(go.Bar(
                     x=[val],
-                    y=[names[idx] if names else f'Seat {idx + 1}'],
+                    y=[name_value],
                     orientation='h',
                     name=categories[i] if i < len(categories) else f'Segment {i+1}',
                     marker=dict(color=bar_colours[i]),

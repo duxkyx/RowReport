@@ -11,10 +11,17 @@ def get_statistics(session: Session):
         select(account_table)
     )
     accounts = session.exec(user_statement).all()
+
+    telemetry_statement = (
+        select(user_telemetry_data)
+    )
+    
+    telemetry = session.exec(telemetry_statement).all()
     
     return {
         'users': len(accounts),
         'uploads': len(sessions),
         'strokes': sum(r.tstrokes for r in sessions),
         'distance': sum(r.distance for r in sessions),
+        'wattage': sum(sum(r.power_timeline) for r in telemetry)
     }

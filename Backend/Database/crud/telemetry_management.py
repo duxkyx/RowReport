@@ -9,7 +9,7 @@ def add_session(session: Session, data):
     session.refresh(db_obj)
     return {"session_id": db_obj.id}
 
-# Delete session where session_id = given id
+"""# Delete session where session_id = given id
 def delete_session(session: Session, session_id: int) -> rowing_session_table:
     statement = select(rowing_session_table).where(rowing_session_table.id == session_id)
     obj = session.exec(statement).first()
@@ -23,7 +23,7 @@ def delete_session(session: Session, session_id: int) -> rowing_session_table:
         session.delete(record)
         session.commit()
 
-    return obj
+    return obj"""
 
 # Adds rower data to database
 def add_rower_data(session: Session, data) -> user_telemetry_data:

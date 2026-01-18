@@ -28,6 +28,8 @@ def section_boat_data(boat_dict, boat_Data, new_Class):
         if src_key in TWO_D_KEYS:
             sectioned = section_List(values, boat_Data)
             setattr(new_Class, dest_attr, average_Array_into_Sections(sectioned))
+        elif src_key == "GPS":
+            setattr(new_Class, dest_attr, values)
         else:
             setattr(new_Class, dest_attr, section_Data(values, boat_Data))
 

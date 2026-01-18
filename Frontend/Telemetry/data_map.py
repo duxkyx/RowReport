@@ -52,7 +52,7 @@ mapping_rower = {
     "Difference_Effective_End": "difference_effective_end",
     "Difference_Finish": "difference_finish",
     "Difference_Max": "difference_max",
-    "Difference_Recovery": "difference_recovery"
+    "Difference_Recovery": "difference_recovery",
 }
 
 mapping_boat = {
@@ -62,5 +62,6 @@ mapping_boat = {
     "Stroke Time": "stroketime",
     "Meters/s": "meterspersecond",
     "Acceleration": "acceleration",
-    "Normalized Time": "normalizedtime"
+    "Normalized Time": "normalizedtime",
+    "GPS": "gps",
 }

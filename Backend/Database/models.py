@@ -10,7 +10,7 @@ class account_table(SQLModel, table=True):
     email: str = Field(index=True, unique=True, nullable=False)
     password: str
 
-# Permissions Talble
+# Permissions Table
 class permissions_table(SQLModel, table=True):
     user_id: int = Field(foreign_key='account_table.id', primary_key=True)
     is_admin: bool = Field(default=False)
@@ -37,8 +37,6 @@ class rowing_session_table(SQLModel, table=True):
     boattype: str
     date: str
     serial: str
-    latitude: float
-    longitude: float
     seat_sensors: bool
 
     rating: List[float] = Field(sa_column=Column(JSON))
@@ -50,6 +48,8 @@ class rowing_session_table(SQLModel, table=True):
     # 2D arrays
     acceleration: List[List[float]] = Field(sa_column=Column(JSON))
     normalizedtime: List[List[float]] = Field(sa_column=Column(JSON))
+    gps: List[List[float]] = Field(sa_column=Column(JSON))
+
 
 # Rower Profiles Table
 class user_telemetry_data(SQLModel, table=True):
