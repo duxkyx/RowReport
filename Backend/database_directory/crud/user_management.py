@@ -1,5 +1,5 @@
 from sqlmodel import Session, select, or_
-from Database.models import account_table, rowing_session_table, user_telemetry_data, permissions_table
+from database_directory.models import account_table, rowing_session_table, user_telemetry_data, permissions_table
 
 # Add user to database
 def create_user(session: Session, data):
