@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 from Database.db import engine
-from API.routes import sessions, users, retrieve
+from api_directory.routes import sessions, users, retrieve
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()

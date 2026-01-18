@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from Database.db import get_session
-from API.schemas import User, UserLogin
+from api_directory.schemas import User, UserLogin
 from Database.crud import user_management as crud
 
 router = APIRouter()
