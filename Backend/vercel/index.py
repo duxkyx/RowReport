@@ -2,8 +2,8 @@
 import sys
 import os
 
-# Add Backend to Python path
-sys.path.append(os.path.abspath("Backend"))
+sys.path.append(os.path.abspath("API"))
+sys.path.append(os.path.abspath("Database"))
 
 from API.main import app  # must be named `app`
 
