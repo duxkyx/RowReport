@@ -55,3 +55,4 @@ start_API
 General ignores
 
 *.bak *.swp *~ *.tmp
+.vercel

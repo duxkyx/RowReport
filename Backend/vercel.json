@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/index.py": {
+    "vercel/index.py": {
       "runtime": "python3.11",
       "maxDuration": 10
     }
