@@ -40,6 +40,7 @@ def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session
         state=boat_data.get("state"),
         serial=boat_data.get("serial"),
         duration=boat_data.get("timeelapsed"),
+        distance=boat_data.get("distance"),
         session_id=session_id,
         website_url=website_url
     )
