@@ -69,3 +69,4 @@ General ignores
 
 *.bak *.swp *~ *.tmp
 .vercel
+Backend/.env
