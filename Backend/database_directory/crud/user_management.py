@@ -45,11 +45,19 @@ def authenticate_user(session: Session, data):
     }
 
 # Returns all users
-def get_all_users(session: Session):
-    statement = (
-        select(account_table, permissions_table).order_by(account_table.id.asc())
-        .join(permissions_table, account_table.id == permissions_table.user_id)
-    )
+def get_all_users(session: Session, order: str = None):
+    if order:
+        statement = (
+            select(account_table, permissions_table)
+            .where(account_table.first_name.ilike(f"%{order}%") | account_table.last_name.ilike(f"%{order}%") | account_table.email.ilike(f"%{order}%"))
+            .order_by(account_table.first_name.asc())
+            .join(permissions_table, account_table.id == permissions_table.user_id)
+        )
+    else:
+        statement = (
+            select(account_table, permissions_table).order_by(account_table.id.asc())
+            .join(permissions_table, account_table.id == permissions_table.user_id)
+        )
     results = session.exec(statement).all()
 
     return [

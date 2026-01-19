@@ -4,6 +4,7 @@ from database_directory.db import get_session
 from api_directory.schemas import User, UserLogin, BoatTelemetryData
 from database_directory.crud import user_management as crud
 from api_directory import send_email
+from typing import Optional
 
 router = APIRouter()
 
@@ -25,8 +26,8 @@ def login(user: UserLogin, session: Session = Depends(get_session)):
 
 # FastAPI get all users route
 @router.get("/get_all_users")
-def get_users(session: Session = Depends(get_session)):
-    users = crud.get_all_users(session)
+def get_users(order: Optional[str] = None, session: Session = Depends(get_session)):
+    users = crud.get_all_users(session, order)
     if users is None:
         raise HTTPException(status_code=404, detail="No users found")
     return users

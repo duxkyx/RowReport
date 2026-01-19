@@ -5,13 +5,18 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!modalEl) return;
 
   // Attach listener for when modal is shown
-  modalEl.addEventListener('shown.bs.modal', function () {
+  modalEl.addEventListener('shown.bs.modal', function () {    
     $('.user-dropdown').select2({
       placeholder: "Search for a user",
       ajax: {
         url: getUsersApiRoute,
         dataType: 'json',
         delay: 250,
+        data: function (params) {
+          return {
+            order: params.term // search term
+          };
+        },
         processResults: function (data) {
           return {
             results: data.map(user => ({
@@ -20,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }))
           };
         },
+
         cache: true
       },
       minimumInputLength: 0,
