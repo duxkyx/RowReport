@@ -4,8 +4,10 @@ from sqlmodel import SQLModel
 from database_directory.db import engine
 from api_directory.routes import sessions, users, retrieve
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 app = FastAPI()
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 app.add_middleware(
     CORSMiddleware,

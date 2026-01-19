@@ -5,3 +5,5 @@ sqlmodel
 uvicorn
 python-dotenv
 pydantic[email]
+EmailMessage
+jinja2

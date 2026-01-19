@@ -232,6 +232,15 @@ def upload():
                 rower['session_id'] = int(session_id)
                 response = requests.post(api_routes.upload_user_data, json=rower)
 
+                if response.status_code == 200:
+                    if user_id:
+                        payload = {
+                            "user_id": rower['user_id'],
+                            "boat_data": Boat_Data,
+                            "session_id": session_id
+                        }
+                        requests.post(api_routes.email_user, json=payload)
+
             return redirect(url_for('sessions'))
         
     return render_template(

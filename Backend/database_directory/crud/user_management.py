@@ -90,3 +90,10 @@ def delete_user(session: Session, user_id: int):
     session.commit()
 
     return {"status": "success", "user_id": user_id}
+
+def get_account_information(session: Session, user_id: int):
+    statement = select(account_table).where(account_table.id == user_id)
+    user = session.exec(statement).first()
+    if not user:
+        raise ValueError("User not found")
+    return user

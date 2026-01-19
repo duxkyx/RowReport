@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlmodel import Session
 from database_directory.db import get_session
-from api_directory.schemas import User, UserLogin
+from api_directory.schemas import User, UserLogin, BoatTelemetryData
 from database_directory.crud import user_management as crud
+from api_directory import send_email
 
 router = APIRouter()
 
@@ -36,4 +37,23 @@ def delete_user(user_id: int, session: Session = Depends(get_session)):
     try:
         return crud.delete_user(session, user_id)
     except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+# FastAPI Email user of telemetry upload
+@router.post("/email_user")
+def email_user(payload: dict, background_tasks: BackgroundTasks, session: Session = Depends(get_session)):
+    try:
+        user_id = payload.get("user_id")
+        boat_data = payload.get("boat_data")
+        session_id = payload.get("session_id")
+
+        if not boat_data:
+            raise HTTPException(status_code=400, detail="boat_data is required")
+        
+        # Schedule the email to be sent in the background
+        background_tasks.add_task(send_email.send_telemetry_email, boat_data, user_id, session_id, session)
+
+        return {"message": "Email sending scheduled"}
+        
+    except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

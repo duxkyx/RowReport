@@ -11,6 +11,7 @@ get_statistics = api_route("/get_statistics")
 create_user = api_route("/register")
 check_user = api_route("/login")
 get_all_users = api_route("/get_all_users")
+email_user = api_route("/email_user")
 
 upload_session = api_route('/upload/session')
 upload_user_data = api_route('/upload/user_data')
