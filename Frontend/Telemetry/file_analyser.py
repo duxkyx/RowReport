@@ -5,7 +5,6 @@ import Telemetry.subroutines as Subroutines
 import math
 import numpy as np
 
-
 def get_session_data(file):
     grid = []
     profiles_List = []
@@ -14,6 +13,7 @@ def get_session_data(file):
 
     getPercentage = Subroutines.calculate_Percentage
     getAverage = Subroutines.calculate_Average
+    calculate_time = Subroutines.calculate_time
 
     """
     This section defines the classes which will be used to store each individual seats data from the boat.
@@ -660,23 +660,22 @@ def get_session_data(file):
                         if not after_Recovery:
                             if (angle > real_Catch):
                                 if angle >= angle_25_recovery:
-                                    if Ticks_To_25Recov == 0:
-                                        Ticks_To_25Recov = iteration
-
                                     recovery_Length_1 += 1
 
                                 elif angle >= angle_50_recovery:
-                                    if Ticks_To_50Recov == 0:
-                                        Ticks_To_50Recov = iteration
+                                    if Ticks_To_25Recov == 0:
+                                        Ticks_To_25Recov = iteration
 
                                     recovery_Length_2 += 1
 
                                 elif angle >= angle_75_recovery:
-                                    if Ticks_To_75Recov == 0:
-                                        Ticks_To_75Recov = iteration
+                                    if Ticks_To_50Recov == 0:
+                                        Ticks_To_50Recov = iteration
 
                                     recovery_Length_3 += 1
                                 else:
+                                    if Ticks_To_75Recov == 0:
+                                        Ticks_To_75Recov = iteration
                                     recovery_Length_4 += 1
                             else:
                                 after_Recovery = True
@@ -784,19 +783,27 @@ def get_session_data(file):
                         iteration = 0
                         seat_Change = 0
                         handle_Change = 0
-                        found_Seat = False
-                        found_Handle = False
-                        for vel in List_SeatPosVel:
-                            if not found_Seat:
-                                if vel <= 0.0:
+                        reached_Min_SeatPos = False
+                        reached_Min_Angle = False
+                        for pos in List_SeatPos:
+                            GateAngle = List_GateAngles[iteration]
+
+                            if not reached_Min_SeatPos:
+                                if pos == min(List_SeatPos):
+                                    reached_Min_SeatPos = True
+                            else:
+                                if pos > min(List_SeatPosVel) and seat_Change == 0:
                                     seat_Change = iteration
-                                    found_Seat = True
-                            if not found_Handle:
-                                if List_GateAngleVel[iteration] >= 0.0:
+
+                            if not reached_Min_Angle:
+                                if GateAngle == min(List_GateAngles):
+                                    reached_Min_Angle = True
+                            else:
+                                if GateAngle >= min(List_GateAngles) and handle_Change == 0:
                                     handle_Change = iteration
-                                    found_Handle = True
+
                             iteration += 1
-                        catch_Factor = (seat_Change / 50) - (handle_Change / 50)
+                        catch_Factor = calculate_time(seat_Change) - calculate_time(handle_Change)
 
                         # Body Arms Velocity calculation
                         count = 0
@@ -813,50 +820,54 @@ def get_session_data(file):
                         pass
 
                     # Stroke segment timing data.
-                    stroke_Time = float(lines_In_Stroke / 50)
-                    
-                    recovery_Time1 = float(recovery_Length_1 / 50) * 1000
-                    recovery_Time2 = float(recovery_Length_2 / 50) * 1000
-                    recovery_Time3 = float(recovery_Length_3 / 50) * 1000
-                    recovery_Time4 = float(recovery_Length_4 / 50) * 1000
-                    hang_Time1 = float(hang_Angles_1 / 50) * 1000
-                    hang_Time2 = float(hang_Angles_2 / 50) * 1000
-                    c_Slip_Time = float(catch_slip_Angles / 50) * 1000
-                    drive_Time1 = float(first_drive_Length / 50) * 1000
-                    drive_Time2 = float(second_drive_Length / 50) * 1000
-                    drive_Time3 = float(third_drive_Length / 50) * 1000
-                    drive_Time4 = float(fourth_dive_Length / 50) * 1000
-                    f_Slip_Time = float(finish_slip_Angles / 50) * 1000
-                    pause_Time1 = float(pause_Angles1 / 50) * 1000
-                    pause_Time2 = float(pause_Angles2 / 50) * 1000
-                    recovery_Time5 = float(recovery_Length_5 / 50) * 1000
-                    total_Drive_Time = (drive_Time1 + drive_Time2 + drive_Time3 + drive_Time4 + c_Slip_Time + f_Slip_Time + pause_Time1) / 1000
-                    total_Recovery_Time = (recovery_Time1 + recovery_Time2 + recovery_Time3 + recovery_Time4 + pause_Time2 + hang_Time1) / 1000
+                    stroke_Time = calculate_time(len(List_GateAngles)) / 1000
+
+                    total_Length = recovery_Length_1 + recovery_Length_2 + recovery_Length_3 + recovery_Length_4 + hang_Angles_1 + hang_Angles_2 + catch_slip_Angles + first_drive_Length + second_drive_Length + third_drive_Length + fourth_dive_Length + finish_slip_Angles + pause_Angles1 + pause_Angles2 + recovery_Length_5
+
+                    recovery_Time1 = calculate_time(recovery_Length_1)
+                    recovery_Time2 = calculate_time(recovery_Length_2)
+                    recovery_Time3 = calculate_time(recovery_Length_3)
+                    recovery_Time4 = calculate_time(recovery_Length_4)
+                    hang_Time1 = calculate_time(hang_Angles_1)
+                    hang_Time2 = calculate_time(hang_Angles_2)
+                    c_Slip_Time = calculate_time(catch_slip_Angles)
+                    drive_Time1 = calculate_time(first_drive_Length)
+                    drive_Time2 = calculate_time(second_drive_Length)
+                    drive_Time3 = calculate_time(third_drive_Length)
+                    drive_Time4 = calculate_time(fourth_dive_Length)
+                    f_Slip_Time = calculate_time(finish_slip_Angles)
+                    pause_Time1 = calculate_time(pause_Angles1)
+                    pause_Time2 = calculate_time(pause_Angles2)
+                    recovery_Time5 = calculate_time(recovery_Length_5)
+                    total_Drive_Time = (drive_Time1 + drive_Time2 + drive_Time3 + drive_Time4 + c_Slip_Time + f_Slip_Time) / 1000
+                    total_Recovery_Time = (recovery_Time1 + recovery_Time2 + recovery_Time3 + recovery_Time4 + pause_Time1 + pause_Time2 + hang_Time1 + hang_Time2 + recovery_Time5) / 1000
+
+                    #stroke_Time = total_Drive_Time + total_Recovery_Time
 
                     # Seat segment timing data
-                    before_Seat_Time = float(BeforeSeat_Length / 50)
-                    seat_Recovery_Time = float(SeatRecovery_Length / 50)
-                    Pause1_Time = float(Pause1_Length / 50)
-                    Pause2_Time = float(Pause2_Length / 50)
-                    Drive_Time = float(Drive_Length / 50)
-                    SeatDone1_Time = float(SeatDone1_Length / 50)
-                    SeatDone2_Time = float(SeatDone2_Length / 50)
+                    before_Seat_Time = float(BeforeSeat_Length * 50)
+                    seat_Recovery_Time = float(SeatRecovery_Length * 50)
+                    Pause1_Time = float(Pause1_Length * 50)
+                    Pause2_Time = float(Pause2_Length * 50)
+                    Drive_Time = float(Drive_Length * 50)
+                    SeatDone1_Time = float(SeatDone1_Length * 50)
+                    SeatDone2_Time = float(SeatDone2_Length * 50)
 
                     # Syncronisation data.
-                    Time_To_25_Recov = (Ticks_To_25Recov / 50) * 1000
-                    Time_To_50_Recov = (Ticks_To_50Recov / 50) * 1000
-                    Time_To_75_Recov = (Ticks_To_75Recov / 50) * 1000
-                    Time_To_Hang = (Ticks_To_Hang / 50) * 1000
-                    Time_To_Min = (Ticks_To_Min / 50) * 1000
-                    Time_To_Catch = (Ticks_to_Catch / 50) * 1000
-                    Time_To_Effective_Start = (Ticks_To_Effective_Drive / 50) * 1000
-                    Time_To_70MaxF = (Ticks_to_70MaxF / 50) * 1000
-                    Time_To_MaxF = (Ticks_to_MaxF / 50) * 1000
-                    Time_To_From70Maxf = (Ticks_to_From70MaxF / 50) * 1000
-                    Time_To_Effective_End = (Ticks_To_FSlip / 50) * 1000
-                    Time_To_Finish = (Ticks_to_Finish / 50) * 1000
-                    Time_To_Max = (Ticks_to_Max / 50) * 1000
-                    Time_To_Recovery = (Ticks_To_Recovery / 50) * 1000
+                    Time_To_25_Recov = calculate_time(Ticks_To_25Recov)
+                    Time_To_50_Recov = calculate_time(Ticks_To_50Recov)
+                    Time_To_75_Recov = calculate_time(Ticks_To_75Recov)
+                    Time_To_Hang = calculate_time(Ticks_To_Hang)
+                    Time_To_Min = calculate_time(Ticks_To_Min)
+                    Time_To_Catch = calculate_time(Ticks_to_Catch)
+                    Time_To_Effective_Start = calculate_time(Ticks_To_Effective_Drive)
+                    Time_To_70MaxF = calculate_time(Ticks_to_70MaxF)
+                    Time_To_MaxF = calculate_time(Ticks_to_MaxF)
+                    Time_To_From70Maxf = calculate_time(Ticks_to_From70MaxF)
+                    Time_To_Effective_End = calculate_time(Ticks_To_FSlip)
+                    Time_To_Finish = calculate_time(Ticks_to_Finish)
+                    Time_To_Max = calculate_time(Ticks_to_Max)
+                    Time_To_Recovery = calculate_time(Ticks_To_Recovery)
 
                     stroke_Rate = (60 / stroke_Time)
 

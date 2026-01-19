@@ -230,3 +230,8 @@ def is_2d_list(lst):
 # Seconds to hours
 def convert(seconds):
     return time.strftime("%H:%M:%S", time.gmtime(seconds))
+
+# Sample rate = 0.02, 1 / 50hz
+def calculate_time(length):
+    number_of_intervals = length-1
+    return float(number_of_intervals * 0.02) * 1000

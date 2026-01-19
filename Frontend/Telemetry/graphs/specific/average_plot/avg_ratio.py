@@ -7,26 +7,26 @@ def get_avg_ratio_plot(rowers_data, names):
         data = rower['telemetry']
         values = [
             ca(data['recovery_time_1']),
-            20, # Spacer
+            10, # Spacer
             ca(data['recovery_time_2']),
-            20, # Spacer
+            10, # Spacer
             ca(data['recovery_time_3']),
-            20, # Spacer
+            10, # Spacer
             ca(data['recovery_time_4']),
             ca(data['hang_time_1']),
-            20, # Spacer
+            10, # Spacer
             ca(data['hang_time_2']), 
             ca(data['catch_slip_time']),
             ca(data['drive_time_1']),
-            20, # Spacer
+            10, # Spacer
             ca(data['drive_time_2']),
-            20, # Spacer
+            10, # Spacer
             ca(data['drive_time_3']),
-            20, # Spacer
+            10, # Spacer
             ca(data['drive_time_4']),
             ca(data['finish_slip_time']),
             ca(data['pause_time_1']),
-            20, # Spacer
+            10, # Spacer
             ca(data['pause_time_2']),
             ca(data['recovery_time_5'])
         ]
