@@ -12,7 +12,6 @@ email_password = os.getenv("EMAIL_PASSWORD")
 website_url = "https://row-report.onrender.com/"
 
 def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session: Session):
-    print(email_password,email_sender)
     # Fetch user email and name from the database
     user = get_account_information(session, user_id)
     coach = get_account_information(session, boat_data.get('coach_id'))
