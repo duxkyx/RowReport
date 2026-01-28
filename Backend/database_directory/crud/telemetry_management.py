@@ -211,6 +211,7 @@ def get_user_sessions(session: Session, user_id: int):
         )
         session_result = session.exec(session_statement).all()
         return session_result
+    
     if permissions.is_coach:
         session_statement = (
             select(rowing_session_table).order_by(rowing_session_table.id.desc())
@@ -218,6 +219,7 @@ def get_user_sessions(session: Session, user_id: int):
         )
         session_result = session.exec(session_statement).all()
         return session_result
+    
     else:
         session_statement = (
             select(rowing_session_table).order_by(rowing_session_table.id.desc())
@@ -226,6 +228,15 @@ def get_user_sessions(session: Session, user_id: int):
         )
         session_result = session.exec(session_statement).all()
         return session_result
+
+# Returns the details for a given session
+def get_session_details(session: Session, session_id: int):
+    session_statement = (
+        select(rowing_session_table)
+        .where(rowing_session_table.id == session_id)
+    )
+    session_result = session.exec(session_statement).first()
+    return session_result
 
 # Returns all the rower data for a given session
 def get_rower_data(session: Session, session_id: int):

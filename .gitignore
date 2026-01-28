@@ -70,3 +70,6 @@ General ignores
 *.bak *.swp *~ *.tmp
 .vercel
 Backend/.env
+
+# Ignore Flask large session cache
+large_session_cache/

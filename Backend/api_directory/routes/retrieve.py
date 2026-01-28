@@ -42,6 +42,13 @@ def get_sessions(user_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="User sessions not found")
     return sessions
 
+@router.get("/user_data/get_session/{session_id}")
+def get_session_details(session_id: int, session: Session = Depends(get_session)):
+    details = crud.get_session_details(session, session_id)
+    if details is None:
+        raise HTTPException(status_code=404, detail="Session details not found")
+    return details
+
 @router.get("/user_data/get_rower_data/{session_id}")
 def get_rower_data(session_id: int, session: Session = Depends(get_session)):
     data = crud.get_rower_data(session, session_id)

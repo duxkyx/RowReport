@@ -10,9 +10,21 @@ router = APIRouter()
 
 # FastAPI register user route
 @router.post("/register")
-def register(user: User, session: Session = Depends(get_session)):
+def register(user: User, background_tasks: BackgroundTasks, session: Session = Depends(get_session)):
     try:
-        return crud.create_user(session, user)
+        created_user = crud.create_user(session, user)
+
+        email = created_user.email
+        first_name = created_user.first_name
+        # Send account confirmation email
+        background_tasks.add_task(
+            send_email.send_account_confirmation_email, 
+            email,
+            first_name
+        )
+
+        return created_user
+
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

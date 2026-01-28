@@ -36,8 +36,16 @@ from Telemetry.api_requests.get_rower_data import get_rower_data
 
 # Setup flask settings
 app = Flask(__name__, template_folder='templates', static_folder='static')
+
+# Secret key for sessions
 app.secret_key = 'e9f8a7d9a8fbd0c44a3ff0e1b7351f3c7b1a64e8f9e3b0e59f46a8cbb3e72c9f'
+
+# Configure session to use filesystem (to store large objects temporarily such as uploaded files)
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_FILE_DIR"] = "large_session_cache"  # folder for temp objects
+app.config["SESSION_PERMANENT"] = False  # optional
+
+# Initialize the filesystem session
 Session(app)
 
 # Define login required decorator
@@ -240,6 +248,14 @@ def upload():
                             "session_id": session_id
                         }
                         requests.post(api_routes.email_user, json=payload)
+            
+            # Email coach that upload was successful
+            payload = {
+                "user_id": Boat_Data['coach_id'],
+                "boat_data": Boat_Data,
+                "session_id": session_id
+            }
+            requests.post(api_routes.email_user, json=payload)
 
             return redirect(url_for('sessions'))
         
@@ -254,11 +270,10 @@ def upload():
 @login_required
 def sessions():
     all_sessions = get_sessions(session['user']['id'])
-    session['cached_rowing_reports'] = all_sessions
     return render_template(
         "dashboard.html", 
         page="sessions", 
-        sessions=session['cached_rowing_reports'],
+        sessions=all_sessions,
         user=session['user'],
     )
 
@@ -266,17 +281,13 @@ def sessions():
 @app.route('/dashboard/sessions/session_id=<int:session_id>/page=<page_name>', methods=['GET', 'POST'])
 @login_required
 def session_page(session_id, page_name):
-    # Get session from cache
-    session_data = None
-    for rowing_session in session.get('cached_rowing_reports', []):
-        if rowing_session['id'] == session_id:
-            session_data = rowing_session
-            break
+    # Get session data from API
+    session_data = requests.get(api_routes.get_session + f'/{session_id}').json()
 
     # If not session found
     if not session_data:
         return redirect(url_for('sessions'))
-    
+        
     # Handle session deletion
     if request.method == 'POST' and request.form.get('action') == 'delete_session':
         # Check if user is a coach
@@ -288,8 +299,6 @@ def session_page(session_id, page_name):
             # Make API call to delete session
             response = requests.delete(f"{api_routes.delete_session}/{session_id}")
             if response.status_code == 200:
-                # Update session cache by removing the deleted session
-                session['cached_rowing_reports'] = [s for s in session['cached_rowing_reports'] if s['id'] != session_id]
                 return redirect(url_for('sessions'))
             else:
                 flash(f'Failed to delete session. Status code: {response.status_code}', 'error')

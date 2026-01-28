@@ -3,18 +3,16 @@ from sqlmodel import Session
 from database_directory.crud.user_management import get_account_information
 import smtplib
 import ssl
-from dotenv import load_dotenv
 import os
 from jinja2 import Template
-
-
-load_dotenv()
+from api_directory.schemas import User
 
 email_sender = os.getenv("EMAIL_SENDER")
 email_password = os.getenv("EMAIL_PASSWORD")
 website_url = "https://row-report.onrender.com/"
 
 def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session: Session):
+    print(email_password,email_sender)
     # Fetch user email and name from the database
     user = get_account_information(session, user_id)
     coach = get_account_information(session, boat_data.get('coach_id'))
@@ -28,7 +26,7 @@ def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session
     msg['Subject'] = subject
 
     # Load HTML template
-    with open("email_template.html", "r", encoding="utf-8") as f:
+    with open("session_email_template.html", "r", encoding="utf-8") as f:
         template = Template(f.read())
 
     html_content = template.render(
@@ -42,6 +40,31 @@ def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session
         duration=boat_data.get("timeelapsed"),
         distance=boat_data.get("distance"),
         session_id=session_id,
+        website_url=website_url
+    )
+
+    msg.add_alternative(html_content, subtype="html")
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(email_sender, email_password)
+        smtp.send_message(msg)
+
+def send_account_confirmation_email(email: str, first_name: str):
+    subject = 'RowReport - Account Confirmation'
+    email_reciever = email
+
+    msg = EmailMessage()
+    msg['From'] = f"RowReport <{email_sender}>"
+    msg['To'] = email_reciever
+    msg['Subject'] = subject
+
+    # Load HTML template
+    with open("account_confirmation_template.html", "r", encoding="utf-8") as f:
+        template = Template(f.read())
+
+    html_content = template.render(
+        first_name=first_name,
         website_url=website_url
     )
 
