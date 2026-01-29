@@ -1,9 +1,8 @@
-from flask_migrate import current
 import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.subplots import make_subplots
 from Telemetry.colours import seat_colours, seat_effective_colours
-from Telemetry.subroutines import is_2d_list, average_Array_into_One_Percentage, average_Array_into_One
+from Telemetry.subroutines import is_2d_list, average_Array_into_One
 
 def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=None):
     fig = go.Figure()
