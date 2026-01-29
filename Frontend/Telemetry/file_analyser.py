@@ -1018,16 +1018,27 @@ def get_session_data(file):
     """
     GPS Section
     """
-    AVG_EARTH_RADIUS_KM = 6371.0088
-    lat_scale = (AVG_EARTH_RADIUS_KM * 1000 * np.pi/180)
-    lon_scale = lat_scale * np.cos(np.deg2rad(boat_Data.Latitude))
+    ref_lat = boat_Data.Latitude
+    ref_lon = boat_Data.Longitude
+
+    meters_per_deg_lat = 111320  # Approx. meters per degree latitude
+    meters_per_deg_lon = meters_per_deg_lat * math.cos(math.radians(ref_lat))  # Longitude varies by latitude
+
+    # Iterate through the GPS data lines in the grid.
     for row in range(GPS_Start_Line, GPS_End_Line):
+
+        # Extract raw latitude and longitude in meters
         raw_lat = float(grid[row][11])
         raw_lon = float(grid[row][12])
 
-        lon = raw_lon / (boat_Data.Longitude + lon_scale)
-        lat = raw_lat / (boat_Data.Latitude + lat_scale)
-        boat_Data.data['GPS'].append([lon,lat])
+        # Convert to Lon, Lat degrees
+        delta_lat = raw_lat / meters_per_deg_lat
+        delta_lon = raw_lon / meters_per_deg_lon
+        lat_new = ref_lat + delta_lat
+        lon_new = ref_lon + delta_lon
+
+        # Append converted GPS data to boat data object dictionary
+        boat_Data.data['GPS'].append([lon_new,lat_new])
 
     # Setting syncronisation
     Stroke_25_Recov = []
@@ -1094,6 +1105,7 @@ def get_session_data(file):
             Max_Difference = round((Max_Time-Stroke_Max[count]),3)
             Recovery_Difference = round((Recovery_Time-Stroke_Recovery[count]),3)
 
+            # Add calculated differences to rower data object dictionary
             rower.data['Difference_25'].append(Recov_25_Difference)
             rower.data['Difference_50'].append(Recov_50_Difference)
             rower.data['Difference_75'].append(Recov_75_Difference)

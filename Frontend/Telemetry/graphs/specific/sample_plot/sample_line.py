@@ -1,7 +1,7 @@
 from Telemetry.graphs.plot_line import plot_line
 from Telemetry.subroutines import average_Array_into_One_Percentage as aaiop
 
-def get_sample_line_plots(data_container, xaxis, yaxis, title, xaxis_title, yaxis_title, percentage_x=False, percentage_y=False, names=None):
+def get_sample_line_plots(data_container, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None):
     plots = []
     content_of_container = ''
     if isinstance(data_container, dict): # Checks how the data is structured (dict within dict or just dict)
@@ -11,44 +11,44 @@ def get_sample_line_plots(data_container, xaxis, yaxis, title, xaxis_title, yaxi
 
     if content_of_container == 'telemetry':
         for sample in range(0,8):
-            y_axis_values = []
-            x_axis_values = []
+            new_x_axis_values = []
+            new_y_axis_values = []
 
             for rower in data_container:
                 telem_dict = rower['telemetry']
     
                 if percentage_x:
-                    if type(xaxis) is list:
-                        x_axis_values.append(aaiop(xaxis))
+                    if type(x_axis_values) is list:
+                        new_x_axis_values.append(aaiop(x_axis_values))
                     else:
-                        x_axis_values.append(aaiop(telem_dict[xaxis]))
+                        new_x_axis_values.append(aaiop(telem_dict[x_axis_values]))
                 else:
-                    if type(xaxis) is list:
-                        x_axis_values.append(xaxis[sample])
+                    if type(x_axis_values) is list:
+                        new_x_axis_values.append(x_axis_values[sample])
                     else:
-                        x_axis_values.append(telem_dict[xaxis][sample])
+                        new_x_axis_values.append(telem_dict[x_axis_values][sample])
 
                 if percentage_y:
-                    y_axis_values.append(aaiop(telem_dict[yaxis]))
+                    new_y_axis_values.append(aaiop(telem_dict[y_axis_values]))
                 else:
-                    y_axis_values.append(telem_dict[yaxis][sample])
-            
-            plot = plot_line(y_axis_values, x_axis_values, title, yaxis_title, xaxis_title, names)
+                    new_y_axis_values.append(telem_dict[y_axis_values][sample])
+
+            plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names)
             plots.append(plot)
 
     else:
-        y_axis_values = []
-        x_axis_values = []
+        new_x_axis_values = []
+        new_y_axis_values = []
 
         for sample in range(0,8):
-            if xaxis == None:
-                x_axis_values.append(str(data_container['rating'][sample]))
+            if x_axis_values == None:
+                new_x_axis_values.append(str(data_container['rating'][sample]))
             else:
-                x_axis_values.append(data_container[xaxis][sample])
+                new_x_axis_values.append(data_container[x_axis_values][sample])
 
-            y_axis_values.append(data_container[yaxis][sample])
+            new_y_axis_values.append(data_container[y_axis_values][sample])
 
-        plot = plot_line(y_axis_values, x_axis_values, title, yaxis_title, xaxis_title, names)
+        plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names)
         return plot
     
     return plots

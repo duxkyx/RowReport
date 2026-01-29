@@ -81,6 +81,7 @@ def get_Meters_Sample_Text(boatData, sample):
     return string
 
 # Returns an array which contains 8 other arrays which hold the sectioned data (not averaged).
+# This data is seperated into 8 sections based on distance. (each array has no limit of values, just based on distance).
 def section_List(data_List, boat_Data):
     sectioned_List = []
     elements_Per_Section = []

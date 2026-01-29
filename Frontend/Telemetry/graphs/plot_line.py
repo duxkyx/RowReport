@@ -1,26 +1,81 @@
+from flask_migrate import current
 import plotly.graph_objects as go
 import plotly.io as pio
-from Telemetry.colours import seat_colours
-from Telemetry.subroutines import is_2d_list, average_Array_into_One_Percentage
+from plotly.subplots import make_subplots
+from Telemetry.colours import seat_colours, seat_effective_colours
+from Telemetry.subroutines import is_2d_list, average_Array_into_One_Percentage, average_Array_into_One
 
-def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names):
+def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=None):
     fig = go.Figure()
     colours = list(seat_colours.values())
+    effective_colours = list(seat_effective_colours.values())
 
     if is_2d_list(y_array):
-        iterations = 0
-        for array in y_array:
+        # Iterate through the array holding the values for each athlete. (8 arrays for 8 athletes)
+        for iterations in range(len(y_array)):
+            # Add the names if they exist.
             if names:
                 name_value=f'{iterations + 1} | {names[iterations]}'
             else:
                 name_value=f'{iterations + 1}'
 
-            fig.add_trace(go.Scatter(
-                x=x_array[iterations], 
-                y=array, 
-                name=name_value, 
-                line=dict(color=colours[iterations])
-            ))
+            # Define current athlete values
+            x_vals = x_array[iterations]
+            y_vals = y_array[iterations]
+
+            # Special case for seat position to change line colour based on gateforcex
+            if title == 'Seat Position':
+                gateforce_vals = optional_values[iterations]
+                average_gateforce_array = average_Array_into_One(gateforce_vals)
+
+                current_x = []
+                current_y = []
+
+                highlight = average_gateforce_array[0] >= 30
+
+                for iteration_2 in range(len(x_vals)):
+                    gateforce = average_gateforce_array[iteration_2]
+                    new_highlight = gateforce >= 30
+
+                    if new_highlight != highlight and current_x:
+                        fig.add_trace(go.Scatter(
+                            x=current_x, 
+                            y=current_y, 
+                            mode="lines",
+                            name=name_value,
+                            legendgroup=name_value,
+                            showlegend=False, 
+                            line=dict(
+                                color=effective_colours[iterations] if highlight else colours[iterations]
+                            )
+                        ))
+
+                        current_x = []
+                        current_y = []
+                    
+                    current_x.append(x_vals[iteration_2])
+                    current_y.append(y_vals[iteration_2])
+                    highlight = new_highlight
+                    
+                fig.add_trace(go.Scatter(
+                    x=current_x, 
+                    y=current_y, 
+                    name=name_value, 
+                    legendgroup=name_value,
+                    showlegend=True,
+                    mode="lines",
+                    line=dict(
+                        color=colours[iterations]
+                    )
+                ))
+
+            else:
+                fig.add_trace(go.Scatter(
+                    x=x_vals, 
+                    y=y_vals, 
+                    name=name_value, 
+                    line=dict(color=colours[iterations])
+                ))
             iterations += 1
     else:
         fig.add_trace(go.Scatter(
@@ -48,8 +103,8 @@ def plot_line(y_array, x_array, title, yaxis_title, xaxis_title, names):
 
     fig.update_layout(
         title=title,
-        yaxis_title=yaxis_title,
-        xaxis_title = xaxis_title,
+        xaxis_title=x_label,
+        yaxis_title=y_label,
         template='plotly_white',
         xaxis=dict(
             gridcolor='grey',  # Dark navy grid           

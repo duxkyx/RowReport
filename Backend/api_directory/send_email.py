@@ -9,7 +9,7 @@ from api_directory.schemas import User
 
 email_sender = os.getenv("EMAIL_SENDER")
 email_password = os.getenv("EMAIL_PASSWORD")
-website_url = "https://row-report.onrender.com/"
+website_url = "https://row-report.onrender.com"
 
 def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session: Session):
     # Fetch user email and name from the database

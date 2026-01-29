@@ -295,7 +295,7 @@
                 <td>{{ session.date }}</td>
                 <td>{{ session.seats }}</td>
                 <td>{{ session.tstrokes }}</td>
-                <td>{{ session.distance | round(2) }} (m)</td>
+                <td>{{ session.distance | round | int }} (m)</td>
                 <td>{{ session.timeelapsed }}</td>
                 <td><a href="/dashboard/sessions/session_id={{ session.id }}/page=overview" class="btn btn-sm btn-info">View</a></td>
               </tr>
@@ -682,7 +682,7 @@
                     <li>
                       <button type="submit" name="sample_id" value="{{ i }}" 
                               class="dropdown-item {% if sample_selected == 'Sample ' ~ i %}active{% endif %}">
-                              Sample {{ i }}
+                              Sample {{ i }} | {{ (boat_data.distance / 8 * (i-1)) | round | int }} m - {{ (boat_data.distance / 8 * i) | round | int}} m
                       </button>
                     </li>
                   {% endfor %}
