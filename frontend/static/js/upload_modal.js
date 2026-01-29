@@ -34,6 +34,21 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.querySelector('#uploadSessionModal form');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const loadingSpinner = document.getElementById('loading-overlay');
+
+  form.addEventListener('submit', function (e) {
+    // Disable button immediately
+    uploadBtn.disabled = true;
+    uploadBtn.innerText = 'Uploading...';
+
+    // Show loading spinner
+    loadingSpinner.classList.remove('d-none');
+  });
+});
+
 document.addEventListener('DOMContentLoaded', function(){
     if(showUploadModal) {
         if(modalEl){ 
