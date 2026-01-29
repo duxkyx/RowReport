@@ -79,10 +79,14 @@
       <!-- Loading overlay -->
       <div id="loading-overlay">
         <div class="spinner-container">
-          <div class="spinner"></div>
-          <p>Processing session...</p>
+            <div class="spinner"></div>
+            <div class="loading-text-container">
+              <div id="loading-text">Preparing</div>
+              <p id="loading-message"class="muted-sm">This won't take too long.</p>
+            </div>
         </div>
       </div>
+
 
       {% if page == 'dashboard' %}
       <div class="header-row">
@@ -254,7 +258,7 @@
 
               </div>
               <div class="modal-footer border-0">
-                <button type="submit" name="action" class="btn btn-primary" value="confirm_upload">Upload</button>
+                <button id="uploadBtn" type="submit" name="action" class="btn btn-primary" value="confirm_upload">Upload</button>
               </div>
             </form>
           </div>
