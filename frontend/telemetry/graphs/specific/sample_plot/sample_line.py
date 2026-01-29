@@ -1,4 +1,3 @@
-from matplotlib.pyplot import title
 from telemetry.graphs.plot_line import plot_line
 from telemetry.modules.sorting import average_Array_into_One_Percentage as aaiop
 
