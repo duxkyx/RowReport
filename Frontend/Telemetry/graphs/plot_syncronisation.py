@@ -1,8 +1,8 @@
 # Returns the plot for individual user syncronisation plot
 import plotly.graph_objs as go
 import plotly.io as pio
-from Telemetry.colours import seat_colours
-from Telemetry.subroutines import is_2d_list
+from telemetry.graphs.colours import seat_colours
+from telemetry.modules.checks import is_2d_list
 
 def create_syncronisation_plot(values, names=None):
     categories = [

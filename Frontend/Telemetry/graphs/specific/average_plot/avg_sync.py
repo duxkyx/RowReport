@@ -1,5 +1,5 @@
-from Telemetry.graphs.plot_syncronisation import create_syncronisation_plot
-from Telemetry.subroutines import calculate_Average as ca
+from telemetry.graphs.plot_syncronisation import create_syncronisation_plot
+from telemetry.modules.maths import calculate_Average as ca
 
 def get_avg_syncronisation_plot(rowers_data, names):
     rower_syncronisation_array = []

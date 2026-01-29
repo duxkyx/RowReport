@@ -1,4 +1,4 @@
-from Telemetry.graphs.plot_syncronisation import create_syncronisation_plot
+from telemetry.graphs.plot_syncronisation import create_syncronisation_plot
 
 def get_sample_syncronisation_plots(rowers_data, names):
     plots = []

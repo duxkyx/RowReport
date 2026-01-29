@@ -1,6 +1,6 @@
-from Telemetry.graphs.plot_line import plot_line
-from Telemetry.subroutines import average_Array_into_One as aaio
-from Telemetry.subroutines import average_Array_into_One_Percentage as aaiop
+from telemetry.graphs.plot_line import plot_line
+from telemetry.modules.sorting import average_Array_into_One as aaio
+from telemetry.modules.sorting import average_Array_into_One_Percentage as aaiop
 
 def get_avg_line_plot(rowers_data, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None):
     new_x_axis_values = []
@@ -33,7 +33,8 @@ def get_avg_line_plot(rowers_data, x_axis_values, y_axis_values, title, x_label,
 
         # To create the differnet colour lines for seat position based on gateforcex
         if title == 'Seat Position':
-            optional_values.append(data['gate_force_x'])
+            gate_force_list = aaio(data['gate_force_x'])
+            optional_values.append(gate_force_list)
 
     plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, optional_values)
     return plot

@@ -5,7 +5,6 @@ import smtplib
 import ssl
 import os
 from jinja2 import Template
-from api_directory.schemas import User
 
 email_sender = os.getenv("EMAIL_SENDER")
 email_password = os.getenv("EMAIL_PASSWORD")
@@ -25,7 +24,7 @@ def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session
     msg['Subject'] = subject
 
     # Load HTML template
-    with open("session_email_template.html", "r", encoding="utf-8") as f:
+    with open("email_templates/session_email_template.html", "r", encoding="utf-8") as f:
         template = Template(f.read())
 
     html_content = template.render(
@@ -59,7 +58,7 @@ def send_account_confirmation_email(email: str, first_name: str):
     msg['Subject'] = subject
 
     # Load HTML template
-    with open("account_confirmation_template.html", "r", encoding="utf-8") as f:
+    with open("email_templates/account_confirmation_template.html", "r", encoding="utf-8") as f:
         template = Template(f.read())
 
     html_content = template.render(
