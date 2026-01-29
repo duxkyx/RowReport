@@ -29,13 +29,22 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=
                 current_x = []
                 current_y = []
 
+                found_Effective_Start = False
                 highlight = gateforce_vals[0] >= 30
 
                 for iteration_2 in range(len(x_vals)):
                     gateforce = gateforce_vals[iteration_2]
-                    new_highlight = gateforce >= 30
+                    if not found_Effective_Start:
+                        new_highlight = gateforce >= 30
+                    else:
+                        new_highlight = gateforce >= 15
 
                     if new_highlight != highlight and current_x:
+
+                        # Effective start: >= 30kg, Effective end >= 15kg. Therefore once started, lower threshold to avoid missing values.
+                        if not found_Effective_Start:
+                            found_Effective_Start = True
+
                         fig.add_trace(go.Scatter(
                             x=current_x, 
                             y=current_y, 

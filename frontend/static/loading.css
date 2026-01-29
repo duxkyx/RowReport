@@ -83,10 +83,9 @@
 }
 
 #loading-message {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  color: rgba(226, 184, 190, 0.7);
+  font-size: 0.65rem;
+  letter-spacing: 0.01em;
+  color: rgba(133, 129, 129, 0.7);
   margin-top: 2px;
 }
 

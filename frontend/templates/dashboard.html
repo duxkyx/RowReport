@@ -82,7 +82,7 @@
             <div class="spinner"></div>
             <div class="loading-text-container">
               <div id="loading-text">Preparing</div>
-              <p id="loading-message"class="muted-sm">This won't take too long.</p>
+              <p id="loading-message"class="muted-sm">Processing over 1 million values of data. Please be patient, this may take a while.</p>
             </div>
         </div>
       </div>
@@ -304,6 +304,11 @@
                 <td><a href="/dashboard/sessions/session_id={{ session.id }}/page=overview" class="btn btn-sm btn-info">View</a></td>
               </tr>
               {% endfor %}
+              {% if sessions | length == 0 %}
+              <tr>
+                <td colspan="9" class="text-center">No sessions available. <br> Data will be avaliable once your coach has uploaded a session.</td>
+              </tr>
+              {% endif %}
             </tbody>
           </table>
         </div>

@@ -7,7 +7,6 @@ def plot_map(boat_data):
     coordinates_df = pd.DataFrame(coordinates, columns=['lon', 'lat'])
     coordinates_df['sections'] = [i for i in range(len(coordinates_df))]  # For coloring along path
     
-    print(boat_data['tstrokes'])
     # Use scatter_mapbox to allow color gradient
     fig = px.scatter_mapbox(
         coordinates_df,

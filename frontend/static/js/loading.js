@@ -11,18 +11,26 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingOverlay.style.display = 'flex';
 
             const messages = [
-            'Uploading file',
-            'Processing data',
-            'Calculating data',
-            'Caching results',
-            'Finalizing report'
+                'Uploading file',
+                'Reading file',
+                'Gridding data',
+                'Initiating objects',
+                'Iterating athletes',
+                'Seperating strokes',
+                'Calculating values',
+                'Mapping data',
+                'Converting units',
+                'Calculating syncronicity',
+                'Returning profiles',
+                'Caching results',
+                'Looping until finished'
             ];
 
             let i = 0;
             setInterval(() => {
                 loadingText.textContent = messages[i];
                 i = (i + 1) % messages.length;
-            }, 1300);
+            }, 3500);
         });
     }
 
