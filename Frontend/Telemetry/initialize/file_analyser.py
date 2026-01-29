@@ -1,9 +1,9 @@
 # Peach Telemetry data analysis program | Developed by Ben Loggie
 # This program file will take the found file and convert it into a grid format, this grid is then searched and calculations are made to find the relevent data.
 
-import Telemetry.subroutines as Subroutines
+import telemetry.modules.maths as maths_module
+import telemetry.initialize.temp_classes as temp_classes
 import math
-import numpy as np
 
 def get_session_data(file):
     grid = []
@@ -11,171 +11,17 @@ def get_session_data(file):
     strokes_Skipped = [] # Holds the iteration count for the stroke not recorded (not full normalized time)
     boat_Data = None
 
-    getPercentage = Subroutines.calculate_Percentage
-    getAverage = Subroutines.calculate_Average
-    calculate_time = Subroutines.calculate_time
+    getPercentage = maths_module.calculate_Percentage
+    getAverage = maths_module.calculate_Average
+    calculate_time = maths_module.calculate_time
 
     """
     This section defines the classes which will be used to store each individual seats data from the boat.
     """
 
-    # Initiating the frame for storing boat data.
-    class Boat_Data():
-        def __init__(self):
-            self.FileName = file.filename
-            self.BoatName = 'n/a'
-            self.Category = 'n/a'
-            self.Inboard = 'n/a'
-            self.OarLength = 'n/a'
-            self.Seats = 0
-            self.tStrokes = 0
-            self.Distance = 0
-            self.timeElapsed = 0
-            self.boatType = 'n/a'
-            self.Date = 'n/a'
-            self.Serial = 'n/a'
-            self.Latitude = 0
-            self.Longitude = 0
-            self.Samples = 0
-            self.SeatSensors = True
-            
-            self.data = {
-                'Rating': [],
-                'Average Power': [],
-                'Distance / Stroke': [],
-                'Stroke Time': [],
-                'Acceleration': [],
-                'Meters/s': [],
-                'RollAngle': [],
-                'PitchAngle': [],
-                'YawAngle': [],
-                'GPS': [],
-                'Normalized Time': [],
-            }
-
-    # Initiating the frame for storing individual seat (rower) data.
-    class Rower_Data():
-        def __init__(self):
-            self.Name = 'n/a'
-            self.Side = 'n/a'
-            self.Seat = 'n/a'
-            self.Height = 1
-            self.Weight = 1
-            self.Recorded_Strokes = 0
-
-            # Stores all values into one list for each section of data.
-            self.data = {
-                'MinAngle': [],
-                'MaxAngle': [],
-                'ArcLength': [],
-                'Effective Length': [],
-                'Effective MinAngle': [],
-                'Effective MaxAngle': [],
-                'CatchSlip': [],
-                'FinishSlip': [],
-
-                # Gate Angle Bar Plot
-                'Recovery Time 1': [],
-                'Recovery Time 2': [],
-                'Recovery Time 3': [],
-                'Recovery Time 4': [],
-                'Hang Time 1': [],
-                'Hang Time 2': [],
-                'Catch Slip Time': [],
-                'Drive Time 1': [],
-                'Drive Time 2': [],
-                'Drive Time 3': [],
-                'Drive Time 4': [],
-                'Finish Slip Time': [],
-                'Pause Time 1': [],
-                'Pause Time 2': [],
-                'Recovery Time 5': [],
-                'Stroke Time': [],
-                'Total Drive Time': [],
-                'Total Recovery Time': [],
-
-                # Seat Bar Plot
-                'Before Seat': [],
-                'Seat Recovery': [],
-                'Pause 1': [],
-                'Pause 2': [],
-                'Drive': [],
-                'Drive Finished 1': [],
-                'Drive Finished 2': [],
-
-                # Common data
-                'Rower Swivel Power': [],
-                'Work Per Stroke': [],
-                'GateForceX': [],
-                'Normalized Time': [],
-                'GateAngle': [],
-                'GateAngleVel': [],
-                'PercentOfArc': [],
-                'PercentOfMaxForce': [],
-
-                '70MaxGateForceX': [],
-                'Angle_70MaxGateForceX': [],
-                'MaxGateForceX': [],
-                'AvgGateForceX': [],
-                'Average Force / Max Force': [],
-                'Angle_MaxGateForceX': [],
-                'From70MaxGateForceX': [],
-                'Angle_From70MaxGateForceX': [],
-
-                # Seat data
-                'SeatPosn': [],
-                'SeatPosnVel': [],
-                'SeatLength': [],
-                'SeatMaxVel': [],
-                'BodyArmsVel': [],
-
-                'PercentageForce': [],
-                'PercentageAngle': [],
-                'Percentage70%MaxForce': [],
-
-                'Position_Of_CSlip': [],
-                'Position_Of_70MaxF': [],
-                'Position_Of_MaxF': [],
-                'Position_Of_From70MaxF': [],
-                'Posititon_Of_FSlip': [],
-
-                'Catch Force Gradient': [],
-                'Finish Force Gradient': [],
-                'Catch Factor': [],
-
-                'Time_To_25%': [],
-                'Time_To_50%': [],
-                'Time_To_75%': [],
-                'Time_To_Hang': [],
-                'Time_To_Min': [],
-                'Time_To_Catch': [],
-                'Time_To_Effective_Start': [],
-                'Time_To_70Max': [],
-                'Time_To_MaxF': [],
-                'Time_To_From70Max': [],
-                'Time_To_Effective_End': [],
-                'Time_To_Finish': [],
-                'Time_To_Max': [],
-                'Time_To_Recovery': [],
-
-                'Difference_25': [],
-                'Difference_50': [],
-                'Difference_75': [],
-                'Difference_Hang': [],
-                'Difference_Min': [],
-                'Difference_Catch': [],
-                'Difference_Effective_Start': [],
-                'Difference_70Max': [],
-                'Difference_MaxF': [],
-                'Difference_Max70': [],
-                'Difference_Effective_End': [],
-                'Difference_Finish': [],
-                'Difference_Max': [],
-                'Difference_Recovery': [],
-            }
-
     # Defines the boat data holder.
-    boat_Data = Boat_Data()
+    boat_Data = temp_classes.Boat_Data()
+    boat_Data.FileName = file.filename
 
     """
     This section very simply iterates through the supplied .txt file and constructs a 2D Array which makes searching the
@@ -283,7 +129,7 @@ def get_session_data(file):
     recorded every 50ms from Peach Telemetry.
     """
 
-    findColumn = Subroutines.find_Column_Position
+    findColumn = maths_module.find_Column_Position
     list_Seat_Number_Columns = []
     for i in grid[Big_Data_Column_Line+1]:
         list_Seat_Number_Columns.append(i)
@@ -298,7 +144,7 @@ def get_session_data(file):
         recorded_Strokes = 0
         start_Of_Stroke_Line = Big_Data_Start_Line
         end_Of_Stroke_Line = 0
-        seat_Data = Rower_Data()
+        seat_Data = temp_classes.Rower_Data()
 
         seat_Data.Seat = str(seat_Number + 1)
 
@@ -323,8 +169,8 @@ def get_session_data(file):
 
         # Search through each line in the big data.
         for row in range(Big_Data_Start_Line, Big_Data_Finish_Line):
-            normalisedTime = float(grid[row][Subroutines.find_Column_Position('Normalized Time', grid, Big_Data_Column_Line)])
-            calculated_Value = normalisedTime - float(grid[row+1][Subroutines.find_Column_Position('Normalized Time', grid, Big_Data_Column_Line)])
+            normalisedTime = float(grid[row][findColumn('Normalized Time', grid, Big_Data_Column_Line)])
+            calculated_Value = normalisedTime - float(grid[row+1][findColumn('Normalized Time', grid, Big_Data_Column_Line)])
 
             # Checks if the value is the end of the stroke.
             if (calculated_Value > 90 and calculated_Value < 100):
@@ -992,7 +838,7 @@ def get_session_data(file):
     # Appending to boat data
     iteration = 0
     for i in range(Data_Start_Line, Data_End_Line):
-        Average_Power = grid[i][Subroutines.find_Column_Position('Average Power', grid, Column_Name_Line)]
+        Average_Power = grid[i][findColumn('Average Power', grid, Column_Name_Line)]
 
         if Average_Power != '':
             if (not (iteration in strokes_Skipped)):
@@ -1000,8 +846,8 @@ def get_session_data(file):
         
             iteration += 1
 
-    start_Distance = grid[Big_Data_Start_Line][Subroutines.find_Column_Position('Distance', grid, Big_Data_Column_Line)]
-    end_Distance = grid[Big_Data_Finish_Line][Subroutines.find_Column_Position('Distance', grid, Big_Data_Column_Line)]
+    start_Distance = grid[Big_Data_Start_Line][findColumn('Distance', grid, Big_Data_Column_Line)]
+    end_Distance = grid[Big_Data_Finish_Line][findColumn('Distance', grid, Big_Data_Column_Line)]
     piece_Distance = float(end_Distance) - float(start_Distance)
 
     total_Counted_Strokes = 0
@@ -1009,7 +855,7 @@ def get_session_data(file):
         total_Counted_Strokes += rower.Recorded_Strokes
 
     total_Strokes = total_Counted_Strokes / int(boat_Data.Seats)
-    time = float(Subroutines.get_Sum(boat_Data.data['Stroke Time']))
+    time = float(maths_module.get_Sum(boat_Data.data['Stroke Time']))
 
     boat_Data.tStrokes = (total_Strokes)
     boat_Data.timeElapsed = (time)

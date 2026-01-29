@@ -1,8 +1,8 @@
 import plotly.graph_objects as go
 import plotly.io as pio
-from plotly.subplots import make_subplots
-from Telemetry.colours import seat_colours, seat_effective_colours
-from Telemetry.subroutines import is_2d_list, average_Array_into_One
+from telemetry.graphs.colours import seat_colours, seat_effective_colours
+from telemetry.modules.sorting import average_Array_into_One
+from telemetry.modules.checks import is_2d_list
 
 def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=None):
     fig = go.Figure()
@@ -25,15 +25,14 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=
             # Special case for seat position to change line colour based on gateforcex
             if title == 'Seat Position':
                 gateforce_vals = optional_values[iterations]
-                average_gateforce_array = average_Array_into_One(gateforce_vals)
 
                 current_x = []
                 current_y = []
 
-                highlight = average_gateforce_array[0] >= 30
+                highlight = gateforce_vals[0] >= 30
 
                 for iteration_2 in range(len(x_vals)):
-                    gateforce = average_gateforce_array[iteration_2]
+                    gateforce = gateforce_vals[iteration_2]
                     new_highlight = gateforce >= 30
 
                     if new_highlight != highlight and current_x:

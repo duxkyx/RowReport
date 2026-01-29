@@ -1,9 +1,9 @@
-from Telemetry.file_analyser import get_session_data
-from Telemetry.section_data import section_rower_data, section_boat_data
-from Telemetry.subroutines import convert
+from telemetry.initialize.file_analyser import get_session_data
+from telemetry.initialize.section_data import section_rower_data, section_boat_data
+from telemetry.modules.maths import convert
 
-
-class Rower_Sampled_Data:
+# Athlete Data Class -> Holds data to be stored in database.
+class athlete_db_ready_data:
     def __init__(self):
         self.user_id = ''
         self.session_id = ''
@@ -13,7 +13,6 @@ class Rower_Sampled_Data:
         self.side = 'n/a'
         self.strokes = 0
 
-        # Initialize empty lists for sampled values
         self.min_angle = []
         self.max_angle = []
         self.arc_length = []
@@ -68,8 +67,9 @@ class Rower_Sampled_Data:
         
     def to_dict(self):
         return self.__dict__
-    
-class boat_Sampled_Data:
+
+# Session Data Class -> Holds data to be stored in database.
+class session_db_ready_data:
     def __init__(self, boat_data):
         self.coach_id = ''
 
@@ -112,7 +112,7 @@ def set_session_classes(file):
     # Collect all sorted user (rower) data.
     list_Of_Rower_Data = []
     for Rower in user_data:
-        data_Save_Class = Rower_Sampled_Data()
+        data_Save_Class = athlete_db_ready_data()
 
         data_Save_Class.name = Rower.Name
         data_Save_Class.seat = Rower.Seat
@@ -122,7 +122,7 @@ def set_session_classes(file):
         list_Of_Rower_Data.append(section_rower_data(Rower.data, boat_data, data_Save_Class))
 
     # Setup class for sorted boat data.
-    sorted_Boat_Data = section_boat_data(boat_data.data, boat_data, boat_Sampled_Data(boat_data))
+    sorted_Boat_Data = section_boat_data(boat_data.data, boat_data, session_db_ready_data(boat_data))
 
     # Return the calculated data.
     return list_Of_Rower_Data, sorted_Boat_Data

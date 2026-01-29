@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RowReport — Dashboard</title>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='Media/logo.png') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='media/logo.png') }}">
 
 
   <!-- Bootstrap CSS -->
@@ -33,7 +33,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar d-flex flex-column p-3 text-white vh-100" style="position:sticky;top:0;">
       <div class="brand mb-3">
-        <img src="{{ url_for('static', filename='Media/heading_resize.png') }}" alt="RowReport">
+        <img src="{{ url_for('static', filename='media/heading_resize.png') }}" alt="RowReport">
       </div>
 
       <nav class="nav flex-column mb-3">
@@ -202,7 +202,7 @@
           <p style="color:red; text-align:center;">{{ error }}</p>
       {% endif %}
 
-      <!-- modal preserved as-is but styled -->
+      <!-- Upload Session Modal -->
       <div class="modal fade" id="uploadSessionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content bg-dark" style="border:0;background:linear-gradient(180deg,#071724,#04101a)">

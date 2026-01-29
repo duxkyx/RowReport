@@ -1,4 +1,6 @@
-mapping_rower = {
+# This file contains dictionary mappings for data fields storing telemetry data to be mapped to instantiated object attributes.
+
+mapping_athlete = {
     "MinAngle": "min_angle",
     "MaxAngle": "max_angle",
     "ArcLength": "arc_length",
@@ -55,7 +57,7 @@ mapping_rower = {
     "Difference_Recovery": "difference_recovery",
 }
 
-mapping_boat = {
+mapping_session = {
     "Rating": "rating",
     "Average Power": "averagepower",
     "Distance / Stroke": "distanceperstroke",

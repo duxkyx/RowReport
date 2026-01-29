@@ -1,5 +1,5 @@
-from Telemetry.graphs.plot_ratio import create_ratio_plot
-from Telemetry.subroutines import calculate_Average as ca
+from telemetry.graphs.plot_ratio import create_ratio_plot
+from telemetry.modules.maths import calculate_Average as ca
 
 def get_avg_ratio_plot(rowers_data, names):
     sample_values = []

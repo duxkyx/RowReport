@@ -2,37 +2,42 @@
 from flask import Flask, render_template, url_for, request, session, flash, redirect
 from flask_session import Session
 from functools import wraps
-import os
 import requests
 
 # API Routes
 import api_routes
 
 # 
-from Telemetry.setup_data import set_session_classes
-from Telemetry.api_requests.get_summary import get_summary
-from Telemetry.api_requests.get_averages import get_averages
+from telemetry.initialize.setup_data import set_session_classes
+from telemetry.api_requests.get_summary import get_summary
+from telemetry.api_requests.get_averages import get_averages
 
+"""
+Graph Imports
+To keep code clean and modular, each graph type is imported from its own module.
+For different types of graphs (linear, bar, radar, etc.), there are separate modules.
+This allows for easier maintenance and scalability of the codebase.
+"""
 # Dashboard
-from Telemetry.graphs.specific.dashboard.avg_syncronisation import get_avg_syncronisation_dashboard
-from Telemetry.graphs.specific.dashboard.avg_gateforcex import get_avg_gateforcex_dashboard
+from telemetry.graphs.specific.dashboard.avg_syncronisation import get_avg_syncronisation_dashboard
+from telemetry.graphs.specific.dashboard.avg_gateforcex import get_avg_gateforcex_dashboard
 
 # Samples - Sessions
-from Telemetry.graphs.specific.sample_plot.sample_syncronisation_plots import get_sample_syncronisation_plots
-from Telemetry.graphs.specific.sample_plot.sample_ratio_plots import get_sample_ratio_plots
-from Telemetry.graphs.specific.sample_plot.sample_line import get_sample_line_plots
+from telemetry.graphs.specific.sample_plot.sample_syncronisation_plots import get_sample_syncronisation_plots
+from telemetry.graphs.specific.sample_plot.sample_ratio_plots import get_sample_ratio_plots
+from telemetry.graphs.specific.sample_plot.sample_line import get_sample_line_plots
 
 # Average - Sessions
-from Telemetry.graphs.specific.average_plot.avg_sync import get_avg_syncronisation_plot
-from Telemetry.graphs.specific.average_plot.avg_ratio import get_avg_ratio_plot
-from Telemetry.graphs.specific.average_plot.avg_line import get_avg_line_plot
+from telemetry.graphs.specific.average_plot.avg_sync import get_avg_syncronisation_plot
+from telemetry.graphs.specific.average_plot.avg_ratio import get_avg_ratio_plot
+from telemetry.graphs.specific.average_plot.avg_line import get_avg_line_plot
 
 # Overview
-from Telemetry.graphs.plot_map import plot_map
+from telemetry.graphs.plot_map import plot_map
 
 # Retrieve data
-from Telemetry.api_requests.get_sessions import get_sessions
-from Telemetry.api_requests.get_rower_data import get_rower_data
+from telemetry.api_requests.get_sessions import get_sessions
+from telemetry.api_requests.get_rower_data import get_rower_data
 
 # Setup flask settings
 app = Flask(__name__, template_folder='templates', static_folder='static')

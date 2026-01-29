@@ -1,5 +1,6 @@
-from Telemetry.graphs.plot_line import plot_line
-from Telemetry.subroutines import average_Array_into_One_Percentage as aaiop
+from matplotlib.pyplot import title
+from telemetry.graphs.plot_line import plot_line
+from telemetry.modules.sorting import average_Array_into_One_Percentage as aaiop
 
 def get_sample_line_plots(data_container, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None):
     plots = []
@@ -13,6 +14,7 @@ def get_sample_line_plots(data_container, x_axis_values, y_axis_values, title, x
         for sample in range(0,8):
             new_x_axis_values = []
             new_y_axis_values = []
+            optional_values = []
 
             for rower in data_container:
                 telem_dict = rower['telemetry']
@@ -33,7 +35,11 @@ def get_sample_line_plots(data_container, x_axis_values, y_axis_values, title, x
                 else:
                     new_y_axis_values.append(telem_dict[y_axis_values][sample])
 
-            plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names)
+                if title == 'Seat Position':
+                    gate_force_list = telem_dict['gate_force_x'][sample]
+                    optional_values.append(gate_force_list)
+
+            plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, optional_values)
             plots.append(plot)
 
     else:

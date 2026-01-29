@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import plotly.io as pio
-from Telemetry.subroutines import is_2d_list
-from Telemetry.colours import bar_colours
+from telemetry.modules.checks import is_2d_list
+from telemetry.graphs.colours import bar_colours
 
 def create_ratio_plot(values, names=None):
     # Sample data

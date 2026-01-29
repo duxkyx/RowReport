@@ -1,8 +1,6 @@
 # Returns the plot for individual user syncronisation plot
-import plotly.graph_objs as go
-import plotly.io as pio
-from Telemetry.api_requests.get_gateforce_averages import get_gateforce_averages
-from Telemetry.graphs.plot_line import plot_line
+from telemetry.api_requests.get_gateforce_averages import get_gateforce_averages
+from telemetry.graphs.plot_line import plot_line
 
 def get_avg_gateforcex_dashboard(user_id):
     gate_force_data = get_gateforce_averages(user_id)
