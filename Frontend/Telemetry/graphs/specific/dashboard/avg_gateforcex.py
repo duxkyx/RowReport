@@ -10,11 +10,11 @@ def get_avg_gateforcex_dashboard(user_id):
         yarray = [gate_force_data['UT1'], gate_force_data['UT2']]
         xarray = [gate_force_data['UT1_xaxis'], gate_force_data['UT2_xaxis']]
         plot = plot_line(
-            y_array=yarray, 
             x_array=xarray, 
+            y_array=yarray, 
             title='Gate Force X',
-            yaxis_title='GateForceX',
-            xaxis_title='% Drive',
+            x_label='% Drive',
+            y_label='GateForceX',
             names=['UT1', 'UT2']
         )
         return plot
