@@ -48,9 +48,9 @@ def send_telemetry_email(boat_data: dict, user_id: int, session_id: int, session
         smtp.login(email_sender, email_password)
         smtp.send_message(msg)
 
-def send_account_confirmation_email(email: str, first_name: str):
+def send_account_confirmation_email(account_email: str, first_name: str, account_password: str, account_id: int):
     subject = 'RowReport - Account Confirmation'
-    email_reciever = email
+    email_reciever = account_email
 
     msg = EmailMessage()
     msg['From'] = f"RowReport <{email_sender}>"
@@ -63,6 +63,9 @@ def send_account_confirmation_email(email: str, first_name: str):
 
     html_content = template.render(
         first_name=first_name,
+        email=account_email,
+        password=account_password,
+        id=account_id,
         website_url=website_url
     )
 

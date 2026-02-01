@@ -419,6 +419,8 @@ def session_page(session_id, page_name):
                     names=name_array
                 )
 
+
+    # To save processing time only generate graphs to be viewed on each page rather than all graphs.
     if page_name == 'average':
         returned_graphs = {
             "syncronisation": get_avg_syncronisation_plot(rowing_data, names=name_array),
@@ -457,6 +459,7 @@ def session_page(session_id, page_name):
             )
         }
 
+        # Only generate these graphs if seat sensors are valid in the session recording.
         if session_data['seat_sensors']:
             returned_graphs['legsvelocity'] = get_avg_line_plot(
                 rowers_data=rowing_data, 

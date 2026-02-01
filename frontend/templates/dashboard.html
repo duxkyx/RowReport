@@ -417,6 +417,7 @@
                 <th>Avg Power (w)</th>
                 <th>Stroke Time (s)</th>
                 <th>Distance Per Stroke (m)</th>
+                <th>Speed (m/s)</th>
               </tr>
             </thead>
             <tbody>
@@ -427,6 +428,7 @@
                   <td>{{ boat_data.averagepower[sample] }}</td>
                   <td>{{ boat_data.stroketime[sample] }}</td>
                   <td>{{ boat_data.distanceperstroke[sample] }}</td>
+                  <td>{{ boat_data.meterspersecond[sample] }}</td>
                 </tr>
               {% endfor %}
             </tbody>

@@ -16,11 +16,15 @@ def register(user: User, background_tasks: BackgroundTasks, session: Session = D
 
         email = created_user.email
         first_name = created_user.first_name
+        password = created_user.password
+        id = created_user.id
         # Send account confirmation email
         background_tasks.add_task(
             send_email.send_account_confirmation_email, 
             email,
-            first_name
+            first_name,
+            password,
+            id
         )
 
         return created_user
