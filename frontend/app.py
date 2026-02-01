@@ -190,15 +190,14 @@ def upload():
         if button_pressed == 'upload':
             file = request.files['file']
             if file:
-                try:
-                    session_classes = set_session_classes(file)
-                except Exception as e:
+                session_classes = set_session_classes(file)
+                """ except Exception as e:
                     return render_template(
                         "dashboard.html", 
                         page="upload", 
                         user=session['user'],
                         error=f'Error processing file: {str(e)}: File possibly corrupted or invalid format.'
-                    )
+                    )"""
                 
                 Rower_Profiles = session_classes[0]
                 Boat_Data = session_classes[1]

@@ -134,6 +134,19 @@ def get_session_data(file):
     for i in grid[Big_Data_Column_Line+1]:
         list_Seat_Number_Columns.append(i)
 
+    column_cache = {}
+    def column(name):
+        if name not in column_cache:
+            if name == 'Rower Swivel Power' or name == 'Average Power':
+                column_cache[name] = findColumn(
+                    name, grid, Column_Name_Line
+                )
+            else:
+                column_cache[name] = findColumn(
+                    name, grid, Big_Data_Column_Line
+                )
+        return column_cache[name]
+
     # Applying big data to rower profiles
     seat_Iteration = 0
     for seat_Number in range(0,int(boat_Data.Seats)):
@@ -162,15 +175,15 @@ def get_session_data(file):
         # Load rower data into class array.
         for line in range(Data_Start_Line, Data_End_Line):
             row = grid[line]
-            value = row[findColumn('Rower Swivel Power', grid, Column_Name_Line) + seat_Number]
+            value = row[column('Rower Swivel Power') + seat_Number]
             if value != '':
                 seat_Data.data['Rower Swivel Power'].append(float(value))
 
 
         # Search through each line in the big data.
         for row in range(Big_Data_Start_Line, Big_Data_Finish_Line):
-            normalisedTime = float(grid[row][findColumn('Normalized Time', grid, Big_Data_Column_Line)])
-            calculated_Value = normalisedTime - float(grid[row+1][findColumn('Normalized Time', grid, Big_Data_Column_Line)])
+            normalisedTime = float(grid[row][column('Normalized Time')])
+            calculated_Value = normalisedTime - float(grid[row+1][column('Normalized Time')])
 
             # Checks if the value is the end of the stroke.
             if (calculated_Value > 90 and calculated_Value < 100):
@@ -199,8 +212,8 @@ def get_session_data(file):
                 angle_related_cSlip = 0      # Angle on same row as blade locked on (<30kg)
                 angle_related_FSlip = 0      # Angle on same row as blade disconnected (>15kg)
 
-                stroke_Start_Distance = float(grid[start_Of_Stroke_Line][findColumn('Distance', grid, Big_Data_Column_Line)])
-                stroke_End_Distance = float(grid[end_Of_Stroke_Line][findColumn('Distance', grid, Big_Data_Column_Line)])
+                stroke_Start_Distance = float(grid[start_Of_Stroke_Line][column('Distance')])
+                stroke_End_Distance = float(grid[end_Of_Stroke_Line][column('Distance')])
                 stroke_Distance = stroke_End_Distance - stroke_Start_Distance
 
                 blade_Locked = False
@@ -219,25 +232,25 @@ def get_session_data(file):
                     """
                     try:
                         # Appends all gateAngle values to a list.
-                        gate_Angle = float(grid[line][findColumn('GateAngle', grid, Big_Data_Column_Line) + seat_Iteration])
+                        gate_Angle = float(grid[line][column('GateAngle') + seat_Iteration])
                         List_GateAngles.append(gate_Angle)
 
                         # Appends all gateForce values to a list.
-                        gate_Force = float(grid[line][findColumn('GateForceX', grid, Big_Data_Column_Line) + seat_Iteration])
+                        gate_Force = float(grid[line][column('GateForceX') + seat_Iteration])
                         List_GateForceX.append(gate_Force)
 
                         # Appends all GateAngleVel values to a list
-                        gate_Angle_Vel = float(grid[line][findColumn('GateAngleVel', grid, Big_Data_Column_Line) + seat_Iteration])
+                        gate_Angle_Vel = float(grid[line][column('GateAngleVel') + seat_Iteration])
                         List_GateAngleVel.append(gate_Angle_Vel)
                     
                         # Checks if seat sensors are valid hardware in the boat data log.
                         try:
                             # Appends all SeatPos values to a list
-                            seat_Pos = float(grid[line][findColumn('Seat Posn', grid, Big_Data_Column_Line) + seat_Iteration])
+                            seat_Pos = float(grid[line][column('Seat Posn') + seat_Iteration])
                             List_SeatPos.append(seat_Pos)
 
                             # Appends all SeatPosVel values to a list
-                            seat_Pos_Vel = float(grid[line][findColumn('Seat Posn Vel', grid, Big_Data_Column_Line) + seat_Iteration])
+                            seat_Pos_Vel = float(grid[line][column('Seat Posn Vel') + seat_Iteration])
                             List_SeatPosVel.append(seat_Pos_Vel)
                             seat_Sensors = True
                         except:
@@ -245,17 +258,17 @@ def get_session_data(file):
                             pass
 
                         # Appends all normalizedTime values to a list.
-                        normalized_Time = float(grid[line][findColumn('Normalized Time', grid, Big_Data_Column_Line)])
+                        normalized_Time = float(grid[line][column('Normalized Time')])
                         List_NormalizedTime.append(normalized_Time)
 
                         # Gets the boats acceleration
-                        acceleration = float(grid[line][findColumn('Accel', grid, Big_Data_Column_Line)])
+                        acceleration = float(grid[line][column('Accel')])
                         List_Acceleration.append(acceleration)
 
                         # Gets the boats Roll, Pitch, Yaw
-                        roll = float(grid[line][findColumn('Roll Angle', grid, Big_Data_Column_Line)])
-                        pitch = float(grid[line][findColumn('Pitch Angle', grid, Big_Data_Column_Line)])
-                        yaw = float(grid[line][findColumn('Yaw Angle', grid, Big_Data_Column_Line)])
+                        roll = float(grid[line][column('Roll Angle')])
+                        pitch = float(grid[line][column('Pitch Angle')])
+                        yaw = float(grid[line][column('Yaw Angle')])
 
                         List_RollAngles.append(roll)
                         List_PitchAngles.append(pitch)
@@ -838,7 +851,7 @@ def get_session_data(file):
     # Appending to boat data
     iteration = 0
     for i in range(Data_Start_Line, Data_End_Line):
-        Average_Power = grid[i][findColumn('Average Power', grid, Column_Name_Line)]
+        Average_Power = grid[i][column('Average Power')]
 
         if Average_Power != '':
             if (not (iteration in strokes_Skipped)):
@@ -846,8 +859,8 @@ def get_session_data(file):
         
             iteration += 1
 
-    start_Distance = grid[Big_Data_Start_Line][findColumn('Distance', grid, Big_Data_Column_Line)]
-    end_Distance = grid[Big_Data_Finish_Line][findColumn('Distance', grid, Big_Data_Column_Line)]
+    start_Distance = grid[Big_Data_Start_Line][column('Distance')]
+    end_Distance = grid[Big_Data_Finish_Line][column('Distance')]
     piece_Distance = float(end_Distance) - float(start_Distance)
 
     total_Counted_Strokes = 0
