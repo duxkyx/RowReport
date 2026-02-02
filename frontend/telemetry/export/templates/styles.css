@@ -1,0 +1,213 @@
+/* ============================================================
+   ROWREPORT — BIOROW 1:1 PDF MASTER CSS
+   Engine: wkhtmltopdf / pdfkit Safe
+   Layout: Exact BioRow print behaviour
+============================================================ */
+
+
+/* ============================================================
+   PAGE SIZE + PRINT CONTROL
+============================================================ */
+
+@page {
+  size: A4;
+  margin: 6mm;
+}
+
+html, body {
+  width: 210mm;
+  height: 297mm;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  color: black;
+}
+
+
+/* Prevent wkhtml shrinking */
+* {
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   HEADER (BioRow Style)
+============================================================ */
+
+.pdf-header {
+  width: 100%;
+  margin-bottom: 2mm;
+}
+
+.pdf-title {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.pdf-subtitle {
+  font-size: 8.5px;
+  color: #444;
+}
+
+
+/* ============================================================
+   SECTION DIVIDER BAR
+============================================================ */
+
+.divider-bar {
+  font-size: 8.5px;
+  font-weight: bold;
+  background: #eaeaea;
+  padding: 2px 4px;
+  margin: 0;
+  border-top: 0.6px solid black;
+  border-bottom: 0.6px solid black;
+}
+
+
+/* ============================================================
+   TABLES — TRUE BIOROW STYLE
+============================================================ */
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0;
+}
+
+/* Remove boxed grid */
+.report-table th,
+.report-table td {
+  border: none;
+  border-bottom: 0.6px solid black;
+  padding: 2px 3px;
+  font-size: 7.5px;
+  text-align: center;
+}
+
+/* Seat column */
+.report-table th.seat-col,
+.report-table td:first-child {
+  width: 26px;
+  font-weight: bold;
+}
+
+/* Name column */
+.report-table th.name-col,
+.report-table td:nth-child(2) {
+  width: 65px;
+  text-align: left;
+}
+
+/* Rotated headers */
+.report-table th.rotate {
+  height: 55px;
+  width: 22px;
+  vertical-align: bottom;
+  padding: 0;
+}
+
+.report-table th.rotate div {
+  transform: rotate(-90deg);
+  white-space: nowrap;
+  font-size: 7px;
+  font-weight: bold;
+}
+
+/* Header line */
+.report-table thead th {
+  border-bottom: 1px solid black;
+}
+
+
+/* ============================================================
+   SEAT COLOURS (Text Only)
+============================================================ */
+
+.seat-1 { color: #34fc49; }
+.seat-2 { color: #fc2e04; }
+.seat-3 { color: #0000f7; }
+.seat-4 { color: #000000; }
+.seat-5 { color: #3c752a; }
+.seat-6 { color: #a42904; }
+.seat-7 { color: #2afcff; }
+.seat-8 { color: #fe9d29; }
+
+
+/* ============================================================
+   GRAPH GRID — EXACT BIOROW BLOCKS
+============================================================ */
+
+.graph-grid {
+  width: 100%;
+  display: table;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.graph-cell {
+  display: table-cell;
+  width: 50%;
+  border: 0.6px solid black;
+  padding: 0;
+}
+
+.panel img {
+  width: 100%;
+  height: 160px;
+  display: block;
+  object-fit: contain;
+}
+
+/* Full width graph row */
+.graph-full {
+  width: 100%;
+  border: 0.6px solid black;
+  margin-top: -0.6px;
+}
+
+.graph-full img {
+  width: 100%;
+  height: 190px;
+  display: block;
+  object-fit: contain;
+}
+
+
+/* ============================================================
+   PAGE BREAK CONTROL
+============================================================ */
+
+.no-break,
+.report-table,
+.graph-grid,
+.graph-cell,
+.graph-full {
+  page-break-inside: avoid !important;
+}
+
+tr, td, th {
+  page-break-inside: avoid !important;
+}
+
+
+/* ============================================================
+   FOOTER BRANDING (Every Page)
+============================================================ */
+
+.pdf-footer {
+  position: fixed;
+  bottom: 4mm;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 7px;
+  color: #444;
+}
+
+.pdf-footer strong {
+  font-weight: bold;
+}

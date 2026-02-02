@@ -13,6 +13,7 @@ def get_avg_gateforcex_dashboard(user_id):
             title='Gate Force X',
             x_label='% Drive',
             y_label='GateForceX',
-            names=['UT1', 'UT2']
+            names=['UT1', 'UT2'],
+            pdf=False
         )
         return plot

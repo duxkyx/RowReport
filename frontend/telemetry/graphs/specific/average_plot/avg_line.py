@@ -2,7 +2,7 @@ from telemetry.graphs.plot_line import plot_line
 from telemetry.modules.sorting import average_Array_into_One as aaio
 from telemetry.modules.sorting import average_Array_into_One_Percentage as aaiop
 
-def get_avg_line_plot(rowers_data, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None):
+def get_avg_line_plot(rowers_data, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None, pdf=False):
     new_x_axis_values = []
     new_y_axis_values = []
     optional_values = []
@@ -36,5 +36,5 @@ def get_avg_line_plot(rowers_data, x_axis_values, y_axis_values, title, x_label,
             gate_force_list = aaio(data['gate_force_x'])
             optional_values.append(gate_force_list)
 
-    plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, optional_values)
+    plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, pdf, optional_values)
     return plot

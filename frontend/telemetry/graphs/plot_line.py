@@ -4,7 +4,7 @@ from telemetry.graphs.colours import seat_colours, seat_effective_colours
 from telemetry.modules.sorting import average_Array_into_One
 from telemetry.modules.checks import is_2d_list
 
-def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=None):
+def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_values=None):
     fig = go.Figure()
     colours = list(seat_colours.values())
     effective_colours = list(seat_effective_colours.values())
@@ -32,7 +32,7 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=
                 found_Effective_Start = False
                 highlight = gateforce_vals[0] >= 30
 
-                for iteration_2 in range(len(x_vals)):
+                for iteration_2 in range(len(y_vals)):
                     gateforce = gateforce_vals[iteration_2]
                     if not found_Effective_Start:
                         new_highlight = gateforce >= 30
@@ -109,7 +109,8 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=
         ))
 
     fig.update_layout(
-        title=title,
+        title=None if pdf else title,
+        showlegend=False if pdf else True,
         xaxis_title=x_label,
         yaxis_title=y_label,
         template='plotly_white',
@@ -123,18 +124,21 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=
         plot_bgcolor='rgba(0,0,0,0)'  # Transparent paper background
     )
 
-    return pio.to_html(
-        fig, 
-        full_html=False, 
-        include_plotlyjs='cdn', 
-        config={
-            "responsive": True,
-            "displayModeBar": True,
-            "scrollZoom": False,
-            "displaylogo": False,
-            "toImageButtonOptions": {
-                "format": "png",
-                "filename": "rowreport_export"
+    if pdf:
+        return fig
+    else:
+        return pio.to_html(
+            fig, 
+            full_html=False, 
+            include_plotlyjs='cdn', 
+            config={
+                "responsive": True,
+                "displayModeBar": True,
+                "scrollZoom": False,
+                "displaylogo": False,
+                "toImageButtonOptions": {
+                    "format": "png",
+                    "filename": "rowreport_export"
+                }
             }
-        }
-    )
+        )

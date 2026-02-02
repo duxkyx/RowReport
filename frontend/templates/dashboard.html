@@ -334,6 +334,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -416,6 +417,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-primary">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -475,6 +477,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-primary">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -602,7 +605,7 @@
         </div>
 
         <h4>Syncronisation</h4>
-        <div class="subtle">Measured in milliseconds as a comparison against the stroke seat.</div>
+        <div class="subtle">Measured in milliseconds as a comparison against the stroke seat. Calculated on difference of handle position.</div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-4">
             <thead>
@@ -730,6 +733,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-primary">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -782,7 +786,6 @@
         <h5>Sample {{ sample + 1 }}/8</h5>
         <h6 class="muted-sm">Rate {{ boat_data.rating[sample] }} (s/m) | Avg Power {{ boat_data.averagepower[sample] }} (w) | Distance per Stroke {{ boat_data.distanceperstroke[sample] }} (m) | Boat Speed {{ boat_data.meterspersecond[sample] }} (m/s)</h6>
 
-        <div class="panel mb-4">{{ graphs.map | safe }}</div>
         <div class="table-responsive mt-3">
           <table class="table table-hover align-middle mb-4">
             <thead>
@@ -932,35 +935,35 @@
         </div>
 
         <div class="plot-wrapper">
-         <div class="panel mb-4">{{ graphs.syncronisation | safe }}</div>
+         <div class="panel mb-4">{{ graphs.sample_syncronisation | safe }}</div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
         <div class="plot-wrapper">
-          <div class="panel mb-4">{{ graphs.ratios | safe }}</div>
+          <div class="panel mb-4">{{ graphs.sample_ratios | safe }}</div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
         <div class="plot-wrapper">
-          <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
+          <div class="panel mb-4">{{ graphs.sample_gateforcex | safe }}</div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
         {% if boat_data.seat_sensors %}
         <div class="plot-wrapper">
           <div class="row g-4">
-            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_gateanglevelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_legsvelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_legsvelocitygateangle | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_bodyarmsvelocity | safe }}</div></div>
           </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
         <div class="plot-wrapper">
           <div class="row g-4">
-            <div class="col-lg-6"><div class="panel">{{ graphs.seatposition | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_seatposition | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_gateforcepercent | safe }}</div></div>
           </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
@@ -969,8 +972,8 @@
 
         <div class="plot-wrapper">
           <div class="row g-4">
-            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>  
-            <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_gateanglevelocity | safe }}</div></div>  
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_gateforcepercent | safe }}</div></div>
           </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
@@ -978,12 +981,45 @@
         {% endif %}
 
         <div class="plot-wrapper">
-          <div class="panel mb-4">{{ graphs.gateanglevelocitydeg | safe }}</div>
+          <div class="panel mb-4">{{ graphs.sample_gateanglevelocitydeg | safe }}</div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
+      <div class="panel mb-4">{{ graphs.sample_map | safe }}</div>
       </div>
       {% endif %}
+
+      {% elif page == 'export' %}
+
+      <div class="header-row">
+        <div>
+          <div class="title">Export Data</div>
+          <div class="subtle">Convert to PDF</div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=overview" class="btn btn-sm btn-ghost">Overview</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-primary">Export</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12 col-md-6 col-lg-5">
+
+              <h3 class="mb-4 text-center">Download</h3>
+              <form method="POST" action="/dashboard/sessions/session_id={{ boat_data.id }}/page=export">
+                <button type="submit" name="action" class="btn btn-primary" value="download">Download</button>
+              </form>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
 
       <!-- Admin -->
       {% elif page == 'admin' %}

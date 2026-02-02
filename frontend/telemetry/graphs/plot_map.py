@@ -3,10 +3,10 @@ import plotly.io as pio
 import pandas as pd
 from telemetry.graphs.colours import seat_colours as sample_colours
 
-def plot_map(boat_data, individual_sample=None):
-    gps = boat_data['gps']    
+def plot_map(session_data, individual_sample=None, pdf=False):
+    gps = session_data['gps']    
     
-    distance = round(boat_data['distance'])
+    distance = round(session_data['distance'])
     total_points = sum(len(section) for section in gps)    
     rows = []
     counted_points = 0
@@ -66,6 +66,7 @@ def plot_map(boat_data, individual_sample=None):
     
     # Layout
     fig.update_layout(
+        showlegend=False if pdf else True,
         mapbox_style="carto-positron",
         mapbox_center={"lat": coordinates_df['lat'].mean(),
                        "lon": coordinates_df['lon'].mean()},
@@ -74,13 +75,16 @@ def plot_map(boat_data, individual_sample=None):
         legend_title_text="Section"
     )
 
-    return pio.to_html(
-        fig,
-        full_html=False,
-        include_plotlyjs='cdn',
-        config={
-            "responsive": True,
-            "displayModeBar": True,
-            "scrollZoom": True
-        }
-    )
+    if pdf:
+        return fig
+    else:
+        return pio.to_html(
+            fig,
+            full_html=False,
+            include_plotlyjs='cdn',
+            config={
+                "responsive": True,
+                "displayModeBar": True,
+                "scrollZoom": True
+            }
+        )

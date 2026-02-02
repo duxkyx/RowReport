@@ -4,7 +4,7 @@ import plotly.io as pio
 from telemetry.graphs.colours import seat_colours
 from telemetry.modules.checks import is_2d_list
 
-def create_syncronisation_plot(values, names=None):
+def create_syncronisation_plot(values, names=None, pdf=False):
     categories = [
         "25 Recov", "50 Recov", "75 Recov", "Hang Start",
         "Min Angle", "Catch", "Effect Start", "70 Max",
@@ -46,9 +46,9 @@ def create_syncronisation_plot(values, names=None):
             radialaxis=dict(visible=True, range=[-200, 100]),
             angularaxis=dict(direction="clockwise"),
         ),
-        title='Syncronisation (ms)',
+        title=None if pdf else 'Syncronisation (ms)',
+        showlegend=False if pdf else True,
         autosize=True,
-        showlegend=True,
         xaxis=dict(
             gridcolor='darkblue',  # Dark navy grid
         ),
@@ -75,4 +75,8 @@ def create_syncronisation_plot(values, names=None):
             }
         }
     )
-    return graph_html
+
+    if pdf:
+        return fig
+    else:
+        return graph_html

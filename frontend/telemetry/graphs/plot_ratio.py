@@ -3,7 +3,7 @@ import plotly.io as pio
 from telemetry.modules.checks import is_2d_list
 from telemetry.graphs.colours import bar_colours
 
-def create_ratio_plot(values, names=None):
+def create_ratio_plot(values, names=None, pdf=False):
     # Sample data
     categories = ['Recovery 1', '25% Recovery', 'Recovery 2', '50% Recovery', 'Recovery 3', '75% Recovery', 'Recovery 4',
                   'Hang 1', 'Min Angle', 'Hang 2', 'Catch Slip', 'Drive 1', 'Up-to 70% Peak Force', 'Drive 2', 'Peak Force', 'Drive 3', 'From 70% Peak Force', 'Drive 4',
@@ -41,7 +41,8 @@ def create_ratio_plot(values, names=None):
 
     fig.update_layout(
         barmode='stack',
-        title='Ratios of Stroke Phases',
+        title=None if pdf else 'Ratios of Stroke Phases',
+        showlegend=False if pdf else True,
         xaxis_title='Time (ms)',
         yaxis_title='Seats',
         height=500,
@@ -55,18 +56,21 @@ def create_ratio_plot(values, names=None):
         plot_bgcolor='rgba(0,0,0,0)'  # Transparent paper background
     )
 
-    return pio.to_html(
-        fig, 
-        full_html=False, 
-        include_plotlyjs='cdn', 
-        config={
-            "responsive": True,
-            "displayModeBar": True,
-            "scrollZoom": False,
-            "displaylogo": False,
-            "toImageButtonOptions": {
-                "format": "png",
-                "filename": "rowreport_export"
+    if pdf:
+        return fig
+    else:
+        return pio.to_html(
+            fig, 
+            full_html=False, 
+            include_plotlyjs='cdn', 
+            config={
+                "responsive": True,
+                "displayModeBar": True,
+                "scrollZoom": False,
+                "displaylogo": False,
+                "toImageButtonOptions": {
+                    "format": "png",
+                    "filename": "rowreport_export"
+                }
             }
-        }
-    )
+        )

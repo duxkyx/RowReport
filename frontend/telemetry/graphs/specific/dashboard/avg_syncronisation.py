@@ -6,5 +6,5 @@ def get_avg_syncronisation_dashboard(user_id):
     data = get_radar_averages(user_id)
     if data:
         array = [list(data['UT1'].values()), list(data['UT2'].values())]
-        plot = create_syncronisation_plot(array, ['UT1', 'UT2'])
+        plot = create_syncronisation_plot(array, ['UT1', 'UT2'], pdf=False)
         return plot
