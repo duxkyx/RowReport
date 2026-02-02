@@ -65,8 +65,14 @@ def create_syncronisation_plot(values, names=None):
         full_html=False,
         include_plotlyjs='cdn',
         config={
-            "responsive": True, 
-            "displayModeBar": False
+            "responsive": True,
+            "displayModeBar": True,
+            "scrollZoom": False,
+            "displaylogo": False,
+            "toImageButtonOptions": {
+                "format": "png",
+                "filename": "rowreport_export"
+            }
         }
     )
     return graph_html

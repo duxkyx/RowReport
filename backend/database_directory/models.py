@@ -48,7 +48,7 @@ class rowing_session_table(SQLModel, table=True):
     # 2D arrays
     acceleration: List[List[float]] = Field(sa_column=Column(JSON))
     normalizedtime: List[List[float]] = Field(sa_column=Column(JSON))
-    gps: List[List[float]] = Field(sa_column=Column(JSON))
+    gps: List[List[List[float]]] = Field(sa_column=Column(JSON))
 
 
 # Rower Profiles Table

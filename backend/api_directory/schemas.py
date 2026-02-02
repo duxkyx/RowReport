@@ -43,7 +43,7 @@ class BoatTelemetryData(BaseModel):
     # 2D arrays
     acceleration: List[List[float]]
     normalizedtime: List[List[float]]
-    gps: List[List[float]]
+    gps: List[List[List[float]]]
 
 
 class UserTelemetryData(BaseModel):

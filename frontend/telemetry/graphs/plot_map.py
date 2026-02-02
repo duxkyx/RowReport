@@ -1,24 +1,55 @@
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
+from telemetry.graphs.colours import seat_colours as sample_colours
 
-def plot_map(boat_data):
-    coordinates = boat_data['gps']    
-    coordinates_df = pd.DataFrame(coordinates, columns=['lon', 'lat'])
-    coordinates_df['sections'] = [i for i in range(len(coordinates_df))]  # For coloring along path
+def plot_map(boat_data, individual_sample=None):
+    gps = boat_data['gps']    
     
+    distance = round(boat_data['distance'])
+    total_points = sum(len(section) for section in gps)    
+    rows = []
+    counted_points = 0
+
+    for section_index, section in enumerate(gps, start=1):
+        for point_index, (lon, lat) in enumerate(section):
+            current_distance = round((distance / total_points) * (counted_points))
+
+            if individual_sample:
+                if section_index == individual_sample:
+                    colour = "#841925"
+                else:
+                    colour = '#d3d3d3'
+            else:
+                colour = sample_colours.get(str(section_index), '#888')
+
+
+            rows.append({
+                "lon": lon,
+                "lat": lat,
+                "section": str(section_index),
+                "distance": f"{current_distance} | {distance} m",
+                "point": counted_points,
+                "color": colour
+            })
+            counted_points += 1
+
+
+    coordinates_df = pd.DataFrame(rows)
+
+
     # Use scatter_mapbox to allow color gradient
     fig = px.scatter_mapbox(
         coordinates_df,
         lat="lat",
         lon="lon",
-        color="sections",
-        hover_name="sections",
-        hover_data={"lat": True, "lon": True},
-        color_continuous_scale="Turbo",   # Gradient color
+        hover_name="section",
+        color="color",
+        hover_data={"point": True, "distance": True, "lat": True, "lon": True},
+        color_discrete_map="identity",
         size_max=10,
         zoom=15,
-        height=600
+        height=600,
     )
 
     # Connect points with lines
@@ -26,11 +57,10 @@ def plot_map(boat_data):
         mode="lines+markers",
         marker=dict(
             size=6,
-            opacity=0.8
+            opacity=0.8,
         ),
         line=dict(
             width=3,
-            color="white"  # or pick a color you like
         )
     )
     
@@ -40,7 +70,8 @@ def plot_map(boat_data):
         mapbox_center={"lat": coordinates_df['lat'].mean(),
                        "lon": coordinates_df['lon'].mean()},
         margin={"r":0,"t":0,"l":0,"b":0},
-        coloraxis_showscale=False
+        coloraxis_showscale=False,
+        legend_title_text="Section"
     )
 
     return pio.to_html(

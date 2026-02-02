@@ -5,11 +5,20 @@
     padding-top: 5px;
 }
 .sidebar {
+    position: fixed;
     width: 260px;
     min-width: 260px;
+    left: 0;
+    top: 0;
+    height: 100vh;
     background: #0b1220;
-    box-shadow: 0 6px 18px rgba(2,6,23,0.7);
+    transition: transform 0.25s ease;
 }
+
+.sidebar-collapsed .sidebar {
+    transform: translateX(-260px);
+}
+
 .sidebar .nav-link {
     color: #9aa4b2;
     border-radius: 8px;
@@ -23,6 +32,46 @@
     padding: 20px;
     text-align: center;
 }
+/* Toggle button */
+.sidebar-toggle {
+    position: absolute;
+    top: 50%;
+    right: -14px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 48px;
+    background: #0b1220;
+    border: 0px solid rgba(255,255,255,0.08);
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    z-index: 1001;
+}
+
+/* Chevron */
+.sidebar-toggle .chevron {
+    color: #9aa4b2;
+    font-size: 20px;
+    line-height: 1;
+    transition: transform 0.25s ease, color 0.2s ease;
+}
+
+.sidebar-toggle:hover .chevron {
+    color: #fff;
+}
+
+.sidebar-collapsed .sidebar-toggle {
+    right: -14px;
+}
+
+/* Rotate arrow when collapsed */
+.sidebar-collapsed .sidebar-toggle .chevron {
+    transform: rotate(180deg);
+}
+
 .brand img {
     max-width: 160px;
     height: auto;
@@ -54,7 +103,16 @@ html, body {
     padding: 28px;
     background: #ffffff;
     color: var(--text);
+    max-width: 100%;
+    overflow-x: hidden;
+    margin-left: 260px;
+    transition: margin-left 0.25s ease;
 }
+
+.sidebar-collapsed .app-main {
+    margin-left: 0;
+}
+
 .header-row {
     display: flex;
     align-items: center;
@@ -215,3 +273,24 @@ body .form-select optgroup {
     color: var(--upload-text);
 }
 
+/* Graph fullscreen */
+.plot-wrapper {
+    position: relative;
+}
+
+.plot-fullscreen-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1000;
+    background: rgba(11,18,32,0.85);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.plot-wrapper:fullscreen {
+    background: #ffffff;
+}

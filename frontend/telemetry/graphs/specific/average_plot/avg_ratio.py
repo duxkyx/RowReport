@@ -1,36 +1,36 @@
 from telemetry.graphs.plot_ratio import create_ratio_plot
-from telemetry.modules.maths import calculate_Average as ca
+from telemetry.modules.maths import calculate_Average as avg
 
 def get_avg_ratio_plot(rowers_data, names):
-    sample_values = []
+    rower_values = []
     for rower in rowers_data:
         data = rower['telemetry']
         values = [
-            ca(data['recovery_time_1']),
+            avg(data['recovery_time_1']),
             10, # Spacer
-            ca(data['recovery_time_2']),
+            avg(data['recovery_time_2']),
             10, # Spacer
-            ca(data['recovery_time_3']),
+            avg(data['recovery_time_3']),
             10, # Spacer
-            ca(data['recovery_time_4']),
-            ca(data['hang_time_1']),
+            avg(data['recovery_time_4']),
+            avg(data['hang_time_1']),
             10, # Spacer
-            ca(data['hang_time_2']), 
-            ca(data['catch_slip_time']),
-            ca(data['drive_time_1']),
+            avg(data['hang_time_2']), 
+            avg(data['catch_slip_time']),
+            avg(data['drive_time_1']),
             10, # Spacer
-            ca(data['drive_time_2']),
+            avg(data['drive_time_2']),
             10, # Spacer
-            ca(data['drive_time_3']),
+            avg(data['drive_time_3']),
             10, # Spacer
-            ca(data['drive_time_4']),
-            ca(data['finish_slip_time']),
-            ca(data['pause_time_1']),
+            avg(data['drive_time_4']),
+            avg(data['finish_slip_time']),
+            avg(data['pause_time_1']),
             10, # Spacer
-            ca(data['pause_time_2']),
-            ca(data['recovery_time_5'])
+            avg(data['pause_time_2']),
+            avg(data['recovery_time_5'])
         ]
-        sample_values.append(values)
-    plot = create_ratio_plot(sample_values, names)
+        rower_values.append(values)
+    plot = create_ratio_plot(rower_values, names)
     
     return plot

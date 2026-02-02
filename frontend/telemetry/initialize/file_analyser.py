@@ -669,8 +669,9 @@ def get_session_data(file):
                         for gate_angle_velocity in List_GateAngleVel:
                             gate_angle = List_GateAngles[count]
                             seat_position_velocity = List_SeatPosVel[count]
-                            
+
                             linear_handle_vel = ((gate_angle_velocity * 19.2) * math.cos(math.radians(gate_angle)))
+
                             body_arms_vel = linear_handle_vel - seat_position_velocity
                             List_BodyArmsVel.append(body_arms_vel)
                             count += 1

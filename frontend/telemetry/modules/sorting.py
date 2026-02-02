@@ -3,40 +3,35 @@ import telemetry.modules.maths as maths_module
 # Returns an array which contains 8 other arrays which hold the sectioned data (not averaged).
 # This data is seperated into 8 sections based on distance. (each array has no limit of values, just based on distance).
 def section_List(data_List, boat_Data):
-    sectioned_List = []
-    elements_Per_Section = []
     stroke_Distances = boat_Data.data['Distance / Stroke']
     total_Distance = maths_module.get_Sum(stroke_Distances)
+    distance_per_sample = total_Distance / 8
 
-    iterations = 0
-    for x in range(8):
-        total = 0
-        elements = 0
-        for i in range(iterations, len(stroke_Distances)):
-            distance = stroke_Distances[i]
-            if total < total_Distance/8:
-                total += distance
-                elements += 1
-            else:
-                break
-            iterations += 1
-        if elements != 0:
-            elements_Per_Section.append(elements)
+    sectioned_List = []
+    current_section = []
+    current_distance = 0
 
-    incrementer = 0
-    iterate = 0
-    for i in elements_Per_Section:
-        section = []
-        sum = 0
-        for f in range(0, iterate):
-            sum += elements_Per_Section[f]
-        for x in range(incrementer, (i+sum)):
-            value = data_List[x]
-            section.append(value)
-            incrementer += 1
-        iterate += 1
+    # to make this work with GPS data and data with the same length of ["Distance / Stroke"] (e.g. watts)
+    points_per_stroke = len(data_List) / len(stroke_Distances)
 
-        sectioned_List.append(section)
+    for idx, dist in enumerate(stroke_Distances):
+        start_idx = int(idx * points_per_stroke)
+        end_idx = int ((idx + 1) * points_per_stroke)
+        stroke_data = data_List[start_idx:end_idx]
+
+        current_section.extend(stroke_data)
+        current_distance += dist
+
+        while current_distance >= distance_per_sample and len(sectioned_List) < 7:
+            sectioned_List.append(current_section)
+            current_section = []
+            current_distance -= distance_per_sample
+
+    if current_section:
+        sectioned_List.append(current_section)
+
+    while len(sectioned_List) < 8:
+        sectioned_List.append([])
 
     if boat_Data.Samples == 0:
         boat_Data.Samples = len(sectioned_List)

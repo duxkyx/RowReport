@@ -31,7 +31,10 @@
 <body>
   <div class="d-flex" style="min-height:100vh;">
     <!-- SIDEBAR -->
-    <aside class="sidebar d-flex flex-column p-3 text-white vh-100" style="position:sticky;top:0;">
+    <aside class="sidebar d-flex flex-column p-3 text-white vh-100">
+      <button id="sidebarToggle" class="sidebar-toggle">
+        <span class="chevron">‹</span>
+      </button>
       <div class="brand mb-3">
         <img src="{{ url_for('static', filename='media/heading_resize.png') }}" alt="RowReport">
       </div>
@@ -55,7 +58,7 @@
         {% endif %}
       </nav>
 
-      <div class="mt-auto pt-3 border-top" style="border-color:rgba(255,255,255,0.03)">
+      <div class="mt-auto pt-3 border-top" style="border-color:rgba(255,255,255,0.03); margin-bottom: 10%;">
         <div class="mb-2 muted-sm">Logged in as</div>
         <div class="fw-semibold">{{ user.email }}</div>
         <div class="d-flex gap-2 mt-3">
@@ -72,10 +75,12 @@
         
         <p class="muted-sm mt-3 mb-0">Developed by Ben Loggie</p>
       </div>
+      
     </aside>
 
     <!-- MAIN -->
     <main class="flex-grow-1 app-main">
+
       <!-- Loading overlay -->
       <div id="loading-overlay">
         <div class="spinner-container">
@@ -87,7 +92,7 @@
         </div>
       </div>
 
-
+      <!-- Dashboard Page -->
       {% if page == 'dashboard' %}
       <div class="header-row">
         <div>
@@ -183,6 +188,7 @@
         </div>
       </div>
 
+      <!-- Upload Page -->
       {% elif page == 'upload' %}
 
       <div class="header-row">
@@ -265,6 +271,7 @@
         </div>
       </div>
 
+      <!-- Sessions Page -->
       {% elif page == 'sessions' %}
 
       <div class="header-row">
@@ -314,6 +321,7 @@
         </div>
       </div>
 
+      <!-- Session Analysis Page | Overview -->
       {% elif page == 'overview' %}
 
       <div class="header-row">
@@ -379,7 +387,10 @@
           </table>
         </div>
 
-        <div class="panel mb-4">{{ graphs.map | safe }}</div>
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.map | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
         <div class="d-flex gap-2 mt-3">
           <a href="/dashboard/sessions" class="btn btn-ghost">Back to Sessions</a>
@@ -392,6 +403,7 @@
 
       </div>
 
+      <!-- Session Analysis Page | Session -->
       {% elif page == 'session' %}
 
       <div class="header-row">
@@ -435,11 +447,22 @@
           </table>
         </div>
 
-      <div class="panel mb-4">{{ graphs.power_timeline | safe }}</div>
-      <div class="panel mb-4">{{ graphs.acceleration | safe }}</div>
-      <div class="panel mb-4">{{ graphs.rowing_speed | safe }}</div>
+      <div class="plot-wrapper">
+        <div class="panel mb-4">{{ graphs.power_timeline | safe }}</div>
+        <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+      </div>
 
+      <div class="plot-wrapper">
+        <div class="panel mb-4">{{ graphs.acceleration | safe }}</div>
+        <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+      </div>
 
+      <div class="plot-wrapper">
+        <div class="panel mb-4">{{ graphs.rowing_speed | safe }}</div>
+        <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+      </div>
+
+      <!-- Session Analysis Page | Average -->
       {% elif page == 'average' %}
 
       <div class="header-row">
@@ -590,13 +613,13 @@
                 <th>75% Recovery</th>
                 <th>Hang Start</th>
                 <th>Min Angle</th>
-                <th>Hang End</th>
+                <th>Catch</th>
                 <th>Effect Start</th>
                 <th>Up-to 70% Peak Force</th>
                 <th>Peak Force</th>
                 <th>From 70% Peak Force</th>
                 <th>Effect End</th>
-                <th>Pause Start</th>
+                <th>Finish</th>
                 <th>Max Angle</th>
                 <th>Release</th>
               </tr>
@@ -640,24 +663,61 @@
         </div>
 
         <!-- Graphs retained in same placeholders -->
-        <div class="panel mb-4">{{ graphs.syncronisation | safe }}</div>
-        <div class="panel mb-4">{{ graphs.gateforcepercent | safe }}</div>
 
-        <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
-        <div class="panel mb-4">{{ graphs.ratios | safe }}</div>
+        <div class="plot-wrapper">
+         <div class="panel mb-4">{{ graphs.syncronisation | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
-        <div class="row g-4">
-          <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>
-          {% if boat_data.seat_sensors %}
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.ratios | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        {% if boat_data.seat_sensors %}
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        <div class="plot-wrapper">
+          <div class="row g-4">
             <div class="col-lg-6"><div class="panel">{{ graphs.seatposition | safe }}</div></div>
-          {% endif %}
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        {% else %}
+
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>  
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        {% endif %}
+
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.gateanglevelocitydeg | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
       </div>
 
+      <!-- Session Analysis Page | Samples -->
       {% elif page == 'samples' %}
 
       <div class="header-row">
@@ -673,51 +733,56 @@
         </div>
       </div>
 
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-6 col-lg-5">
+      <div>
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12 col-md-6 col-lg-5">
 
-            <h3 class="mb-4 text-center">Choose a Sample</h3>
+              <h3 class="mb-4 text-center">Choose a Sample</h3>
 
-            <form method="POST" action="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples">
-              <div class="dropdown mb-3">
-                <button class="btn btn-primary dropdown-toggle w-100 text-start" type="button" 
-                        id="sampleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                  {{ sample_selected or 'Select a sample to view' }}
-                </button>
-                
-                <ul class="dropdown-menu w-100" aria-labelledby="sampleDropdown">
-                  <li class="dropdown-header text-muted ps-3 py-2">Available samples</li>
-                  <li><hr class="dropdown-divider"></li>
-                  {% for i in range(1, 9) %}
-                    <li>
-                      <button type="submit" name="sample_id" value="{{ i }}" 
-                              class="dropdown-item {% if sample_selected == 'Sample ' ~ i %}active{% endif %}">
-                              Sample {{ i }} | {{ (boat_data.distance / 8 * (i-1)) | round | int }} m - {{ (boat_data.distance / 8 * i) | round | int}} m
-                      </button>
-                    </li>
-                  {% endfor %}
-                </ul>
+              <form method="POST" action="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples">
+                <div class="dropdown mb-3">
+                  <button class="btn btn-primary dropdown-toggle w-100 text-start" type="button" 
+                          id="sampleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{ sample_selected or 'Select a sample to view' }}
+                  </button>
+                  
+                  <ul class="dropdown-menu" aria-labelledby="sampleDropdown">
+                    <li class="dropdown-header text-muted ps-3 py-2">Available samples</li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% for i in range(1, 9) %}
+                      <li>
+                        <button type="submit" name="sample_id" value="{{ i }}" 
+                                class="dropdown-item {% if sample_selected == 'Sample ' ~ i %}active{% endif %}">
+                                Sample {{ i }} | {{ (boat_data.distance / 8 * (i-1)) | round | int }} m - {{ (boat_data.distance / 8 * i) | round | int}} m
+                        </button>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </form>
+
+              {% if sample_selected %}
+              <div class="alert alert-info mt-4">
+                <strong>Selected:</strong> {{ sample_selected }}
+                {{ (boat_data.distance / 8 * (sample_selected-1 | int)) | round(2) }} m -> {{ (boat_data.distance / 8 * (sample_selected | int)) | round(2)}} m
               </div>
-            </form>
+              {% endif %}
 
-            {% if sample_selected %}
-            <div class="alert alert-info mt-4">
-              <strong>Selected:</strong> {{ sample_selected }}
-              {{ (boat_data.distance / 8 * (sample_selected-1 | int)) | round(2) }} m -> {{ (boat_data.distance / 8 * (sample_selected | int)) | round(2)}} m
             </div>
-            {% endif %}
-
           </div>
         </div>
+
       </div>
 
       {% if sample_selected != None %}
       {% set sample = sample_selected | int - 1 %}
-      <div id="sample-{{ sample + 1 }}" class="card-modern p-3 mt-3">
+    
+      <div class="card-modern p-3 table-responsive">
         <h5>Sample {{ sample + 1 }}/8</h5>
         <h6 class="muted-sm">Rate {{ boat_data.rating[sample] }} (s/m) | Avg Power {{ boat_data.averagepower[sample] }} (w) | Distance per Stroke {{ boat_data.distanceperstroke[sample] }} (m) | Boat Speed {{ boat_data.meterspersecond[sample] }} (m/s)</h6>
 
+        <div class="panel mb-4">{{ graphs.map | safe }}</div>
         <div class="table-responsive mt-3">
           <table class="table table-hover align-middle mb-4">
             <thead>
@@ -779,8 +844,8 @@
           </table>
         </div>
 
-        <div class="table-responsive mb-4">
-          <table class="table table-hover align-middle">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-4">
             <thead>
               <tr>
                 <th>Seat</th>
@@ -821,8 +886,8 @@
 
         <h4>Syncronisation</h4>
         <div class="subtle">Measured in milliseconds as a comparison against the stroke seat.</div>
-        <div class="table-responsive mb-4">
-          <table class="table table-hover align-middle">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-4">
             <thead>
               <tr>
                 <th>Seat</th>
@@ -866,27 +931,61 @@
           </table>
         </div>
 
-        <div class="panel mb-4">{{ graphs.syncronisation[sample] | safe }}</div>
-        <div class="panel mb-4">{{ graphs.gateforcepercent[sample] | safe }}</div>
+        <div class="plot-wrapper">
+         <div class="panel mb-4">{{ graphs.syncronisation | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.ratios | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
-        <div class="panel mb-4">{{ graphs.gateforcex[sample] | safe }}</div>
-        <div class="panel mb-4">{{ graphs.ratios[sample] | safe }}</div>
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.gateforcex | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
-        <div class="row g-4">
-          <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity[sample] | safe }}</div></div>
+        {% if boat_data.seat_sensors %}
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
-          {% if boat_data.seat_sensors %}
-            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity[sample] | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle[sample] | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity[sample] | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.seatposition[sample] | safe }}</div></div>
-          {% endif %}
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.seatposition | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        {% else %}
+
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>  
+            <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        {% endif %}
+
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.gateanglevelocitydeg | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
       </div>
       {% endif %}
 
+      <!-- Admin -->
       {% elif page == 'admin' %}
 
       <div class="header-row">
@@ -927,6 +1026,7 @@
         </div>
       </div>
 
+      <!-- Account Page -->
       {% elif page == 'account' %}
 
       <div class="header-row">
@@ -948,6 +1048,7 @@
 
     </main>
   </div>
+
   <!-- Defining global JS variables -->
   <script>
     const getUsersApiRoute = "{{ apiroute_getallusers }}";
@@ -957,5 +1058,7 @@
   <!-- Custom JS -->
   <script src="{{ url_for('static', filename='js/upload_modal.js') }}"></script>
   <script src="{{ url_for('static', filename='js/loading.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/graph_fullscreen.js') }}"></script>
 </body>
 </html>

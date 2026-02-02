@@ -123,7 +123,18 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, optional_values=
         plot_bgcolor='rgba(0,0,0,0)'  # Transparent paper background
     )
 
-    return pio.to_html(fig, full_html=False, include_plotlyjs='cdn', config={
-        "responsive": True,
-        "displayModeBar": False
-    })
+    return pio.to_html(
+        fig, 
+        full_html=False, 
+        include_plotlyjs='cdn', 
+        config={
+            "responsive": True,
+            "displayModeBar": True,
+            "scrollZoom": False,
+            "displaylogo": False,
+            "toImageButtonOptions": {
+                "format": "png",
+                "filename": "rowreport_export"
+            }
+        }
+    )
