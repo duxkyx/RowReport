@@ -233,6 +233,9 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
             )
 
     if (request.method == 'POST' and page_name == 'samples') or page_name == 'all':
+        if type(selected_sample) == int:
+            selected_sample -= 1
+
         returned_graphs['sample_map'] = plot_map(
             session_data,
             selected_sample,
@@ -242,14 +245,14 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
         returned_graphs['sample_syncronisation'] = get_sample_syncronisation_plots(
             rowing_data, 
             names=name_array, 
-            sample=selected_sample-1,
+            sample=selected_sample,
             pdf=isPdf
         )
 
         returned_graphs['sample_ratios'] = get_sample_ratio_plots(
             rowing_data, 
             names=name_array, 
-            sample=selected_sample-1,
+            sample=selected_sample,
             pdf=isPdf
         )
 

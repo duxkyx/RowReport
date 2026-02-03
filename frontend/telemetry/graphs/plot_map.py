@@ -12,6 +12,9 @@ def plot_map(session_data, individual_sample=None, pdf=False):
     highlighted_rows = []
     counted_points = 0
 
+    if individual_sample:
+        individual_sample += 1
+
     for section_index, section in enumerate(gps, start=1):
         for point_index, (lon, lat) in enumerate(section):
             current_distance = round((distance / total_points) * (counted_points))
