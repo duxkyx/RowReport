@@ -1,13 +1,13 @@
 import plotly.graph_objects as go
 import plotly.io as pio
-from telemetry.graphs.colours import seat_colours, seat_effective_colours
-from telemetry.modules.sorting import average_Array_into_One
+from telemetry.graphs.colours import seat_colours, seat_effective_colours, sample_colours
 from telemetry.modules.checks import is_2d_list
 
-def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_values=None):
+def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_values=None, catchnormalized=False, finishnormalized=False, athlete_data=False, graph_Order=0):
     fig = go.Figure()
     colours = list(seat_colours.values())
     effective_colours = list(seat_effective_colours.values())
+    samples_colour = list(sample_colours.values())
 
     if is_2d_list(y_array):
         # Iterate through the array holding the values for each athlete. (8 arrays for 8 athletes)
@@ -15,8 +15,6 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_va
             # Add the names if they exist.
             if names:
                 name_value=f'{iterations + 1} | {names[iterations]}'
-            else:
-                name_value=f'{iterations + 1}'
 
             # Define current athlete values
             x_vals = x_array[iterations]
@@ -72,7 +70,7 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_va
                     showlegend=True,
                     mode="lines",
                     line=dict(
-                        color=colours[iterations]
+                        color=colours[iterations] if athlete_data else samples_colour[iterations]
                     )
                 ))
 
@@ -81,8 +79,9 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_va
                     x=x_vals, 
                     y=y_vals, 
                     name=name_value, 
-                    line=dict(color=colours[iterations])
+                    line=dict(color=colours[iterations] if athlete_data else samples_colour[iterations])
                 ))
+
             iterations += 1
     else:
         fig.add_trace(go.Scatter(
@@ -107,6 +106,25 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_va
             name="Gold Target",
             line=dict(color="gold", width=3)
         ))
+
+    if catchnormalized:
+        fig.add_vline(
+            x=catchnormalized[graph_Order] if type(catchnormalized) == list else catchnormalized,
+            line_width=2,
+            line_dash="dash",
+            line_color="black",
+            annotation_text="Catch",
+            annotation_position="top"
+        )
+        
+        fig.add_vline(
+            x=finishnormalized[graph_Order] if type(finishnormalized) == list else finishnormalized,
+            line_width=2,
+            line_dash="dash",
+            line_color="black",
+            annotation_text="Finish",
+            annotation_position="top"
+        )
 
     fig.update_layout(
         title=None if pdf else title,

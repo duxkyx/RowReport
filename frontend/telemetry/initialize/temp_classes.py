@@ -33,6 +33,8 @@ class Boat_Data():
             'YawAngle': [],
             'GPS': [],
             'Normalized Time': [],
+            "CatchNormalized": [],
+            "FinishNormalized": [],
         }
 
 # Initiating the frame for storing individual seat (rower) data.

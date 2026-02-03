@@ -837,6 +837,12 @@ def get_session_data(file):
                         boat_Data.data['Rating'].append(stroke_Rate)
                         boat_Data.data['Normalized Time'].append(List_NormalizedTime)
 
+                        catch_NormalizedPosition = List_NormalizedTime[List_GateAngles.index(min(List_GateAngles))]
+                        finish_NormalizedPosition = List_NormalizedTime[List_GateAngles.index(max(List_GateAngles))]
+
+                        boat_Data.data['CatchNormalized'].append(catch_NormalizedPosition)
+                        boat_Data.data['FinishNormalized'].append(finish_NormalizedPosition)
+
 
                 # Sets the pointer to the next stroke start line.
                 start_Of_Stroke_Line = row + 1

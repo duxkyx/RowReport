@@ -44,10 +44,20 @@ class rowing_session_table(SQLModel, table=True):
     distanceperstroke: List[float] = Field(sa_column=Column(JSON))
     stroketime: List[float] = Field(sa_column=Column(JSON))
     meterspersecond: List[float] = Field(sa_column=Column(JSON))
+    normalizedcatch: List[float] = Field(sa_column=Column(JSON))
+    normalizedfinish: List[float] = Field(sa_column=Column(JSON))
+    sample_time: List[float] = Field(sa_column=Column(JSON))
+    sample_strokes: List[float] = Field(sa_column=Column(JSON))
     
     # 2D arrays
     acceleration: List[List[float]] = Field(sa_column=Column(JSON))
     normalizedtime: List[List[float]] = Field(sa_column=Column(JSON))
+
+    boatroll: List[List[float]] = Field(sa_column=Column(JSON))
+    boatpitch: List[List[float]] = Field(sa_column=Column(JSON))
+    boatyaw: List[List[float]] = Field(sa_column=Column(JSON))
+
+    # GPS 3D array
     gps: List[List[List[float]]] = Field(sa_column=Column(JSON))
 
 

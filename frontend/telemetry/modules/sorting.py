@@ -2,7 +2,7 @@ import telemetry.modules.maths as maths_module
 
 # Returns an array which contains 8 other arrays which hold the sectioned data (not averaged).
 # This data is seperated into 8 sections based on distance. (each array has no limit of values, just based on distance).
-def section_List(data_List, boat_Data):
+def section_List(data_List, boat_Data, return_length=False):
     stroke_Distances = boat_Data.data['Distance / Stroke']
     total_Distance = maths_module.get_Sum(stroke_Distances)
     distance_per_sample = total_Distance / 8
@@ -35,6 +35,12 @@ def section_List(data_List, boat_Data):
 
     if boat_Data.Samples == 0:
         boat_Data.Samples = len(sectioned_List)
+
+    if return_length:
+        length_List = []
+        for section in sectioned_List:
+            length_List.append(int(len(section)))
+        return length_List
 
     return sectioned_List
 

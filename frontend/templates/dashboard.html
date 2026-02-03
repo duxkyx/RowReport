@@ -290,7 +290,7 @@
                 <th>Title</th>
                 <th>Training Zone</th>
                 <th>Date</th>
-                <th>Number of Rowers</th>
+                <th>Seats</th>
                 <th>Strokes Recorded</th>
                 <th>Distance (m)</th>
                 <th>Time Elapsed</th>
@@ -425,22 +425,33 @@
             <thead>
               <tr>
                 <th>Sample</th>
+                <th>Sample Duration (s)</th>
+                <th>Strokes in Sample</th>
                 <th>Stroke Rate (s/pm)</th>
                 <th>Avg Power (w)</th>
                 <th>Stroke Time (s)</th>
                 <th>Distance Per Stroke (m)</th>
                 <th>Speed (m/s)</th>
+                <th>Split (/500m)</th>
+
               </tr>
             </thead>
             <tbody>
               {% for sample in range(0,8) %}
+              {% set rate = boat_data.rating[sample] %}
+              {% set sample_time = boat_data.sample_time[sample] %}
+              {% set strokes_in_sample = boat_data.sample_strokes[sample] %}
+              {% set split = (((sample_time) / (boat_data.distance / 8)) * 500) %}
                 <tr>
                   <td>{{ sample + 1 }}</td>
-                  <td>{{ boat_data.rating[sample] }}</td>
+                  <td>{{ sample_time | round(2) }}</td>
+                  <td>{{ strokes_in_sample }}</td>
+                  <td>{{ rate }}</td>
                   <td>{{ boat_data.averagepower[sample] }}</td>
                   <td>{{ boat_data.stroketime[sample] }}</td>
                   <td>{{ boat_data.distanceperstroke[sample] }}</td>
                   <td>{{ boat_data.meterspersecond[sample] }}</td>
+                  <td>{{ split | round(2) }}</td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -453,15 +464,29 @@
       </div>
 
       <div class="plot-wrapper">
+        <div class="panel mb-4">{{ graphs.rowing_speed | safe }}</div>
+        <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+      </div>
+
+      <div class="plot-wrapper">
         <div class="panel mb-4">{{ graphs.acceleration | safe }}</div>
         <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
       </div>
 
       <div class="plot-wrapper">
-        <div class="panel mb-4">{{ graphs.rowing_speed | safe }}</div>
+        <div class="panel mb-4">{{ graphs.boat_roll | safe }}</div>
         <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
       </div>
 
+      <div class="plot-wrapper">
+        <div class="panel mb-4">{{ graphs.boat_pitch | safe }}</div>
+        <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+      </div>
+
+      <div class="plot-wrapper">
+        <div class="panel mb-4">{{ graphs.boat_yaw | safe }}</div>
+        <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+      </div>
       <!-- Session Analysis Page | Average -->
       {% elif page == 'average' %}
 

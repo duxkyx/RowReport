@@ -66,4 +66,9 @@ mapping_session = {
     "Acceleration": "acceleration",
     "Normalized Time": "normalizedtime",
     "GPS": "gps",
+    "RollAngle": "boatroll",
+    "PitchAngle": "boatpitch",
+    "YawAngle": "boatyaw",
+    "CatchNormalized": "normalizedcatch",
+    "FinishNormalized": "normalizedfinish",
 }

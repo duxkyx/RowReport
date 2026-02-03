@@ -280,7 +280,7 @@ body .form-select optgroup {
 
 .plot-fullscreen-btn {
     position: absolute;
-    top: 8px;
+    bottom: 8px;
     right: 8px;
     z-index: 1000;
     background: rgba(11,18,32,0.85);

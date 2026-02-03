@@ -22,7 +22,7 @@ def section_rower_data(rower_dict, boat_Data, new_Class):
 
 # For session boat data
 def section_boat_data(boat_dict, boat_Data, new_Class):
-    TWO_D_KEYS = {"Acceleration", "Normalized Time"}
+    TWO_D_KEYS = {"Acceleration", "Normalized Time", "RollAngle", "PitchAngle", "YawAngle"}
     for src_key, dest_attr in mapping_session.items():
         values = boat_dict.get(src_key, [])
         if src_key in TWO_D_KEYS:

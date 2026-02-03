@@ -1,6 +1,7 @@
 from telemetry.initialize.file_analyser import get_session_data
 from telemetry.initialize.section_data import section_rower_data, section_boat_data
-from telemetry.modules.maths import convert
+from telemetry.modules.maths import convert, get_Sum
+from telemetry.modules.sorting import section_List
 
 # Athlete Data Class -> Holds data to be stored in database.
 class athlete_db_ready_data:
@@ -98,6 +99,8 @@ class session_db_ready_data:
         self.acceleration = []
         self.meterspersecond = []
         self.normalizedtime = []
+        self.sample_time = []
+        self.sample_strokes = []
 
     def to_dict(self):
         return self.__dict__
@@ -123,6 +126,16 @@ def set_session_classes(file):
 
     # Setup class for sorted boat data.
     sorted_Boat_Data = section_boat_data(boat_data.data, boat_data, session_db_ready_data(boat_data))
+
+    sorted_Boat_Data.sample_strokes = section_List(boat_data.data['Stroke Time'], boat_data, True)
+    sectioned_Stroke_Times = section_List(boat_data.data['Stroke Time'], boat_data)
+
+    sample_Times = []
+    for list in sectioned_Stroke_Times:
+        sum = get_Sum(list)
+        sample_Times.append(sum)
+
+    sorted_Boat_Data.sample_time = sample_Times
 
     # Return the calculated data.
     return list_Of_Rower_Data, sorted_Boat_Data

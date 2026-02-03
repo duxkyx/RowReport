@@ -1,7 +1,7 @@
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-from telemetry.graphs.colours import seat_colours as sample_colours
+from telemetry.graphs.colours import sample_colours
 
 def plot_map(session_data, individual_sample=None, pdf=False):
     gps = session_data['gps']    
@@ -9,6 +9,7 @@ def plot_map(session_data, individual_sample=None, pdf=False):
     distance = round(session_data['distance'])
     total_points = sum(len(section) for section in gps)    
     rows = []
+    highlighted_rows = []
     counted_points = 0
 
     for section_index, section in enumerate(gps, start=1):
@@ -17,6 +18,7 @@ def plot_map(session_data, individual_sample=None, pdf=False):
 
             if individual_sample:
                 if section_index == individual_sample:
+                    highlighted_rows.append({"lon": lon, "lat": lat})
                     colour = "#841925"
                 else:
                     colour = '#d3d3d3'
@@ -36,6 +38,7 @@ def plot_map(session_data, individual_sample=None, pdf=False):
 
 
     coordinates_df = pd.DataFrame(rows)
+    highlighted_rows = pd.DataFrame(highlighted_rows)
 
 
     # Use scatter_mapbox to allow color gradient
@@ -68,8 +71,7 @@ def plot_map(session_data, individual_sample=None, pdf=False):
     fig.update_layout(
         showlegend=False if pdf else True,
         mapbox_style="carto-positron",
-        mapbox_center={"lat": coordinates_df['lat'].mean(),
-                       "lon": coordinates_df['lon'].mean()},
+        mapbox_center={"lat": coordinates_df['lat'].mean(), "lon": coordinates_df['lon'].mean()} if not individual_sample else {"lat": highlighted_rows['lat'].mean(), "lon": highlighted_rows["lon"].mean()},
         margin={"r":0,"t":0,"l":0,"b":0},
         coloraxis_showscale=False,
         legend_title_text="Section"

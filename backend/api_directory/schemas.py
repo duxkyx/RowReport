@@ -39,10 +39,19 @@ class BoatTelemetryData(BaseModel):
     distanceperstroke: List[float]
     stroketime: List[float]
     meterspersecond: List[float]
+    normalizedcatch: List[float]
+    normalizedfinish: List[float]
+    sample_time: List[float] 
+    sample_strokes: List[float]
     
     # 2D arrays
     acceleration: List[List[float]]
     normalizedtime: List[List[float]]
+    boatroll: List[List[float]]
+    boatpitch: List[List[float]]
+    boatyaw: List[List[float]]
+
+    # GPS 3D Array
     gps: List[List[List[float]]]
 
 

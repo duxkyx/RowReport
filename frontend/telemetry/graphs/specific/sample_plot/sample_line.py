@@ -1,21 +1,29 @@
 from telemetry.graphs.plot_line import plot_line
 from telemetry.modules.sorting import average_Array_into_One_Percentage as aaiop
+from telemetry.modules.maths import calculate_Average
 
-def get_sample_line_plots(data_container, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None, pdf=False, sample=False):
+def get_sample_line_plots(session_data, athlete_data, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None, pdf=False, sample=False):
     plots = []
     content_of_container = ''
-    if isinstance(data_container, dict): # Checks how the data is structured (dict within dict or just dict)
+    is_athlete_data = False
+    if y_axis_values in session_data:
         content_of_container = 'boat_data'
+        is_athlete_data = False
     else:
         content_of_container = 'telemetry'
+        is_athlete_data = True
 
     if content_of_container == 'telemetry':
+        graphs_Created = 0
         def loop(sample_position):
             new_x_axis_values = []
             new_y_axis_values = []
             optional_values = []
 
-            for rower in data_container:
+            catchnormalized = False
+            finishnormalized = False
+
+            for rower in athlete_data:
                 telem_dict = rower['telemetry']
 
                 if percentage_x:
@@ -37,8 +45,12 @@ def get_sample_line_plots(data_container, x_axis_values, y_axis_values, title, x
                 if title == 'Seat Position':
                     gate_force_list = telem_dict['gate_force_x'][sample_position]
                     optional_values.append(gate_force_list)
+
+            if x_label == 'Normalized Time (%)':
+                catchnormalized = session_data['normalizedcatch']
+                finishnormalized = session_data['normalizedfinish']
                 
-            plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, pdf, optional_values)
+            plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, pdf, optional_values, catchnormalized, finishnormalized, is_athlete_data, graph_Order=graphs_Created)
             return plot
         
         if type(sample) == int:
@@ -46,19 +58,27 @@ def get_sample_line_plots(data_container, x_axis_values, y_axis_values, title, x
         else:
             for i in range(0, 7):
                 plots.append(loop(i))
+                graphs_Created += 1
             return plots
 
     else:
         new_x_axis_values = []
         new_y_axis_values = []
 
+        catchnormalized = False
+        finishnormalized = False
+
         for sample in range(0,8):
             if x_axis_values == None:
-                new_x_axis_values.append(str(data_container['rating'][sample]))
+                new_x_axis_values.append(str(session_data['rating'][sample]))
             else:
-                new_x_axis_values.append(data_container[x_axis_values][sample])
+                new_x_axis_values.append(session_data[x_axis_values][sample])
 
-            new_y_axis_values.append(data_container[y_axis_values][sample])
+            new_y_axis_values.append(session_data[y_axis_values][sample])
 
-        plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, pdf)
+        if x_label == 'Normalized Time (%)':
+            catchnormalized = calculate_Average(session_data['normalizedcatch'])
+            finishnormalized = calculate_Average(session_data['normalizedfinish'])
+
+        plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, pdf, False, catchnormalized, finishnormalized, is_athlete_data)
         return plot
