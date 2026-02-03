@@ -47,7 +47,7 @@ class rowing_session_table(SQLModel, table=True):
     normalizedcatch: List[float] = Field(sa_column=Column(JSON))
     normalizedfinish: List[float] = Field(sa_column=Column(JSON))
     sample_time: List[float] = Field(sa_column=Column(JSON))
-    sample_strokes: List[float] = Field(sa_column=Column(JSON))
+    sample_strokes: List[int] = Field(sa_column=Column(JSON))
     
     # 2D arrays
     acceleration: List[List[float]] = Field(sa_column=Column(JSON))

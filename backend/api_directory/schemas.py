@@ -42,7 +42,7 @@ class BoatTelemetryData(BaseModel):
     normalizedcatch: List[float]
     normalizedfinish: List[float]
     sample_time: List[float] 
-    sample_strokes: List[float]
+    sample_strokes: List[int]
     
     # 2D arrays
     acceleration: List[List[float]]

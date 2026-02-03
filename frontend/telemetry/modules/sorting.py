@@ -39,7 +39,7 @@ def section_List(data_List, boat_Data, return_length=False):
     if return_length:
         length_List = []
         for section in sectioned_List:
-            length_List.append(int(len(section)))
+            length_List.append(len(section))
         return length_List
 
     return sectioned_List

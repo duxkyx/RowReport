@@ -956,20 +956,20 @@ def get_session_data(file):
             Max_Time = rower.data['Time_To_Max'][count]
             Recovery_Time = rower.data['Time_To_Recovery'][count]
 
-            Recov_25_Difference = (Recov_25_Time-Stroke_25_Recov[count])
-            Recov_50_Difference = (Recov_50_Time-Stroke_50_Recov[count])
-            Recov_75_Difference = (Recov_75_Time-Stroke_75_Recov[count])
-            Hang_Difference = (Hang_Time-Stroke_Hang[count])
-            Min_Difference = (Min_Time-Stroke_Min[count])
-            Catch_Difference = (Catch_Time-Stroke_Catch[count])
-            Effective_Drive_Difference = (Effective_Drive_Time-Stroke_Effective_Drive[count])
-            MaxF70_Difference = (MaxF70_Time-Stroke_70Max_F[count])
-            MaxF_Difference = (MaxF_Time-Stroke_MaxF[count])
-            MaxFrom70_Difference = (MaxFrom70_Time-Stroke_From70Max_F[count])
-            FSlip_Difference = (FSlip_Time-Stroke_FSlip[count])
-            Finish_Difference = (Finish_Time-Stroke_Finish[count])
-            Max_Difference = (Max_Time-Stroke_Max[count])
-            Recovery_Difference = (Recovery_Time-Stroke_Recovery[count])
+            Recov_25_Difference = Recov_25_Time-Stroke_25_Recov[count]
+            Recov_50_Difference = Recov_50_Time-Stroke_50_Recov[count]
+            Recov_75_Difference = Recov_75_Time-Stroke_75_Recov[count]
+            Hang_Difference = Hang_Time-Stroke_Hang[count]
+            Min_Difference = Min_Time-Stroke_Min[count]
+            Catch_Difference = Catch_Time-Stroke_Catch[count]
+            Effective_Drive_Difference = Effective_Drive_Time-Stroke_Effective_Drive[count]
+            MaxF70_Difference = MaxF70_Time-Stroke_70Max_F[count]
+            MaxF_Difference = MaxF_Time-Stroke_MaxF[count]
+            MaxFrom70_Difference = MaxFrom70_Time-Stroke_From70Max_F[count]
+            FSlip_Difference = FSlip_Time-Stroke_FSlip[count]
+            Finish_Difference = Finish_Time-Stroke_Finish[count]
+            Max_Difference = Max_Time-Stroke_Max[count]
+            Recovery_Difference = Recovery_Time-Stroke_Recovery[count]
 
             # Add calculated differences to rower data object dictionary
             rower.data['Difference_25'].append(Recov_25_Difference)

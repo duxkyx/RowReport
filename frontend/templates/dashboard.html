@@ -334,6 +334,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -416,6 +417,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-primary">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -500,6 +502,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-primary">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -667,20 +670,20 @@
 
                 <tr>
                   <td>{{ rower.telemetry.seat }}</td>
-                  <td>{{ difference_25 | round(2) }}</td>
-                  <td>{{ difference_50 | round(2) }}</td>
-                  <td>{{ difference_75 | round(2) }}</td>
-                  <td>{{ difference_hang | round(2) }}</td>
-                  <td>{{ difference_min | round(2) }}</td>
-                  <td>{{ difference_catch | round(2) }}</td>
-                  <td>{{ difference_effective_start | round(2) }}</td>
-                  <td>{{ difference_70max | round(2)}}</td>
-                  <td>{{ difference_max | round(2)}}</td>
-                  <td>{{ difference_max70 | round(2)}}</td>
-                  <td>{{ difference_effective_end | round(2)}}</td>
-                  <td>{{ difference_finish | round(2)}}</td>
-                  <td>{{ difference_max | round(2)}}</td>
-                  <td>{{ difference_recovery | round(2)}}</td>
+                  <td>{{ difference_25 | round(3) }}</td>
+                  <td>{{ difference_50 | round(3) }}</td>
+                  <td>{{ difference_75 | round(3) }}</td>
+                  <td>{{ difference_hang | round(3) }}</td>
+                  <td>{{ difference_min | round(3) }}</td>
+                  <td>{{ difference_catch | round(3) }}</td>
+                  <td>{{ difference_effective_start | round(3) }}</td>
+                  <td>{{ difference_70max | round(3)}}</td>
+                  <td>{{ difference_max | round(3)}}</td>
+                  <td>{{ difference_max70 | round(3)}}</td>
+                  <td>{{ difference_effective_end | round(3)}}</td>
+                  <td>{{ difference_finish | round(3)}}</td>
+                  <td>{{ difference_max | round(3)}}</td>
+                  <td>{{ difference_recovery | round(3)}}</td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -755,6 +758,7 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-primary">Samples</a>
+          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -1026,18 +1030,21 @@
         </div>
       </div>
 
-      <div>
-        <div class="container-fluid">
-          <div class="row justify-content-center">
-            <div class="col-12 col-md-6 col-lg-5">
+      <div class="download-section">
 
-              <h3 class="mb-4 text-center">Download</h3>
-              <form method="POST" action="/dashboard/sessions/session_id={{ boat_data.id }}/page=export">
-                <button type="submit" name="action" class="btn btn-primary" value="download">Download</button>
-              </form>
+        <div class="download-card">
 
-            </div>
-          </div>
+          <h3 class="download-title">Download Session Report</h3>
+          <p class="download-subtitle">
+            Export this rowing session as a professionally formatted PDF report.
+          </p>
+
+          <form method="POST" action="/dashboard/sessions/session_id={{ boat_data.id }}/page=export">
+            <button type="submit" name="action" value="download" class="download-btn">
+              Download PDF Report
+            </button>
+          </form>
+
         </div>
 
       </div>

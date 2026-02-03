@@ -1,213 +1,272 @@
-/* ============================================================
-   ROWREPORT — BIOROW 1:1 PDF MASTER CSS
-   Engine: wkhtmltopdf / pdfkit Safe
-   Layout: Exact BioRow print behaviour
-============================================================ */
+/* ============================ */
+/* GLOBAL PDF MODERN TYPOGRAPHY */
+/* ============================ */
 
+body {
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 11.5px;
+  margin: 38px;
 
-/* ============================================================
-   PAGE SIZE + PRINT CONTROL
-============================================================ */
+  color: #0f172a;
+  line-height: 1.55;
 
-@page {
-  size: A4;
-  margin: 6mm;
-}
+  background: #ffffff;
 
-html, body {
-  width: 210mm;
-  height: 297mm;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  font-size: 8px;
-  color: black;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 
-/* Prevent wkhtml shrinking */
-* {
-  box-sizing: border-box;
+/* ============================ */
+/* HEADINGS                     */
+/* ============================ */
+
+h1 {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: -0.4px;
+  color: #020617;
+}
+
+h2 {
+  font-size: 19px;
+  font-weight: 750;
+
+  margin-top: 0;
+  margin-bottom: 14px;
+
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e2e8f0;
+
+  letter-spacing: -0.2px;
+  color: #0f172a;
+}
+
+h3 {
+  margin-top: 26px;
+  margin-bottom: 10px;
+
+  font-size: 14.5px;
+  font-weight: 700;
+
+  letter-spacing: -0.15px;
+  color: #1e293b;
+}
+
+p {
+  margin: 6px 0;
+  font-size: 11.3px;
+  font-weight: 400;
+  color: #334155;
 }
 
 
-/* ============================================================
-   HEADER (BioRow Style)
-============================================================ */
+/* ============================ */
+/* PAGE STRUCTURE               */
+/* ============================ */
 
-.pdf-header {
+.pdf-section {
   width: 100%;
-  margin-bottom: 2mm;
 }
 
-.pdf-title {
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.pdf-subtitle {
-  font-size: 8.5px;
-  color: #444;
+.page-break {
+  page-break-before: always;
 }
 
 
-/* ============================================================
-   SECTION DIVIDER BAR
-============================================================ */
+/* ============================ */
+/* HEADER BLOCK                 */
+/* ============================ */
 
-.divider-bar {
-  font-size: 8.5px;
-  font-weight: bold;
-  background: #eaeaea;
-  padding: 2px 4px;
-  margin: 0;
-  border-top: 0.6px solid black;
-  border-bottom: 0.6px solid black;
+.report-header {
+  text-align: center;
+  margin-bottom: 32px;
 }
 
-
-/* ============================================================
-   TABLES — TRUE BIOROW STYLE
-============================================================ */
-
-.report-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  margin: 0;
+.report-header p {
+  font-size: 11px;
+  color: #475569;
 }
 
-/* Remove boxed grid */
-.report-table th,
-.report-table td {
+.report-header hr {
+  margin-top: 16px;
   border: none;
-  border-bottom: 0.6px solid black;
-  padding: 2px 3px;
-  font-size: 7.5px;
-  text-align: center;
-}
-
-/* Seat column */
-.report-table th.seat-col,
-.report-table td:first-child {
-  width: 26px;
-  font-weight: bold;
-}
-
-/* Name column */
-.report-table th.name-col,
-.report-table td:nth-child(2) {
-  width: 65px;
-  text-align: left;
-}
-
-/* Rotated headers */
-.report-table th.rotate {
-  height: 55px;
-  width: 22px;
-  vertical-align: bottom;
-  padding: 0;
-}
-
-.report-table th.rotate div {
-  transform: rotate(-90deg);
-  white-space: nowrap;
-  font-size: 7px;
-  font-weight: bold;
-}
-
-/* Header line */
-.report-table thead th {
-  border-bottom: 1px solid black;
+  border-top: 1px solid #e2e8f0;
 }
 
 
-/* ============================================================
-   SEAT COLOURS (Text Only)
-============================================================ */
+/* ============================ */
+/* INFO GRID                    */
+/* ============================ */
 
-.seat-1 { color: #34fc49; }
-.seat-2 { color: #fc2e04; }
-.seat-3 { color: #0000f7; }
-.seat-4 { color: #000000; }
-.seat-5 { color: #3c752a; }
-.seat-6 { color: #a42904; }
-.seat-7 { color: #2afcff; }
-.seat-8 { color: #fe9d29; }
+.info-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 45px;
+  margin-top: 12px;
+}
+
+.description-box {
+  border: 1px solid #e2e8f0;
+  padding: 14px;
+  border-radius: 12px;
+
+  background: #f8fafc;
+
+  font-size: 11px;
+  color: #334155;
+}
 
 
-/* ============================================================
-   GRAPH GRID — EXACT BIOROW BLOCKS
-============================================================ */
+/* ============================ */
+/* PREMIUM MODERN DATA TABLES   */
+/* ============================ */
 
-.graph-grid {
+table {
   width: 100%;
-  display: table;
-  table-layout: fixed;
   border-collapse: collapse;
-  margin: 0;
+
+  margin-top: 16px;
+  margin-bottom: 24px;
+
+  table-layout: fixed;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+
+  background: #ffffff;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.graph-cell {
-  display: table-cell;
-  width: 50%;
-  border: 0.6px solid black;
-  padding: 0;
+/* Header Row */
+thead {
+  background: #f1f5f9;
 }
 
-.panel img {
-  width: 100%;
-  height: 160px;
-  display: block;
-  object-fit: contain;
-}
+th {
+  padding: 10px 7px;
 
-/* Full width graph row */
-.graph-full {
-  width: 100%;
-  border: 0.6px solid black;
-  margin-top: -0.6px;
-}
+  font-size: 9.8px;
+  font-weight: 700;
 
-.graph-full img {
-  width: 100%;
-  height: 190px;
-  display: block;
-  object-fit: contain;
-}
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
 
+  color: #0f172a;
 
-/* ============================================================
-   PAGE BREAK CONTROL
-============================================================ */
+  border-bottom: 1px solid #cbd5e1;
 
-.no-break,
-.report-table,
-.graph-grid,
-.graph-cell,
-.graph-full {
-  page-break-inside: avoid !important;
-}
-
-tr, td, th {
-  page-break-inside: avoid !important;
-}
-
-
-/* ============================================================
-   FOOTER BRANDING (Every Page)
-============================================================ */
-
-.pdf-footer {
-  position: fixed;
-  bottom: 4mm;
-  left: 0;
-  width: 100%;
   text-align: center;
-  font-size: 7px;
-  color: #444;
 }
 
-.pdf-footer strong {
-  font-weight: bold;
+/* Body Cells */
+td {
+  padding: 9px 7px;
+
+  font-size: 10.6px;
+  font-weight: 500;
+
+  color: #1e293b;
+
+  border-bottom: 1px solid #f1f5f9;
+
+  text-align: center;
+  vertical-align: middle;
+
+  word-wrap: break-word;
+}
+
+/* Zebra Striping */
+tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* Slight emphasis on first columns */
+td:first-child,
+td:nth-child(2) {
+  font-weight: 650;
+  color: #0f172a;
+}
+
+/* Prevent row splitting */
+tr {
+  page-break-inside: avoid;
+}
+
+/* Remove border from last row */
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* ============================ */
+/* AVERAGE SUMMARY BLOCK        */
+/* ============================ */
+
+.avg-summary {
+  font-weight: 700;
+  font-size: 12px;
+
+  color: #0f172a;
+
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+
+  margin-bottom: 20px;
+}
+
+
+/* ============================ */
+/* GRAPH CONTAINERS (MODERN)    */
+/* ============================ */
+
+.plotly-graph-div {
+  width: 100% !important;
+  max-width: 100% !important;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  padding: 14px;
+  margin: 20px 0;
+
+  background: #ffffff;
+
+  overflow: hidden !important;
+  page-break-inside: avoid;
+
+  text-align: center;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Graph Images */
+.plotly-graph-div img {
+  width: 100% !important;
+  max-width: 100% !important;
+
+  height: auto !important;
+  max-height: 380px !important;
+
+  display: block;
+  margin: 0 auto;
+
+  object-fit: contain;
+}
+
+
+/* ============================ */
+/* OPTIONAL SMALL TABLE MODE    */
+/* ============================ */
+
+table.small td,
+table.small th {
+  font-size: 9.5px;
+  padding: 6px;
 }

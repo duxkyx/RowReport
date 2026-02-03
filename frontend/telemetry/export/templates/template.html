@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RowReport PDF Export</title>
+
+  <!-- PDF CSS -->
+  <link rel="stylesheet" href="{{ css_path }}">
+</head>
+
+<body>
+
+  <!-- ========================= -->
+  <!-- PDF REPORT HEADER -->
+  <!-- ========================= -->
+  <div class="report-header">
+    <h1>RowReport Session Report</h1>
+    <p><strong>Session ID:</strong> {{ boat_data.id }}</p>
+    <p><strong>Title:</strong> {{ boat_data.title }}</p>
+    <p><strong>Date:</strong> {{ boat_data.date }}</p>
+    <hr>
+  </div>
+
+  <!-- ========================= -->
+  <!-- OVERVIEW PAGE -->
+  <!-- ========================= -->
+  <div class="pdf-section">
+
+    <h2>Overview</h2>
+
+    <div class="info-grid">
+      <div>
+        <p><strong>File Name:</strong> {{ boat_data.filename }}</p>
+        <p><strong>Training Zone:</strong> {{ boat_data.state }}</p>
+        <p><strong>Seat Sensors:</strong> {{ boat_data.seat_sensors }}</p>
+      </div>
+
+      <div>
+        <p><strong>Number of Rowers:</strong> {{ boat_data.seats }}</p>
+        <p><strong>Strokes Recorded:</strong> {{ boat_data.tstrokes }}</p>
+        <p><strong>Distance:</strong> {{ boat_data.distance | round(2) }} m</p>
+        <p><strong>Time Elapsed:</strong> {{ boat_data.timeelapsed }}</p>
+      </div>
+    </div>
+
+    <h3>Coach Feedback</h3>
+    <p class="description-box">{{ boat_data.description }}</p>
+
+    <h3>Crew List</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Seat</th>
+          <th>Side</th>
+          <th>Name</th>
+          <th>User</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rower in rowers %}
+        <tr>
+          <td>{{ rower.telemetry.seat }}</td>
+          <td>{{ rower.telemetry.side }}</td>
+          <td>{{ rower.telemetry.name }}</td>
+          <td>
+            {% if rower.user.user_id %}
+              {{ rower.user.first_name }} {{ rower.user.last_name }} ({{ rower.user.email }})
+            {% else %}
+              Unassigned
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="plotly-graph-div">
+      <img src="{{ graphs.map | safe }}">
+    </div>
+
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================= -->
+  <!-- SESSION PAGE -->
+  <!-- ========================= -->
+  <div class="pdf-section">
+
+    <h2>Session Summary</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Sample</th>
+          <th>Sample Duration (s)</th>
+          <th>Strokes in Sample</th>
+          <th>Stroke Rate (s/pm)</th>
+          <th>Avg Power (w)</th>
+          <th>Stroke Time (s)</th>
+          <th>Distance Per Stroke (m)</th>
+          <th>Speed (m/s)</th>
+          <th>Split (/500m)</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for sample in range(0,8) %}
+        {% set rate = boat_data.rating[sample] %}
+        {% set sample_time = boat_data.sample_time[sample] %}
+        {% set strokes_in_sample = boat_data.sample_strokes[sample] %}
+        {% set split = (((sample_time) / (boat_data.distance / 8)) * 500) %}
+        <tr>
+          <td>{{ sample + 1 }}</td>
+          <td>{{ sample_time | round(2) }}</td>
+          <td>{{ strokes_in_sample }}</td>
+          <td>{{ rate }}</td>
+          <td>{{ boat_data.averagepower[sample] }}</td>
+          <td>{{ boat_data.stroketime[sample] }}</td>
+          <td>{{ boat_data.distanceperstroke[sample] }}</td>
+          <td>{{ boat_data.meterspersecond[sample] }}</td>
+          <td>{{ split | round(2) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="plotly-graph-div"><img src="{{ graphs.power_timeline | safe }}"></div>
+    <div class="plotly-graph-div"><img src="{{ graphs.rowing_speed | safe }}"></div>
+    <div class="plotly-graph-div"><img src="{{ graphs.acceleration | safe }}"></div>
+    <div class="plotly-graph-div"><img src="{{ graphs.boat_roll | safe }}"></div>
+    <div class="plotly-graph-div"><img src="{{ graphs.boat_pitch | safe }}"></div>
+    <div class="plotly-graph-div"><img src="{{ graphs.boat_yaw | safe }}"></div>
+
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================= -->
+  <!-- AVERAGE PAGE -->
+  <!-- ========================= -->
+  <div class="pdf-section">
+
+    <h2>Average Session Statistics</h2>
+
+    {% set rating = (boat_data.rating | sum) / (boat_data.rating | length) %}
+    {% set power = (boat_data.averagepower | sum) / (boat_data.averagepower | length) %}
+    {% set dps = (boat_data.distanceperstroke | sum) / (boat_data.distanceperstroke | length) %}
+    {% set mps = (boat_data.meterspersecond | sum) / (boat_data.meterspersecond | length) %}
+
+    <p class="avg-summary">
+      Rate {{ rating | round(2) }} (s/m) |
+      Avg Power {{ power | round(2) }} (w) |
+      Distance per Stroke {{ dps | round(2) }} (m) |
+      Boat Speed {{ mps | round(2) }} (m/s)
+    </p>
+
+    <!-- Table 1 -->
+    <table>
+      <thead>
+        <tr>
+          <th>Seat</th>
+          <th>Name</th>
+          <th>Drive Time (s)</th>
+          <th>Recovery Time (s)</th>
+          <th>Rhythmn (%)</th>
+          <th>Min Angle</th>
+          <th>Max Angle</th>
+          <th>Arc Length</th>
+          <th>Catch Slip</th>
+          <th>Finish Slip</th>
+          <th>Effective Length</th>
+          <th>Effective Length (%)</th>
+          {% if boat_data.seat_sensors %}
+          <th>Catch Factor (ms)</th>
+          {% endif %}
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for rower in rowers %}
+        {% set data = rower.telemetry %}
+        {% set drive_time = (data.drive_time | sum) / (data.drive_time | length) %}
+        {% set recovery_time = (data.recovery_time | sum) / (data.recovery_time | length) %}
+        {% set arc_length = (data.arc_length | sum) / (data.arc_length | length) %}
+        {% set catch_slip = (data.catch_slip | sum) / (data.catch_slip | length) %}
+        {% set finish_slip = (data.finish_slip | sum) / (data.finish_slip | length) %}
+
+        <tr>
+          <td>{{ data.seat }}</td>
+          <td>
+            {% if rower.user.user_id %}
+              {{ rower.user.last_name }}
+            {% else %}
+              {{ data.name }}
+            {% endif %}
+          </td>
+          <td>{{ drive_time | round(2) }}</td>
+          <td>{{ recovery_time | round(2) }}</td>
+          <td>{{ ((drive_time/(drive_time+recovery_time))*100)|round(2) }}</td>
+          <td>{{ ((data.min_angle | sum)/(data.min_angle|length)) | round(2) }}</td>
+          <td>{{ ((data.max_angle | sum)/(data.max_angle|length)) | round(2) }}</td>
+          <td>{{ arc_length | round(2) }}</td>
+          <td>{{ catch_slip | round(2) }}</td>
+          <td>{{ finish_slip | round(2) }}</td>
+          <td>{{ (arc_length-(catch_slip+finish_slip))|round(2) }}</td>
+          <td>{{ ((arc_length-(catch_slip+finish_slip))/arc_length*100)|round(2) }}</td>
+
+          {% if boat_data.seat_sensors %}
+          <td>{{ ((data.catch_factor | sum)/(data.catch_factor|length)) | round(2) }}</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <table>
+        <thead>
+            <tr>
+            <th>Seat</th>
+            <th>Power (w)</th>
+            <th>Max Force (kg)</th>
+            <th>Average Force (kg)</th>
+            <th>Aver / Max Force (%)</th>
+            <th>Position of Peak Force (%)</th>
+            <th>Catch Force Gradient (deg)</th>
+            <th>Finish Force Gradient (deg)</th>
+            {% if boat_data.seat_sensors %}
+                <th>Legs Drive (cm)</th>
+                <th>Legs Max Velocity (m/s)</th>
+            {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for rower in rowers %}
+            {% set data = rower.telemetry %}
+            {% set swivel_power = (data.rower_swivel_power | sum) / (data.rower_swivel_power | length) %}
+            {% set max_gate_force_x = (data.max_gate_force_x | sum) / (data.max_gate_force_x | length) %}
+            {% set average_gate_force_x = (data.average_gate_force_x | sum) / (data.average_gate_force_x | length) %}
+            {% set avermax = ((average_gate_force_x / max_gate_force_x) * 100) | round(2) %}
+            {% set position_of_maxf = (data.position_of_maxf | sum) / (data.position_of_maxf | length) %}
+            {% set catch_force_gradient = (data.catch_force_gradient | sum) / (data.catch_force_gradient | length) %}
+            {% set finish_force_gradient = (data.finish_force_gradient | sum) / (data.finish_force_gradient | length) %}
+
+            {% if boat_data.seat_sensors %}
+                {% set seat_length = (data.seat_length | sum) / (data.finish_force_gradient | length) %}
+                {% set legs_max_vel = (data.legs_max_vel | sum) / (data.legs_max_vel | length) %}
+            {% endif %}
+
+            <tr>
+                <td>{{ rower.telemetry.seat }}</td>
+                <td>{{ swivel_power | round(2) }}</td>
+                <td>{{ max_gate_force_x | round(2) }}</td>
+                <td>{{ average_gate_force_x | round(2) }}</td>
+                <td>{{ avermax | round(2) }}</td>
+                <td>{{ position_of_maxf | round(2) }}</td>
+                <td>{{ catch_force_gradient | round(2) }}</td>
+                <td>{{ finish_force_gradient | round(2) }}</td>
+                {% if boat_data.seat_sensors %}
+                <td>{{ seat_length | round(2) }}</td>
+                <td>{{ legs_max_vel | round(2) }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <table>
+        <thead>
+            <tr>
+            <th>Seat</th>
+            <th>25% Recovery</th>
+            <th>50% Recovery</th>
+            <th>75% Recovery</th>
+            <th>Hang Start</th>
+            <th>Min Angle</th>
+            <th>Catch</th>
+            <th>Effect Start</th>
+            <th>Up-to 70% Peak Force</th>
+            <th>Peak Force</th>
+            <th>From 70% Peak Force</th>
+            <th>Effect End</th>
+            <th>Finish</th>
+            <th>Max Angle</th>
+            <th>Release</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rower in rowers %}
+            {% set difference_25 = (rower.telemetry.difference_25 | sum) / (rower.telemetry.difference_25 | length) %}
+            {% set difference_50 = (rower.telemetry.difference_50 | sum) / (rower.telemetry.difference_50 | length) %}
+            {% set difference_75 = (rower.telemetry.difference_75 | sum) / (rower.telemetry.difference_75 | length) %}
+            {% set difference_hang = (rower.telemetry.difference_hang | sum) / (rower.telemetry.difference_hang | length) %}
+            {% set difference_min = (rower.telemetry.difference_min | sum) / (rower.telemetry.difference_min | length) %}
+            {% set difference_catch = (rower.telemetry.difference_catch | sum) / (rower.telemetry.difference_catch | length) %}
+            {% set difference_effective_start = (rower.telemetry.difference_effective_start | sum) / (rower.telemetry.difference_effective_start | length) %}
+            {% set difference_70max = (rower.telemetry.difference_70max | sum) / (rower.telemetry.difference_70max | length) %}
+            {% set difference_max = (rower.telemetry.difference_max | sum) / (rower.telemetry.difference_max | length) %}
+            {% set difference_max70 = (rower.telemetry.difference_max70 | sum) / (rower.telemetry.difference_max70 | length) %}
+            {% set difference_effective_end = (rower.telemetry.difference_effective_end | sum) / (rower.telemetry.difference_effective_end | length) %}
+            {% set difference_finish = (rower.telemetry.difference_finish | sum) / (rower.telemetry.difference_finish | length) %}
+            {% set difference_recovery = (rower.telemetry.difference_recovery | sum) / (rower.telemetry.difference_recovery | length) %}
+
+            <tr>
+                <td>{{ rower.telemetry.seat }}</td>
+                <td>{{ difference_25 | round(2) }}</td>
+                <td>{{ difference_50 | round(2) }}</td>
+                <td>{{ difference_75 | round(2) }}</td>
+                <td>{{ difference_hang | round(2) }}</td>
+                <td>{{ difference_min | round(2) }}</td>
+                <td>{{ difference_catch | round(2) }}</td>
+                <td>{{ difference_effective_start | round(2) }}</td>
+                <td>{{ difference_70max | round(2)}}</td>
+                <td>{{ difference_max | round(2)}}</td>
+                <td>{{ difference_max70 | round(2)}}</td>
+                <td>{{ difference_effective_end | round(2)}}</td>
+                <td>{{ difference_finish | round(2)}}</td>
+                <td>{{ difference_max | round(2)}}</td>
+                <td>{{ difference_recovery | round(2)}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Graphs -->
+    <div class="plotly-graph-div"><img src="{{ graphs.syncronisation | safe }}"></div>
+    <div class="plotly-graph-div"><img src="{{ graphs.ratios | safe }}"></div>
+    <div class="plotly-graph-div"><img src="{{ graphs.gateforcex | safe }}"></div>
+
+    {% if boat_data.seat_sensors %}
+        <div class="plotly-graph-div"><img src="{{ graphs.bodyarmsvelocity | safe }}"></div>
+        <div class="plotly-graph-div"><img src="{{ graphs.legsvelocitygateangle | safe }}"></div></div>
+        <div class="plotly-graph-div"><img src="{{ graphs.legsvelocity | safe }}"></div>
+        <div class="plotly-graph-div"><img src="{{ graphs.seatposition | safe }}"></div>
+    {% else %}
+      <div class="plotly-graph-div"><img src="{{ graphs.gateanglevelocity | safe }}"></div>
+    {% endif %}
+
+    <div class="plotly-graph-div"><img src="{{ graphs.gateanglevelocitydeg | safe }}"></div>
+
+  </div>
+
+</body>
+</html>

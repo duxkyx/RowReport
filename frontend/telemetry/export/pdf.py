@@ -9,7 +9,17 @@ import os
 from telemetry.graphs.generate_graphs import return_Graphs
 
 def fig_to_base64(fig):
-    img_bytes = pio.to_image(fig, format="png", width=800, height=800, scale=2)
+    fig.update_layout(
+        width=700,
+        height=350,
+        margin=dict(l=30, r=30, t=40, b=30),
+        font=dict(size=10)
+    )
+    img_bytes = pio.to_image(
+        fig, 
+        format="png",
+        scale=2
+    )
     return base64.b64encode(img_bytes).decode("utf-8")
 
 def convert_to_image(fig):
@@ -54,19 +64,13 @@ def generate_pdf(session_data, rowing_data, name_array, request):
     #converted_Graphs[key] = convert_to_image(value)
 
     # Create pages
-    pages = ['overview.html']
-    html_pages = []
-    for page in pages:
-        template = env.get_template(page)
-        html = template.render(
-            rowers=rowing_data,
-            boat_data=session_data,
-            graphs=converted_Graphs,
-            css_path=css_path_url
-        )
-        html_pages.append(html)
-
-    full_html = "<div style='page-break-after: always;'>".join(html_pages)
+    template = env.get_template('template.html')
+    html = template.render(
+        rowers=rowing_data,
+        boat_data=session_data,
+        graphs=converted_Graphs,
+        css_path=css_path_url
+    )
 
     options = {
         "page-size": "A4",
@@ -74,14 +78,15 @@ def generate_pdf(session_data, rowing_data, name_array, request):
         "margin-bottom": "5mm",
         "margin-left": "5mm",
         "margin-right": "5mm",
-        "disable-smart-shrinking": "",
-        "zoom": "1.0",
-        'enable-local-file-access': ''
+        "disable-smart-shrinking": False,
+        "zoom": "0.85",
+        'enable-local-file-access': '',
+        "encoding": "UTF-8",
     }
     
     # Convert HTML -> PDF
     pdf_bytes = pdfkit.from_string(
-        full_html, 
+        html, 
         False, 
         configuration=config,
         options=options

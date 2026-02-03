@@ -351,6 +351,8 @@ def session_page(session_id, page_name):
             pdf_file = io.BytesIO(pdf_bytes)
             pdf_file.seek(0)
 
+            flash(f'Downloading file. Please wait.', 'error')
+
             return send_file(
                 pdf_file,
                 mimetype="application/pdf",
