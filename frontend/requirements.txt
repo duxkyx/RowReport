@@ -6,4 +6,3 @@ plotly
 numpy
 pandas
 pdfkit
-wkhtmltopdf-binary
