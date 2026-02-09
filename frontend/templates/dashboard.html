@@ -444,6 +444,8 @@
               {% set sample_time = boat_data.sample_time[sample] %}
               {% set strokes_in_sample = boat_data.sample_strokes[sample] %}
               {% set split = (((sample_time) / (boat_data.distance / 8)) * 500) %}
+              {% set minutes = split // 60 %}
+              {% set seconds = split % 60 %}
                 <tr>
                   <td>{{ sample + 1 }}</td>
                   <td>{{ sample_time | round(2) }}</td>
@@ -453,7 +455,7 @@
                   <td>{{ boat_data.stroketime[sample] }}</td>
                   <td>{{ boat_data.distanceperstroke[sample] }}</td>
                   <td>{{ boat_data.meterspersecond[sample] }}</td>
-                  <td>{{ split | round(2) }}</td>
+                  <td>{{ minutes | int }}:{{ '%02d' % seconds}}</td>
                 </tr>
               {% endfor %}
             </tbody>
