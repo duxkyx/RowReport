@@ -147,7 +147,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
             x_label='Normalized Time (%)', 
             y_label='Gate Angle Velocity (deg)', 
             names=name_array,
-            pdf=isPdf
+            pdf=isPdf,
+            highlight_Effective=True,
         )
 
         returned_graphs['gateforcepercent'] = get_avg_line_plot(
@@ -189,7 +190,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 x_label='Normalized Time (%)', 
                 y_label='Legs Velocity (deg/s)', 
                 names=name_array,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True
             )
 
             returned_graphs['seatposition'] = get_avg_line_plot(
@@ -201,7 +203,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 x_label='Gate Angle (deg)', 
                 y_label='Seat Position', 
                 names=name_array,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True
             )
 
             returned_graphs['legsvelocitygateangle'] = get_avg_line_plot(
@@ -215,7 +218,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 percentage_x=True,
                 percentage_y=False, 
                 names=name_array,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True
             )
 
             returned_graphs['bodyarmsvelocity'] = get_avg_line_plot(
@@ -229,7 +233,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 percentage_x=True,
                 percentage_y=False, 
                 names=name_array,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True
             )
 
     if (request.method == 'POST' and page_name == 'samples') or page_name == 'all':
@@ -266,7 +271,7 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
             y_label='Gate Force X (kg)', 
             names=name_array,
             sample=selected_sample,
-            pdf=isPdf
+            pdf=isPdf,
         )
 
         returned_graphs['sample_gateanglevelocity'] = get_sample_line_plots(
@@ -279,7 +284,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
             y_label='Gate Angle Velocity (deg/s)', 
             names=name_array,
             sample=selected_sample,
-            pdf=isPdf
+            pdf=isPdf,
+            highlight_Effective=True,
         )
 
         returned_graphs['sample_gateforcepercent'] = get_sample_line_plots(
@@ -323,7 +329,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 y_label='Legs Velocity (deg)', 
                 names=name_array,
                 sample=selected_sample,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True,
             )
 
             returned_graphs['sample_seatposition'] = get_sample_line_plots(
@@ -336,7 +343,8 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 y_label='Seat Position', 
                 names=name_array,
                 sample=selected_sample,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True,
             )
 
             returned_graphs['sample_legsvelocitygateangle'] = get_sample_line_plots(
@@ -346,12 +354,13 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 y_axis_values='seat_posn_vel', 
                 title='Legs Velocity', 
                 x_label='Drive Length (%)', 
-                y_label='Legs Velocity (%)', 
+                y_label='Legs Velocity', 
                 percentage_x=True,
-                percentage_y=True, 
+                percentage_y=False, 
                 names=name_array,
                 sample=selected_sample,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True,
             )
 
             returned_graphs['sample_bodyarmsvelocity'] = get_sample_line_plots(
@@ -361,12 +370,13 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 y_axis_values='body_arms_vel', 
                 title='Body + Arms Velocity', 
                 x_label='Drive Length (%)', 
-                y_label='Body Arms Vel (%)', 
+                y_label='Body Arms Vel', 
                 percentage_x=True,
-                percentage_y=True, 
+                percentage_y=False, 
                 names=name_array,
                 sample=selected_sample,
-                pdf=isPdf
+                pdf=isPdf,
+                highlight_Effective=True,
             )
 
     return returned_graphs

@@ -34,3 +34,4 @@ def get_avg_ratio_plot(rowers_data, names, pdf=False):
     plot = create_ratio_plot(rower_values, names, pdf)
     
     return plot
+

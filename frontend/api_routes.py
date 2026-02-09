@@ -17,6 +17,8 @@ upload_session = api_route('/upload/session')
 upload_user_data = api_route('/upload/user_data')
 delete_session = api_route('/delete/session')
 delete_user = api_route('/delete/user')
+get_user_information = api_route('/get_user_information')
+update_permissions = api_route('/update_permissions')
 
 get_averages = api_route('/user_data/get_averages')
 get_summary = api_route('/user_data/get_summary')

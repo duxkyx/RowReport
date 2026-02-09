@@ -11,16 +11,12 @@ def plot_map(session_data, individual_sample=None, pdf=False):
     rows = []
     highlighted_rows = []
     counted_points = 0
-
-    if individual_sample:
-        individual_sample += 1
-
+    
     for section_index, section in enumerate(gps, start=1):
         for point_index, (lon, lat) in enumerate(section):
             current_distance = round((distance / total_points) * (counted_points))
-
-            if individual_sample:
-                if section_index == individual_sample:
+            if type(individual_sample) == int:
+                if (section_index == individual_sample + 1):
                     highlighted_rows.append({"lon": lon, "lat": lat})
                     colour = "#841925"
                 else:

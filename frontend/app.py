@@ -63,7 +63,7 @@ def role_required(role):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             user = session.get('user')
-            if not user or user.get(role) != True:
+            if (not user or user.get(role) != True) and (user.get('is_admin') != True):
                 flash("You do not have permission to access this page.", "danger")
                 return redirect(url_for('dashboard'))
             return f(*args, **kwargs)
@@ -110,7 +110,7 @@ def register():
         payload = {
             "first_name": first_name,
             "last_name": last_name,
-            "email": email,
+            "email": email.lower(),
             "password": password,
         }
 
@@ -137,7 +137,7 @@ def login():
         password = request.form['password']
 
         payload = {
-            "email": email,
+            "email": email.lower(),
             "password": password
         }
 
@@ -228,6 +228,14 @@ def upload():
             response = requests.post(api_routes.upload_session, json=Boat_Data)
             session_id = response.json()['session_id']
 
+            if not response.status_code == 200:
+                return render_template(
+                    "dashboard.html", 
+                    page="upload", 
+                    user=session['user'],
+                    error=f'Error saving data to database.'
+                )
+
             # Iterate through the rower profiles then upload to database.
             for rower in Rower_Profiles:
                 seat = str(rower["seat"])
@@ -272,6 +280,19 @@ def upload():
 @login_required
 def sessions():
     all_sessions = get_sessions(session['user']['id'])
+    for rowing_session in all_sessions:
+        coach_id = rowing_session['coach_id']
+
+        # Check if coach exists in session
+        if coach_id is None:
+            rowing_session['coach_name'] = None
+            continue
+
+        # 
+        get_coach_account_information = requests.post(f'{api_routes.get_user_information}/{coach_id}').json()
+        coach_name = f'{get_coach_account_information['first_name']} {get_coach_account_information['last_name']}'
+        rowing_session['coach_name'] = coach_name
+
     return render_template(
         "dashboard.html", 
         page="sessions", 
@@ -293,7 +314,7 @@ def session_page(session_id, page_name):
     # Handle session deletion
     if request.method == 'POST' and request.form.get('action') == 'delete_session':
         # Check if user is a coach
-        if not session['user'].get('is_coach', False):
+        if not session['user'].get('is_coach', False) and not session['user'].get('is_admin', False):
             flash('You are not authorized to delete sessions.', 'error')
             return redirect(url_for('sessions', session_id=session_id, page_name=page_name))
 
@@ -312,7 +333,7 @@ def session_page(session_id, page_name):
     rowing_data = get_rower_data(session_id)
 
     # Checks if user is valid in session
-    if not session['user']['is_coach']:
+    if not session['user']['is_coach'] and not session['user']['is_admin']:
         is_Authenticated = False
         for rower in rowing_data:
             if rower['telemetry']['user_id'] == session['user']['id']:
@@ -390,6 +411,44 @@ def admin():
         user=session['user']
     )
 
+# Admin register user route
+@app.route("/dashboard/admin/register_user", methods=["POST"])
+def register_user():
+    first_name = request.form.get("first_name")
+    last_name = request.form.get("last_name")
+    email = request.form.get("email")
+    password = request.form.get("password")
+    user_type = request.form.get("user_type")
+
+    # Build payload for your API
+    payload = {
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email.lower(),
+        "password": password,
+    }
+
+    # Call your API
+    response = requests.post(api_routes.create_user, json=payload)
+    created_user = response.json()
+    print(created_user)
+
+    if response.status_code == 200:
+        created_user = response.json()
+        permission_response = requests.post(f'{api_routes.update_permissions}/{created_user["id"]}/{user_type}')
+        if permission_response.status_code == 200:
+            flash(f"User {first_name} {last_name} registered successfully!", "success")
+        else:
+            flash("User created but failed to update permissions.", "danger")
+    else:
+        try:
+            error_msg = response.json().get("error", "Failed to register user.")
+        except:
+            error_msg = "Failed to register user."
+        flash(error_msg, "danger")
+
+    return redirect(url_for("admin"))
+
 # Delete user route
 @app.route('/dashboard/admin/delete_user/<int:user_id>', methods=['POST'])
 @login_required
@@ -397,9 +456,9 @@ def admin():
 def delete_user(user_id):
     response = requests.delete(f"{api_routes.delete_user}/{user_id}")
     if response.status_code == 200:
-        flash('Session deleted successfully.', 'success')
+        flash('User deleted successfully.', 'success')
     else:
-        flash(f'Failed to delete session. Status code: {response.status_code}', 'error')
+        flash(f'Failed to delete user. Status code: {response.status_code}', 'error')
     return redirect(url_for('admin'))
 
 # View account details page

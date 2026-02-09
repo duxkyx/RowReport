@@ -370,3 +370,7 @@ body .form-select optgroup {
   transform: translateY(0px);
   background: #1e40af;
 }
+
+.adminpage {
+    background-color: white;
+}

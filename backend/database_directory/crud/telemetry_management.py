@@ -1,5 +1,6 @@
 from sqlmodel import Session, select, or_
 from database_directory.models import account_table, rowing_session_table, user_telemetry_data, permissions_table
+from database_directory.crud.user_management import get_account_information
 
 # Add session to database
 def add_session(session: Session, data):
@@ -8,22 +9,6 @@ def add_session(session: Session, data):
     session.commit()
     session.refresh(db_obj)
     return {"session_id": db_obj.id}
-
-"""# Delete session where session_id = given id
-def delete_session(session: Session, session_id: int) -> rowing_session_table:
-    statement = select(rowing_session_table).where(rowing_session_table.id == session_id)
-    obj = session.exec(statement).first()
-    if obj:
-        session.delete(obj)
-        session.commit()
-
-    statement = select(user_telemetry_data).where(user_telemetry_data.session_id == session_id)
-    obj = session.exec(statement).all()
-    for record in obj:
-        session.delete(record)
-        session.commit()
-
-    return obj"""
 
 # Adds rower data to database
 def add_rower_data(session: Session, data) -> user_telemetry_data:
@@ -60,9 +45,9 @@ def get_user_summary(session: Session, user_id: int):
     user_type = 'N/A'
     if results.is_athlete:
         user_type = 'Athlete'
-    elif results.is_coach:
+    if results.is_coach:
         user_type = 'Coach'
-    else:
+    if results.is_admin:
         user_type = 'Administrator'
 
     return {
@@ -107,7 +92,6 @@ def get_user_averages(session: Session, user_id: int):
                 "seat_length": 0
             }
         
-        number_of_sessions = len(session_list)
         summary = {
             "min_angle": safe_avg([safe_avg(r.min_angle) for r in session_list if r.min_angle]),
             "max_angle": safe_avg([safe_avg(r.max_angle) for r in session_list if r.max_angle]),
@@ -205,29 +189,36 @@ def get_user_sessions(session: Session, user_id: int):
     )
     permissions = session.exec(get_permissions_statement).first()
 
-    if permissions.is_admin:
-        session_statement = (
-            select(rowing_session_table).order_by(rowing_session_table.id.desc())
+    session_result = None
+
+    global_Select = (
+        select(
+            rowing_session_table.id,
+            rowing_session_table.title,
+            rowing_session_table.state,
+            rowing_session_table.date,
+            rowing_session_table.seats,
+            rowing_session_table.tstrokes,
+            rowing_session_table.distance,
+            rowing_session_table.timeelapsed,
+            rowing_session_table.coach_id
         )
-        session_result = session.exec(session_statement).all()
-        return session_result
-    
-    if permissions.is_coach:
-        session_statement = (
-            select(rowing_session_table).order_by(rowing_session_table.id.desc())
-            .where(rowing_session_table.coach_id == user_id)
-        )
-        session_result = session.exec(session_statement).all()
-        return session_result
-    
+        .select_from(rowing_session_table)
+        .order_by(rowing_session_table.id.desc())
+    )
+
+    if permissions.is_admin or permissions.is_coach:
+        session_statement = (global_Select)
+        session_result = session.exec(session_statement).mappings().all()
     else:
         session_statement = (
-            select(rowing_session_table).order_by(rowing_session_table.id.desc())
+            global_Select
             .join(user_telemetry_data, rowing_session_table.id == user_telemetry_data.session_id)
             .where(user_telemetry_data.user_id == user_id)
         )
-        session_result = session.exec(session_statement).all()
-        return session_result
+        session_result = session.exec(session_statement).mappings().all()
+    
+    return session_result
 
 # Returns the details for a given session
 def get_session_details(session: Session, session_id: int):

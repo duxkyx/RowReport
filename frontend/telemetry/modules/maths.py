@@ -66,7 +66,8 @@ def find_Column_Position(name, grid, Column_Name_Line):
 # Sample rate = 0.02, 1 / 50hz
 def calculate_time(length):
     number_of_intervals = length-1
-    return float(number_of_intervals * 0.02) * 1000
+    calculatedTime = float(number_of_intervals * 0.02) * 1000
+    return calculatedTime
 
 # Seconds to hours
 def convert(seconds):

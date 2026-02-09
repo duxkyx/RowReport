@@ -8,6 +8,12 @@ import os
 # Graphs
 from telemetry.graphs.generate_graphs import return_Graphs
 
+try:
+    import wkhtmltopdf_binary
+    WKHTMLTOPDF_PATH = wkhtmltopdf_binary.WKHTMLTOPDF_BINARY
+except ImportError:
+    WKHTMLTOPDF_PATH = None
+
 def fig_to_base64(fig):
     fig.update_layout(
         width=700,
@@ -27,9 +33,7 @@ def convert_to_image(fig):
 
 def generate_pdf(session_data, rowing_data, name_array, request):
     # Config
-    config = pdfkit.configuration(
-        wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
-    )
+    config = pdfkit.configuration()
 
     # Render template
     templates_dir = os.path.join(os.path.dirname(__file__), "templates")

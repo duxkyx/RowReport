@@ -81,6 +81,15 @@ def delete_user(session: Session, user_id: int):
     results = session.exec(statement_records).all()
     for row in results:
         row.user_id = None
+
+    # Fixed code - turns coach_id to None before user is deleted from database.
+    statement_sessions = (
+        select(rowing_session_table)
+        .where(rowing_session_table.coach_id == user_id)
+    )
+    statement_results = session.exec(statement_sessions).all()
+    for row in statement_results:
+        row.coach_id = None
     
     statement_permission_table = (
         select(permissions_table)
@@ -105,3 +114,25 @@ def get_account_information(session: Session, user_id: int):
     if not user:
         raise ValueError("User not found")
     return user
+
+def update_permission(session: Session, user_id: int, user_type: str):
+    statement = select(permissions_table).where(permissions_table.user_id == user_id)
+    user_perm = session.exec(statement).first()
+
+    # Reset all roles
+    user_perm.is_admin = False
+    user_perm.is_coach = False
+    user_perm.is_athlete = False
+
+    # Set the selected role
+    if user_type == "admin":
+        user_perm.is_admin = True
+    elif user_type == "coach":
+        user_perm.is_coach = True
+    elif user_type == "athlete":
+        user_perm.is_athlete = True
+    else:
+        raise ValueError("Invalid user_type. Must be 'admin', 'coach', or 'athlete'.")
+    
+    session.commit()
+    return {"status": "success", "user_id": user_id}

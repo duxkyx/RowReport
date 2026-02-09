@@ -230,51 +230,47 @@ def get_session_data(file):
                     collected and converted to float. Then none of the values will be recorded to ensure all arrays
                     stay the same size.
                     """
+                    # Appends all gateAngle values to a list.
+                    gate_Angle = float(grid[line][column('GateAngle') + seat_Iteration])
+                    List_GateAngles.append(gate_Angle)
+
+                    # Appends all gateForce values to a list.
+                    gate_Force = float(grid[line][column('GateForceX') + seat_Iteration])
+                    List_GateForceX.append(gate_Force)
+
+                    # Appends all GateAngleVel values to a list
+                    gate_Angle_Vel = float(grid[line][column('GateAngleVel') + seat_Iteration])
+                    List_GateAngleVel.append(gate_Angle_Vel)
+                
+                    # Checks if seat sensors are valid hardware in the boat data log.
                     try:
-                        # Appends all gateAngle values to a list.
-                        gate_Angle = float(grid[line][column('GateAngle') + seat_Iteration])
-                        List_GateAngles.append(gate_Angle)
+                        # Appends all SeatPos values to a list
+                        seat_Pos = float(grid[line][column('Seat Posn') + seat_Iteration])
+                        List_SeatPos.append(seat_Pos)
 
-                        # Appends all gateForce values to a list.
-                        gate_Force = float(grid[line][column('GateForceX') + seat_Iteration])
-                        List_GateForceX.append(gate_Force)
-
-                        # Appends all GateAngleVel values to a list
-                        gate_Angle_Vel = float(grid[line][column('GateAngleVel') + seat_Iteration])
-                        List_GateAngleVel.append(gate_Angle_Vel)
-                    
-                        # Checks if seat sensors are valid hardware in the boat data log.
-                        try:
-                            # Appends all SeatPos values to a list
-                            seat_Pos = float(grid[line][column('Seat Posn') + seat_Iteration])
-                            List_SeatPos.append(seat_Pos)
-
-                            # Appends all SeatPosVel values to a list
-                            seat_Pos_Vel = float(grid[line][column('Seat Posn Vel') + seat_Iteration])
-                            List_SeatPosVel.append(seat_Pos_Vel)
-                            seat_Sensors = True
-                        except:
-                            seat_Sensors = False
-                            pass
-
-                        # Appends all normalizedTime values to a list.
-                        normalized_Time = float(grid[line][column('Normalized Time')])
-                        List_NormalizedTime.append(normalized_Time)
-
-                        # Gets the boats acceleration
-                        acceleration = float(grid[line][column('Accel')])
-                        List_Acceleration.append(acceleration)
-
-                        # Gets the boats Roll, Pitch, Yaw
-                        roll = float(grid[line][column('Roll Angle')])
-                        pitch = float(grid[line][column('Pitch Angle')])
-                        yaw = float(grid[line][column('Yaw Angle')])
-
-                        List_RollAngles.append(roll)
-                        List_PitchAngles.append(pitch)
-                        List_YawAngles.append(yaw)
+                        # Appends all SeatPosVel values to a list
+                        seat_Pos_Vel = float(grid[line][column('Seat Posn Vel') + seat_Iteration])
+                        List_SeatPosVel.append(seat_Pos_Vel)
+                        seat_Sensors = True
                     except:
                         pass
+
+                    # Appends all normalizedTime values to a list.
+                    normalized_Time = float(grid[line][column('Normalized Time')])
+                    List_NormalizedTime.append(normalized_Time)
+
+                    # Gets the boats acceleration
+                    acceleration = float(grid[line][column('Accel')])
+                    List_Acceleration.append(acceleration)
+
+                    # Gets the boats Roll, Pitch, Yaw
+                    roll = float(grid[line][column('Roll Angle')])
+                    pitch = float(grid[line][column('Pitch Angle')])
+                    yaw = float(grid[line][column('Yaw Angle')])
+
+                    List_RollAngles.append(roll)
+                    List_PitchAngles.append(pitch)
+                    List_YawAngles.append(yaw)
 
                 # Checks if the stroke found is a full stroke. If a half stroke is found then it won't be recorded.
                 if ((min(List_NormalizedTime)) < -40 and (max(List_NormalizedTime) > 40)):
@@ -662,6 +658,7 @@ def get_session_data(file):
                                     handle_Change = iteration
 
                             iteration += 1
+
                         catch_Factor = calculate_time(seat_Change) - calculate_time(handle_Change)
 
                         # Body Arms Velocity calculation

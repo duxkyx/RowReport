@@ -3,7 +3,7 @@ import plotly.io as pio
 from telemetry.graphs.colours import seat_colours, seat_effective_colours, sample_colours
 from telemetry.modules.checks import is_2d_list
 
-def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_values=None, catchnormalized=False, finishnormalized=False, athlete_data=False, graph_Order=0):
+def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_values=None, catchnormalized=False, finishnormalized=False, athlete_data=False, graph_Order=0, highlight_Effective=False):
     fig = go.Figure()
     colours = list(seat_colours.values())
     effective_colours = list(seat_effective_colours.values())
@@ -21,7 +21,7 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_va
             y_vals = y_array[iterations]
 
             # Special case for seat position to change line colour based on gateforcex
-            if title == 'Seat Position':
+            if highlight_Effective:
                 gateforce_vals = optional_values[iterations]
 
                 current_x = []

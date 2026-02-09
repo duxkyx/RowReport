@@ -20,7 +20,7 @@ class permissions_table(SQLModel, table=True):
 # Boat Data Table (one (self) to many (user_telemetry_data))
 class rowing_session_table(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    coach_id: int = Field(foreign_key='account_table.id') # Coach who uploaded the data
+    coach_id: Optional[int] = Field(foreign_key='account_table.id') # Coach who uploaded the data
     
     title: str
     description: Optional[str]

@@ -2,7 +2,7 @@ from telemetry.graphs.plot_line import plot_line
 from telemetry.modules.sorting import average_Array_into_One_Percentage as aaiop
 from telemetry.modules.maths import calculate_Average
 
-def get_sample_line_plots(session_data, athlete_data, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None, pdf=False, sample=False):
+def get_sample_line_plots(session_data, athlete_data, x_axis_values, y_axis_values, title, x_label, y_label, percentage_x=False, percentage_y=False, names=None, pdf=False, sample=False, highlight_Effective=False):
     plots = []
     content_of_container = ''
     is_athlete_data = False
@@ -42,7 +42,7 @@ def get_sample_line_plots(session_data, athlete_data, x_axis_values, y_axis_valu
                 else:
                     new_y_axis_values.append(telem_dict[y_axis_values][sample_position])
 
-                if title == 'Seat Position':
+                if highlight_Effective:
                     gate_force_list = telem_dict['gate_force_x'][sample_position]
                     optional_values.append(gate_force_list)
 
@@ -50,7 +50,7 @@ def get_sample_line_plots(session_data, athlete_data, x_axis_values, y_axis_valu
                 catchnormalized = session_data['normalizedcatch']
                 finishnormalized = session_data['normalizedfinish']
                 
-            plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, pdf, optional_values, catchnormalized, finishnormalized, is_athlete_data, graph_Order=graphs_Created)
+            plot = plot_line(new_x_axis_values, new_y_axis_values, title, x_label, y_label, names, pdf, optional_values, catchnormalized, finishnormalized, is_athlete_data, graph_Order=graphs_Created, highlight_Effective=highlight_Effective)
             return plot
         
         if type(sample) == int:

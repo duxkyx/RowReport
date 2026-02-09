@@ -74,3 +74,19 @@ def email_user(payload: dict, background_tasks: BackgroundTasks, session: Sessio
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+# Get user information based on id
+@router.post('/get_user_information/{user_id}')
+def get_user_information(user_id: int, session: Session = Depends(get_session)):
+    try:
+        return crud.get_account_information(session, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+# Update user permissions
+@router.post('/update_permissions/{user_id}/{permission}')
+def update_permissions(user_id: int, permission: str, session: Session = Depends(get_session)):
+    try:
+        return crud.update_permission(session, user_id, permission)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

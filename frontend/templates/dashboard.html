@@ -46,7 +46,7 @@
         <a href="/dashboard/sessions" class="nav-link d-flex align-items-center px-3 py-2 {% if page == 'sessions' %}active{% endif %}">
           <i class="fa fa-solid fa-calendar-days me-3"></i> <span>Sessions</span>
         </a>
-        {% if user.is_coach %}
+        {% if (user.is_coach or user.is_admin) %}
         <a href="/dashboard/upload" class="nav-link d-flex align-items-center px-3 py-2 {% if page == 'upload' %}active{% endif %}">
           <i class="fa fa-solid fa-upload me-3"></i> <span>Upload Data</span>
         </a>
@@ -287,6 +287,7 @@
             <thead>
               <tr>
                 <th>Session ID</th>
+                <th>Coach</th>
                 <th>Title</th>
                 <th>Training Zone</th>
                 <th>Date</th>
@@ -301,6 +302,7 @@
               {% for session in sessions %}
               <tr>
                 <td>{{ session.id }}</td>
+                <td>{{ session.coach_name }}</td>
                 <td>{{ session.title }}</td>
                 <td>{{ session.state }}</td>
                 <td>{{ session.date }}</td>
@@ -334,7 +336,6 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
-          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -395,7 +396,7 @@
 
         <div class="d-flex gap-2 mt-3">
           <a href="/dashboard/sessions" class="btn btn-ghost">Back to Sessions</a>
-          {% if user.is_coach %}
+          {% if user.is_coach or user.is_admin %}
           <form action="/dashboard/sessions/session_id={{ boat_data.id }}/page=overview" method="POST" style="display:inline;">
             <button type="submit" name='action' value="delete_session" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this session?');">Delete Session</button>
           </form>
@@ -417,7 +418,6 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-primary">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
-          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -502,7 +502,6 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-primary">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-ghost">Samples</a>
-          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -714,7 +713,7 @@
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
-          </div>
+        </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
@@ -758,7 +757,6 @@
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=session" class="btn btn-sm btn-ghost">Session</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=average" class="btn btn-sm btn-ghost">Average</a>
           <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=samples" class="btn btn-sm btn-primary">Samples</a>
-          <a href="/dashboard/sessions/session_id={{ boat_data.id }}/page=export" class="btn btn-sm btn-ghost">Export</a>
         </div>
       </div>
 
@@ -1057,6 +1055,57 @@
           <div class="title">Admin Panel</div>
           <div class="subtle">User management</div>
         </div>
+      </div>
+
+      <!-- --- Admin: Register New User --- -->
+      <div class="card-modern p-3 mb-4">
+        <div class="header-row mb-3">
+          <div>
+            <div class="title">Register New User</div>
+            <div class="subtle">Create a new account</div>
+          </div>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="/dashboard/admin/register_user" method="POST">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+            </div>
+            <div class="col-md-3">
+              <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+            </div>
+            <div class="col-md-4">
+              <input type="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="password" class="form-control" placeholder="Password" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-3">
+            <div class="col-md-3">
+              <select name="user_type" class="form-select" required>
+                <option value="" disabled selected>Select User Type</option>
+                <option value="admin">Admin</option>
+                <option value="coach">Coach</option>
+                <option value="athlete">Athlete</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">Register</button>
+            </div>
+          </div>
+        </form>
       </div>
 
       <div class="card-modern p-3">
