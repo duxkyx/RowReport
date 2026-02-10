@@ -12,8 +12,8 @@ class Boat_Data():
         self.Seats = 0
         self.tStrokes = 0
         self.Distance = 0
-        self.timeElapsed = 0
         self.boatType = 'n/a'
+        self.timeElapsed = 0
         self.Date = 'n/a'
         self.Serial = 'n/a'
         self.Latitude = 0
@@ -84,8 +84,6 @@ class Rower_Data():
             'Normalized Time': [],
             'GateAngle': [],
             'GateAngleVel': [],
-            'PercentOfArc': [],
-            'PercentOfMaxForce': [],
 
             '70MaxGateForceX': [],
             'Angle_70MaxGateForceX': [],

@@ -55,13 +55,6 @@ def find_seat_Position_In_Array(seat, profiles):
             return index
         index += 1
 
-def find_Column_Position(name, grid, Column_Name_Line):
-    incrementer = 0
-    for column in grid[Column_Name_Line]:
-        if column == name:
-            return incrementer
-        incrementer += 1
-
 # This function gets the time in seconds based on the length of an array.
 # Sample rate = 0.02, 1 / 50hz
 def calculate_time(length):

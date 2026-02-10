@@ -3,197 +3,125 @@
 
 import telemetry.modules.maths as maths_module
 import telemetry.initialize.temp_classes as temp_classes
+import telemetry.initialize.file_analyser_modules.file_stream as file_stream
 import math
 
 def get_session_data(file):
-    grid = []
+    # List of athlete data holding 8x objects to be returned.
     profiles_List = []
-    strokes_Skipped = [] # Holds the iteration count for the stroke not recorded (not full normalized time)
-    boat_Data = None
 
     # Variable if the session has seat sensors.
     session_SeatSensors = False
 
+    # Calculation required functions.
     getPercentage = maths_module.calculate_Percentage
     getAverage = maths_module.calculate_Average
     calculate_time = maths_module.calculate_time
-
-    """
-    This section defines the classes which will be used to store each individual seats data from the boat.
-    """
+    iterRows = file_stream.iterate_rows
 
     # Defines the boat data holder.
     boat_Data = temp_classes.Boat_Data()
     boat_Data.FileName = file.filename
 
-    """
-    This section very simply iterates through the supplied .txt file and constructs a 2D Array which makes searching the
-    file for data much easier.
-    """
-    # Turning txt into grid format - Formats into a 2d list. (Row, Column)
-    for line in file.stream:
-        row = []
-        decoded_line = line.decode("utf-8").replace("\r", "")
-        line_list = decoded_line.split("	")
+    # Get the line numbers for data.
+    layout = file_stream.scan_file_layout(file)
+    Big_Data_Start_Line  = layout["Big_Data_Start_Line"]
+    Regular_Data_Start_Line = layout['Data_Start_Line']
+    Regular_Data_Finish_Line = layout['Data_End_Line']
+    Side_Start_Line = layout['Side_Start_Line']
+    Crew_Info_Line = layout['Crew_Info_Line']
 
-        for element in line_list:
-            row.append(element)
-        grid.append(row)
+    # Define boat data returned from streamed file.
+    boat_Data.Seats = layout['Seats']
+    boat_Data.Latitude = layout['Lat']
+    boat_Data.Longitude = layout['Lon']
+    boat_Data.boatType = layout['RowingType']
+    boat_Data.Date = layout['Date']
 
-    """
-    This section searches through the constructed grid to set pointers to idenfiers, This makes the process of finding
-    unique and calculated data significantly easier down the line.
-    """
-    # Essential identifers for grid search.
-    counter = 0
-    Boat_Info_Line = 0
-    Column_Name_Line = 0
-    Data_Start_Line = 0
-    Data_End_Line = 0
-    Side_Start_Line = 0
-    GPS_Start_Line = 0
-    GPS_End_Line = 0
-    Crew_Info_Line = 0
-    Date_Line = 0
-    Serial_Line = 0
-    Big_Data_Start_Line = 0
-    Big_Data_Finish_Line = len(grid) - 1
-    Big_Data_Column_Line = 0
-    # Iterates through the 2d grid to locate essential line numbers in the list.
-    for row in grid:
-        if len(row) > 0:
-            if (row[0] == 'Side\n') or (row[0] == 'Side'):
-                Side_Start_Line = counter + 1
-
-        if len(row) > 1:
-            if (row[1] == 'SwivelPower') and (Data_Start_Line == 0):
-                Data_Start_Line = counter + 2
-                Column_Name_Line = counter
-
-            if (row[1] == 'Seats'):
-                Boat_Info_Line = counter + 1
-
-            if (counter == Boat_Info_Line) and (counter != 0):
-                boat_Data.BoatName = row[0]
-                boat_Data.Seats = row[1]
-                boat_Data.boatType = row[3]
-
-        if len(row) > 2:
-            if (row[2] == 'Chanb007'):
-                if Data_End_Line == 0:
-                    Data_End_Line = counter - 2
-
-            if (row[0] == 'Sweep Oar Inboard'):
-                boat_Data.Inboard = row[1]
-
-            if (row[0] == 'Sweep Oar Length'):
-                boat_Data.OarLength = row[1]
-
-            if (row[2] == '0x800A\n'):
-                GPS_End_Line = counter
-                
-        if len(row) > 4:
-            if (row[3] == 'Start Time'):
-                Date_Line = counter + 1
-        
-        if len(row) > 3:
-            if (row[0]) == 'Lat':
-                boat_Data.Latitude = float(grid[counter+1][0])
-            if (row[1]) == 'Lon':
-                boat_Data.Longitude = float(grid[counter+1][1])
-
-        if len(row) > 7:
-            if row[0] == 'Serial #':
-                Serial_Line = counter + 1
-
-        if len(row) > 10:
-            if row[1] == 'GateAngle':
-                Big_Data_Start_Line = counter + 2
-                Big_Data_Column_Line = counter
-
-        if len(row) > 10:
-            if row[1] == 'Name':
-                Crew_Info_Line = counter + 1
-
-        if len(row) > 12:
-            if row[1] == 'GPS X Lo':
-                GPS_Start_Line = counter + 2
-
-        if (counter == Date_Line) and (counter != 0):
-            boat_Data.Date = row[3]
-        
-        if (counter == Serial_Line) and (counter != 0):
-            boat_Data.Serial = row[0]
-
-        counter += 1
-
-    """
-    This section below is arguable the most significant in the program, it is responsible for iterating through the masses of data
-    recorded every 50ms from Peach Telemetry.
-    """
-
-    findColumn = maths_module.find_Column_Position
-    list_Seat_Number_Columns = []
-    for i in grid[Big_Data_Column_Line+1]:
-        list_Seat_Number_Columns.append(i)
+    # Column cache.
+    def get_Column_Pos(headers, expected):
+        position = 0
+        for i in headers:
+            if i == expected:
+                return position
+            else:
+                position += 1
+        return False
 
     column_cache = {}
+
+    REGULAR_COLUMNS = {"Rower Swivel Power", "Average Power"}
     def column(name):
         if name not in column_cache:
-            if name == 'Rower Swivel Power' or name == 'Average Power':
-                column_cache[name] = findColumn(
-                    name, grid, Column_Name_Line
-                )
+            if name in REGULAR_COLUMNS:
+                column_cache[name] = get_Column_Pos(layout['Regular_Data_Headers'], name)
             else:
-                column_cache[name] = findColumn(
-                    name, grid, Big_Data_Column_Line
-                )
+                column_cache[name] = get_Column_Pos(layout['Big_Data_Headers'], name)
         return column_cache[name]
+    
+    # Seat sides and names
+    seat_side_map = {}
+    seat_name_map = {}
 
-    # Applying big data to rower profiles
-    seat_Iteration = 0
-    for seat_Number in range(0,int(boat_Data.Seats)):
-        # Checks if the seat is valid and was plugged in.
-        if not (str(seat_Number+1) in list_Seat_Number_Columns):
-            continue
+    file.stream.seek(0)
+    for i, row in enumerate(iterRows(file)):
+        if Side_Start_Line <= i < Side_Start_Line + boat_Data.Seats:
+            seat_side_map[row[0]] = row[1].strip()
 
+        if Crew_Info_Line <= i < Crew_Info_Line + boat_Data.Seats:
+            if row[1]:
+                seat_name_map[row[0]] = row[1]
+
+
+    # Iterating through seats to retreiving data from file.
+    for seat_Number in range(boat_Data.Seats):
         recorded_Strokes = 0
-        start_Of_Stroke_Line = Big_Data_Start_Line
-        end_Of_Stroke_Line = 0
-        seat_Data = temp_classes.Rower_Data()
 
+        # Setup dat storage object.
+        seat_Data = temp_classes.Rower_Data()
         seat_Data.Seat = str(seat_Number + 1)
 
-        # Load rower side data (Port/Stbd) into class.
-        for row in range(Side_Start_Line, Side_Start_Line + int(boat_Data.Seats)):
-            if grid[row][0] == str(seat_Number + 1):
-                side = grid[row][1].replace('\n','')
-                seat_Data.Side = side
+        # Load athlete Name and Side into object attribute.
+        seat_Data.Side = seat_side_map.get(seat_Data.Seat)
+        seat_Data.Name = seat_name_map.get(seat_Data.Seat)
 
-        for row in range(Crew_Info_Line, Crew_Info_Line + int(boat_Data.Seats)):
-            if grid[row][0] == str(seat_Number + 1):
-                if grid[row][1] != '':
-                    seat_Data.Name = grid[row][1]
+        # Rower swivel power
+        file.stream.seek(0)
+        for i, row in enumerate(iterRows(file)):
 
-        # Load rower data into class array.
-        for line in range(Data_Start_Line, Data_End_Line):
-            row = grid[line]
+            if i < Regular_Data_Start_Line:
+                continue
+            if i > Regular_Data_Finish_Line:
+                break
+
             value = row[column('Rower Swivel Power') + seat_Number]
-            if value != '':
+            if value:
                 seat_Data.data['Rower Swivel Power'].append(float(value))
 
+        prev_row = None
+        current_stroke_rows = []
 
-        # Search through each line in the big data.
-        for row in range(Big_Data_Start_Line, Big_Data_Finish_Line):
-            normalisedTime = float(grid[row][column('Normalized Time')])
-            calculated_Value = normalisedTime - float(grid[row+1][column('Normalized Time')])
+        # Search through the entire file.
+        file.stream.seek(0) 
+        for i, row in enumerate(iterRows(file)):
+
+            # Skip until Big Data starts
+            if i < Big_Data_Start_Line:
+                continue
+
+            if prev_row is None:
+                prev_row = row
+                continue
+
+            # Stroke boundary detection
+            prev_norm = float(prev_row[column('Normalized Time')])
+            curr_norm = float(row[column('Normalized Time')])
+            delta = prev_norm - curr_norm
+
+            current_stroke_rows.append(prev_row)
 
             # Checks if the value is the end of the stroke.
-            if (calculated_Value > 90 and calculated_Value < 100):
-                lines_In_Stroke = 0
-
-                end_Of_Stroke_Line = row
-
+            if (90 < delta < 100):
                 List_GateAngles = []
                 List_GateForceX = []
                 List_NormalizedTime = []
@@ -201,8 +129,6 @@ def get_session_data(file):
                 List_SeatPos = []
                 List_SeatPosVel = []
                 List_BodyArmsVel = []
-                List_PercentOfArc = []
-                List_PercentOfMaxForce = []
 
                 List_GateAnglePercentage = []
                 List_GateForcePercentage = []
@@ -212,72 +138,72 @@ def get_session_data(file):
                 List_PitchAngles = []
                 List_YawAngles = []
 
-                angle_related_cSlip = 0      # Angle on same row as blade locked on (<30kg)
-                angle_related_FSlip = 0      # Angle on same row as blade disconnected (>15kg)
-
-                stroke_Start_Distance = float(grid[start_Of_Stroke_Line][column('Distance')])
-                stroke_End_Distance = float(grid[end_Of_Stroke_Line][column('Distance')])
+                stroke_Start_Distance = float(current_stroke_rows[0][column('Distance')])
+                stroke_End_Distance = float(current_stroke_rows[-1][column('Distance')])
                 stroke_Distance = stroke_End_Distance - stroke_Start_Distance
 
                 blade_Locked = False
                 blade_unLocked = False
 
                 seat_Sensors = False
+                error = False
 
                 # Iterates through the rows in a single stroke.
-                for line in range(start_Of_Stroke_Line, end_Of_Stroke_Line):
-                    lines_In_Stroke += 1
-
-                    """
-                    Collects all data from columns in the text file, if there is an error with one of the values being
-                    collected and converted to float. Then none of the values will be recorded to ensure all arrays
-                    stay the same size.
-                    """
-                    # Appends all gateAngle values to a list.
-                    gate_Angle = float(grid[line][column('GateAngle') + seat_Iteration])
-                    List_GateAngles.append(gate_Angle)
-
-                    # Appends all gateForce values to a list.
-                    gate_Force = float(grid[line][column('GateForceX') + seat_Iteration])
-                    List_GateForceX.append(gate_Force)
-
-                    # Appends all GateAngleVel values to a list
-                    gate_Angle_Vel = float(grid[line][column('GateAngleVel') + seat_Iteration])
-                    List_GateAngleVel.append(gate_Angle_Vel)
-                
-                    # Checks if seat sensors are valid hardware in the boat data log.
+                for stroke_row in current_stroke_rows:
                     try:
-                        # Appends all SeatPos values to a list
-                        seat_Pos = float(grid[line][column('Seat Posn') + seat_Iteration])
-                        List_SeatPos.append(seat_Pos)
+                        # Appends all gateAngle values to a list.
+                        gate_Angle = stroke_row[column('GateAngle') + seat_Number]
+                        List_GateAngles.append(float(gate_Angle))
 
-                        # Appends all SeatPosVel values to a list
-                        seat_Pos_Vel = float(grid[line][column('Seat Posn Vel') + seat_Iteration])
-                        List_SeatPosVel.append(seat_Pos_Vel)
-                        seat_Sensors = True
-                        session_SeatSensors = True
+                        # Appends all gateForce values to a list.
+                        gate_Force = stroke_row[column('GateForceX') + seat_Number]
+                        List_GateForceX.append(float(gate_Force))
+
+                        # Appends all GateAngleVel values to a list
+                        gate_Angle_Vel = float(stroke_row[column('GateAngleVel') + seat_Number])
+                        List_GateAngleVel.append(gate_Angle_Vel)
+                    
+                        # Checks if seat sensors are valid hardware in the boat data log.
+                        try:
+                            # Appends all SeatPos values to a list
+                            seat_Pos = float(stroke_row[column('Seat Posn') + seat_Number])
+                            List_SeatPos.append(seat_Pos)
+
+                            # Appends all SeatPosVel values to a list
+                            seat_Pos_Vel = float(stroke_row[column('Seat Posn Vel') + seat_Number])
+                            List_SeatPosVel.append(seat_Pos_Vel)
+                            seat_Sensors = True
+                            session_SeatSensors = True
+                        except:
+                            seat_Sensors = False
+
+                        # Appends all normalizedTime values to a list.
+                        normalized_Time = float(stroke_row[column('Normalized Time')])
+                        List_NormalizedTime.append(normalized_Time)
+
+                        # Gets the boats acceleration
+                        acceleration = float(stroke_row[column('Accel')])
+                        List_Acceleration.append(acceleration)
+
+                        # Gets the boats Roll, Pitch, Yaw
+                        roll = float(stroke_row[column('Roll Angle')])
+                        pitch = float(stroke_row[column('Pitch Angle')])
+                        yaw = float(stroke_row[column('Yaw Angle')])
+
+                        List_RollAngles.append(roll)
+                        List_PitchAngles.append(pitch)
+                        List_YawAngles.append(yaw)
                     except:
-                        seat_Sensors = False
-
-                    # Appends all normalizedTime values to a list.
-                    normalized_Time = float(grid[line][column('Normalized Time')])
-                    List_NormalizedTime.append(normalized_Time)
-
-                    # Gets the boats acceleration
-                    acceleration = float(grid[line][column('Accel')])
-                    List_Acceleration.append(acceleration)
-
-                    # Gets the boats Roll, Pitch, Yaw
-                    roll = float(grid[line][column('Roll Angle')])
-                    pitch = float(grid[line][column('Pitch Angle')])
-                    yaw = float(grid[line][column('Yaw Angle')])
-
-                    List_RollAngles.append(roll)
-                    List_PitchAngles.append(pitch)
-                    List_YawAngles.append(yaw)
+                        error = True
+                        continue
 
                 # Checks if the stroke found is a full stroke. If a half stroke is found then it won't be recorded.
-                if ((min(List_NormalizedTime)) < -40 and (max(List_NormalizedTime) > 40)):
+                if (error == False) and ((min(List_NormalizedTime)) < -40 and (max(List_NormalizedTime) > 40)):
+
+                    # Define variables for calculations
+                    angle_related_cSlip = 0      # Angle on same row as blade locked on (<30kg)
+                    angle_related_FSlip = 0      # Angle on same row as blade disconnected (>15kg)
+
                     # Calculates max and 70% of force.
                     angle_related_70_gForce = 0
                     angle_related_Max_gForce = 0 
@@ -309,14 +235,6 @@ def get_session_data(file):
                     arcLength = abs(Catch) + Finish
                     catchSlip = abs(Catch) - abs(angle_related_cSlip)
                     finishSlip = Finish - angle_related_FSlip
-
-                    for angle in List_GateAngles:
-                        pofarc = ((angle - Catch) / arcLength) * 100 # Turn into % of cycle
-                        List_PercentOfArc.append(pofarc)
-
-                    for gateforce in List_GateForceX:
-                        pofmaxf = (gateforce / max_GateForceX) * 100
-                        List_PercentOfMaxForce.append(pofmaxf)
 
                     # Angles of % on recovery - This finds the angle related to the percentage of recovery.
                     angle_25_recovery = 0
@@ -359,8 +277,8 @@ def get_session_data(file):
                     # Getting catch and finish force gradients
                     # Rise over Run
                     try:
-                        catchForceGradient = (abs(angle_related_cSlip) - abs(angle_related_Max_gForce))
-                        finishForceGradient = (abs(angle_related_from70_gForce) - angle_related_FSlip)
+                        catchForceGradient = (abs(Catch) - abs(angle_related_70_gForce))
+                        finishForceGradient = (abs(angle_related_from70_gForce) - Finish)
                     except:
                         catchForceGradient = 0
                         finishForceGradient = 0
@@ -712,8 +630,6 @@ def get_session_data(file):
                     data_container['FinishSlip'].append(finishSlip)
                     data_container['Catch Force Gradient'].append(catchForceGradient)
                     data_container['Finish Force Gradient'].append(finishForceGradient)
-                    data_container['PercentOfArc'].append(List_PercentOfArc)
-                    data_container['PercentOfMaxForce'].append(List_PercentOfMaxForce)
 
                     # Seat Data
                     if seat_Sensors:
@@ -770,31 +686,42 @@ def get_session_data(file):
                         boat_Data.data['FinishNormalized'].append(finish_NormalizedPosition)
                         boat_Data.SeatSensors = session_SeatSensors
 
+                current_stroke_rows = []
+            prev_row = row
 
-                # Sets the pointer to the next stroke start line.
-                start_Of_Stroke_Line = row + 1
-
+        # After the entire file has been streamed through.
         seat_Data.Recorded_Strokes = recorded_Strokes
         profiles_List.append(seat_Data)
-        seat_Iteration += 1
 
     """
     This section is responsible for asigning the boat data from the raw text file into the boat data class.
     Boat Data Assignment
     """
     # Appending to boat data
-    iteration = 0
-    for i in range(Data_Start_Line, Data_End_Line):
-        Average_Power = grid[i][column('Average Power')]
+    file.stream.seek(0) 
+    for i, row in enumerate(iterRows(file)):
+        if i < layout['Data_Start_Line']:
+            continue
+        if i >= layout['Data_End_Line']:
+            break
+
+        Average_Power = row[column('Average Power')]
 
         if Average_Power != '':
-            if (not (iteration in strokes_Skipped)):
-                boat_Data.data['Average Power'].append(Average_Power)
-        
-            iteration += 1
+            boat_Data.data['Average Power'].append(float(Average_Power))
 
-    start_Distance = grid[Big_Data_Start_Line][column('Distance')]
-    end_Distance = grid[Big_Data_Finish_Line][column('Distance')]
+    start_Distance = 0
+    end_Distance = 0
+    file.stream.seek(0) 
+    for i, row in enumerate(iterRows(file)):
+        if i < layout['Big_Data_Start_Line']:
+            continue
+
+        if start_Distance == 0:
+            start_Distance = row[column('Distance')]
+
+        end_Distance = row[column('Distance')]
+
     piece_Distance = float(end_Distance) - float(start_Distance)
 
     total_Counted_Strokes = 0
@@ -818,11 +745,16 @@ def get_session_data(file):
     meters_per_deg_lon = meters_per_deg_lat * math.cos(math.radians(ref_lat))  # Longitude varies by latitude
 
     # Iterate through the GPS data lines in the grid.
-    for row in range(GPS_Start_Line, GPS_End_Line):
 
-        # Extract raw latitude and longitude in meters
-        raw_lat = float(grid[row][11])
-        raw_lon = float(grid[row][12])
+    file.stream.seek(0) 
+    for i, row in enumerate(iterRows(file)):
+        if i < layout["GPS_Start_Line"]:
+            continue
+        if i >= layout["GPS_End_Line"]:
+            break
+
+        raw_lat = float(row[11])
+        raw_lon = float(row[12])
 
         # Convert to Lon, Lat degrees
         delta_lat = raw_lat / meters_per_deg_lat
@@ -915,4 +847,5 @@ def get_session_data(file):
             rower.data['Difference_Recovery'].append(Recovery_Difference)
 
     # Data is returned to setup_data.py line 106 as a list
+
     return profiles_List, boat_Data
