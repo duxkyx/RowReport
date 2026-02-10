@@ -5,67 +5,6 @@ from telemetry.modules.sorting import section_List
 
 # Athlete Data Class -> Holds data to be stored in database.
 class athlete_db_ready_data:
-    def __init__(self):
-        self.user_id = ''
-        self.session_id = ''
-        
-        self.name = 'n/a'
-        self.seat = 'n/a'
-        self.side = 'n/a'
-        self.strokes = 0
-
-        self.min_angle = []
-        self.max_angle = []
-        self.arc_length = []
-        self.catch_slip = []
-        self.finish_slip = []
-        self.rower_swivel_power = []
-        self.seat_length = []
-        self.power_timeline = []
-
-        # 3D arrays
-        self.gate_force_x = []
-        self.gate_angle = []
-        self.gate_angle_vel = []
-        self.seat_posn = []
-        self.seat_posn_vel = []
-        self.body_arms_vel = []
-        
-        self.recovery_time_1 = []
-        self.recovery_time_2 = []
-        self.recovery_time_3 = []
-        self.recovery_time_4 = []
-        self.hang_time_1 = []
-        self.hang_time_2 = []
-        self.catch_slip_time = []
-        self.drive_time_1 = []
-        self.drive_time_2 = []
-        self.drive_time_3 = []
-        self.drive_time_4 = []
-        self.finish_slip_time = []
-        self.pause_time_1 = []
-        self.pause_time_2 = []
-        self.recovery_time_5 = []
-        self.stroke_time = []
-        self.drive_time = []
-        self.recovery_time = []
-
-        # Synchronisation
-        self.difference_25 = []
-        self.difference_50 = []
-        self.difference_75 = []
-        self.difference_hang = []
-        self.difference_min = []
-        self.difference_catch = []
-        self.difference_effective_start = []
-        self.difference_70max = []
-        self.difference_maxf = []
-        self.difference_max70 = []
-        self.difference_effective_end = []
-        self.difference_finish = []
-        self.difference_max = []
-        self.difference_recovery = []
-        
     def to_dict(self):
         return self.__dict__
 
@@ -73,7 +12,6 @@ class athlete_db_ready_data:
 class session_db_ready_data:
     def __init__(self, boat_data):
         self.coach_id = ''
-
         self.description = ''
         self.state = ''
         self.filename = boat_data.FileName
@@ -91,16 +29,6 @@ class session_db_ready_data:
         self.latitude = boat_data.Latitude
         self.longitude = boat_data.Longitude
         self.seat_sensors = boat_data.SeatSensors
-
-        self.rating = []
-        self.averagepower = []
-        self.distanceperstroke = []
-        self.stroketime = []
-        self.acceleration = []
-        self.meterspersecond = []
-        self.normalizedtime = []
-        self.sample_time = []
-        self.sample_strokes = []
 
     def to_dict(self):
         return self.__dict__
@@ -124,11 +52,17 @@ def set_session_classes(file):
 
         list_Of_Rower_Data.append(section_rower_data(Rower.data, boat_data, data_Save_Class))
 
+    # Free up memory - clear large data list from file_analyser.py after data is calculated.
+    user_data.clear()
+
     # Setup class for sorted boat data.
     sorted_Boat_Data = section_boat_data(boat_data.data, boat_data, session_db_ready_data(boat_data))
 
     sorted_Boat_Data.sample_strokes = section_List(boat_data.data['Stroke Time'], boat_data, True)
     sectioned_Stroke_Times = section_List(boat_data.data['Stroke Time'], boat_data)
+
+    # Free up memory - Boat_Data
+    boat_data = []
 
     sample_Times = []
     for list in sectioned_Stroke_Times:

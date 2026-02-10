@@ -11,6 +11,9 @@ def get_session_data(file):
     strokes_Skipped = [] # Holds the iteration count for the stroke not recorded (not full normalized time)
     boat_Data = None
 
+    # Variable if the session has seat sensors.
+    session_SeatSensors = False
+
     getPercentage = maths_module.calculate_Percentage
     getAverage = maths_module.calculate_Average
     calculate_time = maths_module.calculate_time
@@ -252,8 +255,9 @@ def get_session_data(file):
                         seat_Pos_Vel = float(grid[line][column('Seat Posn Vel') + seat_Iteration])
                         List_SeatPosVel.append(seat_Pos_Vel)
                         seat_Sensors = True
+                        session_SeatSensors = True
                     except:
-                        pass
+                        seat_Sensors = False
 
                     # Appends all normalizedTime values to a list.
                     normalized_Time = float(grid[line][column('Normalized Time')])
@@ -336,13 +340,6 @@ def get_session_data(file):
                         else:
                             break
                         iteration += 1
-                    
-                    # Calculate the distance handle traveled in meters.
-                    Perimeter = (float(boat_Data.Inboard) * float(2.0)) * math.pi
-                    percent_Of_Total = arcLength / 360
-                    ArcDistance = ((percent_Of_Total * Perimeter) / 100)
-                    force_Newtons = max_GateForceX * 9.81
-                    work_Done = force_Newtons * ArcDistance
 
                     # Finds the angle related to the forces
                     found_max70 = False
@@ -456,60 +453,12 @@ def get_session_data(file):
                         max_Pos = max(List_SeatPos) / 10
                         min_Pos = min(List_SeatPos) / 10
 
-
-                    # Seat Timing Bar Plot
-                    BeforeSeat_Length = 0
-                    SeatRecovery_Length = 0
-                    Pause1_Length = 0
-                    Pause2_Length = 0
-                    Drive_Length = 0
-                    SeatDone1_Length = 0
-                    SeatDone2_Length = 0
-
                     found_Min = False
                     found_Max = False
-                    after_Seat_Start = False
-                    after_Recovery_Seat = False
-                    after_Catch_Seat = False
-                    after_Drive_Seat = False
-                    
+
                     # Calculates where each section of the stroke is in the recorded angles.
                     for angle in List_GateAngles:
                         iteration += 1
-                        pos = None
-                        if seat_Sensors:
-                            if len(List_SeatPos) >= iteration:
-                                pos = List_SeatPos[iteration-1] / 10 # Gets from list and converts to CM rather than MM
-                                # Before Seat Recovery
-                                if (pos >= (max_Pos - 1)) and (not after_Seat_Start):
-                                    BeforeSeat_Length += 1
-
-                                # During Seat Recovery
-                                elif (pos <= (max_Pos - 1)) and (pos >= min_Pos + 1) and (not after_Recovery_Seat):
-                                    after_Seat_Start = True
-                                    SeatRecovery_Length += 1
-
-                                # Front End Pause
-                                elif (pos <= (min_Pos + 1)) and (not after_Catch_Seat):
-                                    after_Recovery_Seat = True
-                                    if (pos > min_Pos) and (not found_Min):
-                                        Pause1_Length += 1
-                                    else:
-                                        found_Min = True
-                                        Pause2_Length += 1
-
-                                # Seat Drive Phase
-                                elif ((pos >= (min_Pos + 1)) and (pos <= (max_Pos - 1))):
-                                    after_Catch_Seat = True
-                                    Drive_Length += 1
-
-                                # Seat Stationary Phase
-                                elif (pos >= (max_Pos - 1)):
-                                    if (pos < max_Pos) and (not after_Drive_Seat):
-                                        SeatDone1_Length += 1
-                                    else:
-                                        after_Drive_Seat = True
-                                        SeatDone2_Length += 1
 
                         # First Recovery
                         if not after_Recovery:
@@ -672,14 +621,11 @@ def get_session_data(file):
                             body_arms_vel = linear_handle_vel - seat_position_velocity
                             List_BodyArmsVel.append(body_arms_vel)
                             count += 1
-
                     except:
                         pass
 
                     # Stroke segment timing data.
                     stroke_Time = calculate_time(len(List_GateAngles)) / 1000
-
-                    total_Length = recovery_Length_1 + recovery_Length_2 + recovery_Length_3 + recovery_Length_4 + hang_Angles_1 + hang_Angles_2 + catch_slip_Angles + first_drive_Length + second_drive_Length + third_drive_Length + fourth_dive_Length + finish_slip_Angles + pause_Angles1 + pause_Angles2 + recovery_Length_5
 
                     recovery_Time1 = calculate_time(recovery_Length_1)
                     recovery_Time2 = calculate_time(recovery_Length_2)
@@ -698,17 +644,6 @@ def get_session_data(file):
                     recovery_Time5 = calculate_time(recovery_Length_5)
                     total_Drive_Time = (drive_Time1 + drive_Time2 + drive_Time3 + drive_Time4 + c_Slip_Time + f_Slip_Time) / 1000
                     total_Recovery_Time = (recovery_Time1 + recovery_Time2 + recovery_Time3 + recovery_Time4 + pause_Time1 + pause_Time2 + hang_Time1 + hang_Time2 + recovery_Time5) / 1000
-
-                    #stroke_Time = total_Drive_Time + total_Recovery_Time
-
-                    # Seat segment timing data
-                    before_Seat_Time = float(BeforeSeat_Length * 50)
-                    seat_Recovery_Time = float(SeatRecovery_Length * 50)
-                    Pause1_Time = float(Pause1_Length * 50)
-                    Pause2_Time = float(Pause2_Length * 50)
-                    Drive_Time = float(Drive_Length * 50)
-                    SeatDone1_Time = float(SeatDone1_Length * 50)
-                    SeatDone2_Time = float(SeatDone2_Length * 50)
 
                     # Syncronisation data.
                     Time_To_25_Recov = calculate_time(Ticks_To_25Recov)
@@ -752,15 +687,6 @@ def get_session_data(file):
                     data_container['Total Drive Time'].append(total_Drive_Time)
                     data_container['Total Recovery Time'].append(total_Recovery_Time)
 
-                    data_container['Before Seat'].append(before_Seat_Time)
-                    data_container['Seat Recovery'].append(seat_Recovery_Time)
-                    data_container['Pause 1'].append(Pause1_Time)
-                    data_container['Pause 2'].append(Pause2_Time)
-                    data_container['Drive'].append(Drive_Time)
-                    data_container['Drive Finished 1'].append(SeatDone1_Time)
-                    data_container['Drive Finished 2'].append(SeatDone2_Time)
-
-                    data_container['Work Per Stroke'].append(work_Done)
                     data_container['GateForceX'].append(List_GateForceX)
                     data_container['70MaxGateForceX'].append(max70_GateForceX)
                     data_container['MaxGateForceX'].append(max_GateForceX)
@@ -786,21 +712,24 @@ def get_session_data(file):
                     data_container['FinishSlip'].append(finishSlip)
                     data_container['Catch Force Gradient'].append(catchForceGradient)
                     data_container['Finish Force Gradient'].append(finishForceGradient)
-                    data_container['Catch Factor'].append(catch_Factor)
                     data_container['PercentOfArc'].append(List_PercentOfArc)
                     data_container['PercentOfMaxForce'].append(List_PercentOfMaxForce)
 
                     # Seat Data
-                    data_container['SeatPosn'].append(List_SeatPos)
-                    data_container['SeatPosnVel'].append(List_SeatPosVel)
-                    data_container['SeatLength'].append(seat_Length)
-                    data_container['BodyArmsVel'].append(List_BodyArmsVel)
-                    try:
+                    if seat_Sensors:
+                        data_container['Catch Factor'].append(catch_Factor)
+                        data_container['SeatLength'].append(seat_Length)
                         data_container['SeatMaxVel'].append((max(List_SeatPosVel) / 1000)) # converts mm/s to m/s
-                    except:
-                        data_container['SeatMaxVel'].append(None)
-                        boat_Data.SeatSensors = False
-
+                        data_container['BodyArmsVel'].append(List_BodyArmsVel)
+                        data_container['SeatPosn'].append(List_SeatPos)
+                        data_container['SeatPosnVel'].append(List_SeatPosVel)
+                    else:
+                        same_length_list_holder = []
+                        for i in List_GateAngleVel:
+                            same_length_list_holder.append(1)
+                        data_container['SeatPosn'].append(same_length_list_holder)
+                        data_container['SeatPosnVel'].append(same_length_list_holder)
+                        data_container['BodyArmsVel'].append(same_length_list_holder)
 
                     data_container['Position_Of_CSlip'].append(position_Of_CSlip)
                     data_container['Position_Of_70MaxF'].append(position_Of_70MaxF)
@@ -839,6 +768,7 @@ def get_session_data(file):
 
                         boat_Data.data['CatchNormalized'].append(catch_NormalizedPosition)
                         boat_Data.data['FinishNormalized'].append(finish_NormalizedPosition)
+                        boat_Data.SeatSensors = session_SeatSensors
 
 
                 # Sets the pointer to the next stroke start line.

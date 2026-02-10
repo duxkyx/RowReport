@@ -19,7 +19,7 @@ class Boat_Data():
         self.Latitude = 0
         self.Longitude = 0
         self.Samples = 0
-        self.SeatSensors = True
+        self.SeatSensors = None
         
         self.data = {
             'Rating': [],
@@ -78,18 +78,8 @@ class Rower_Data():
             'Total Drive Time': [],
             'Total Recovery Time': [],
 
-            # Seat Bar Plot
-            'Before Seat': [],
-            'Seat Recovery': [],
-            'Pause 1': [],
-            'Pause 2': [],
-            'Drive': [],
-            'Drive Finished 1': [],
-            'Drive Finished 2': [],
-
             # Common data
             'Rower Swivel Power': [],
-            'Work Per Stroke': [],
             'GateForceX': [],
             'Normalized Time': [],
             'GateAngle': [],
