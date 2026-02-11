@@ -17,8 +17,6 @@ class session_db_ready_data:
         self.filename = boat_data.FileName
         self.boatname = boat_data.BoatName
         self.category = boat_data.Category
-        self.inboard = boat_data.Inboard
-        self.oarlength = boat_data.OarLength
         self.seats = boat_data.Seats
         self.tstrokes = boat_data.tStrokes
         self.distance = boat_data.Distance
@@ -29,6 +27,24 @@ class session_db_ready_data:
         self.latitude = boat_data.Latitude
         self.longitude = boat_data.Longitude
         self.seat_sensors = boat_data.SeatSensors
+        self.inboard = boat_data.Inboard
+        self.oarlength = boat_data.Outboard
+
+        self.rating = []
+        self.averagepower = []
+        self.distanceperstroke = []
+        self.stroketime = []
+        self.meterspersecond = []
+        self.normalizedcatch = []
+        self.normalizedfinish = []
+        self.sample_time = []
+        self.sample_strokes = []
+        self.acceleration = []
+        self.normalizedtime = []
+        self.boatroll = []
+        self.boatpitch = []
+        self.boatyaw = []
+        self.gps = []
 
     def to_dict(self):
         return self.__dict__

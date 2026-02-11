@@ -26,7 +26,9 @@ def scan_file_layout(file):
         "Lon": None,
         "Big_Data_Headers": None,
         "Regular_Data_Headers": None,
-        "Date": None
+        "Date": None,
+        "OarLength": None,
+        "Inboard": None,
     }
 
     for i, row in enumerate(iterate_rows(file)):
@@ -55,6 +57,12 @@ def scan_file_layout(file):
             if (row[2] == 'Chanb007'):
                 if layout['Data_End_Line'] == None:
                     layout['Data_End_Line'] = i - 2
+
+            if (row[0] == 'Sweep Oar Inboard'):
+                layout['Inboard'] = row[1]
+
+            if (row[0] == 'Sweep Oar Length'):
+                layout['OarLength'] = row[1]
 
             if (row[2] == '0x800A\n') or (row[2] == '0x800A'):
                 layout['GPS_End_Line'] = i

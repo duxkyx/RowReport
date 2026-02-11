@@ -12,79 +12,76 @@ def plot_line(x_array, y_array, title, x_label, y_label, names, pdf, optional_va
     if is_2d_list(y_array):
         # Iterate through the array holding the values for each athlete. (8 arrays for 8 athletes)
         for iterations in range(len(y_array)):
-            try:
-                # Add the names if they exist.
-                if names:
-                    name_value=f'{iterations + 1} | {names[iterations]}'
+            # Add the names if they exist.
+            if names:
+                name_value=f'{iterations + 1} | {names[iterations]}'
 
-                # Define current athlete values
-                x_vals = x_array[iterations]
-                y_vals = y_array[iterations]
+            # Define current athlete values
+            x_vals = x_array[iterations]
+            y_vals = y_array[iterations]
 
-                # Special case for seat position to change line colour based on gateforcex
-                if highlight_Effective:
-                    gateforce_vals = optional_values[iterations]
+            # Special case for seat position to change line colour based on gateforcex
+            if highlight_Effective:
+                gateforce_vals = optional_values[iterations]
 
-                    current_x = []
-                    current_y = []
+                current_x = []
+                current_y = []
 
-                    found_Effective_Start = False
-                    highlight = gateforce_vals[0] >= 30
+                found_Effective_Start = False
+                highlight = gateforce_vals[0] >= 30
 
-                    for iteration_2 in range(len(y_vals)):
-                        gateforce = gateforce_vals[iteration_2]
+                for iteration_2 in range(len(y_vals)):
+                    gateforce = gateforce_vals[iteration_2]
+                    if not found_Effective_Start:
+                        new_highlight = gateforce >= 30
+                    else:
+                        new_highlight = gateforce >= 15
+
+                    if new_highlight != highlight and current_x:
+
+                        # Effective start: >= 30kg, Effective end >= 15kg. Therefore once started, lower threshold to avoid missing values.
                         if not found_Effective_Start:
-                            new_highlight = gateforce >= 30
-                        else:
-                            new_highlight = gateforce >= 15
+                            found_Effective_Start = True
 
-                        if new_highlight != highlight and current_x:
+                        fig.add_trace(go.Scatter(
+                            x=current_x, 
+                            y=current_y, 
+                            mode="lines",
+                            name=name_value,
+                            legendgroup=name_value,
+                            showlegend=False, 
+                            line=dict(
+                                color=effective_colours[iterations] if highlight else colours[iterations]
+                            )
+                        ))
 
-                            # Effective start: >= 30kg, Effective end >= 15kg. Therefore once started, lower threshold to avoid missing values.
-                            if not found_Effective_Start:
-                                found_Effective_Start = True
-
-                            fig.add_trace(go.Scatter(
-                                x=current_x, 
-                                y=current_y, 
-                                mode="lines",
-                                name=name_value,
-                                legendgroup=name_value,
-                                showlegend=False, 
-                                line=dict(
-                                    color=effective_colours[iterations] if highlight else colours[iterations]
-                                )
-                            ))
-
-                            current_x = []
-                            current_y = []
-                        
+                        current_x = []
+                        current_y = []
+                    
+                    if len(x_vals) > iteration_2:
                         current_x.append(x_vals[iteration_2])
                         current_y.append(y_vals[iteration_2])
-                        highlight = new_highlight
-                        
-                    fig.add_trace(go.Scatter(
-                        x=current_x, 
-                        y=current_y, 
-                        name=name_value, 
-                        legendgroup=name_value,
-                        showlegend=True,
-                        mode="lines",
-                        line=dict(
-                            color=colours[iterations] if athlete_data else samples_colour[iterations]
-                        )
-                    ))
-                else:
-                    fig.add_trace(go.Scatter(
-                        x=x_vals, 
-                        y=y_vals, 
-                        name=name_value, 
-                        line=dict(color=colours[iterations] if athlete_data else samples_colour[iterations])
-                    ))
-                iterations += 1
-            except:
-                iterations += 1
-                continue
+                    highlight = new_highlight 
+                    
+                fig.add_trace(go.Scatter(
+                    x=current_x, 
+                    y=current_y, 
+                    name=name_value, 
+                    legendgroup=name_value,
+                    showlegend=True,
+                    mode="lines",
+                    line=dict(
+                        color=colours[iterations] if athlete_data else samples_colour[iterations]
+                    )
+                ))
+            else:
+                fig.add_trace(go.Scatter(
+                    x=x_vals, 
+                    y=y_vals, 
+                    name=name_value, 
+                    line=dict(color=colours[iterations] if athlete_data else samples_colour[iterations])
+                ))
+            iterations += 1
     else:
         fig.add_trace(go.Scatter(
             x=x_array, 

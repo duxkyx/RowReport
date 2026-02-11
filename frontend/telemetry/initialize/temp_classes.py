@@ -19,7 +19,9 @@ class Boat_Data():
         self.Latitude = 0
         self.Longitude = 0
         self.Samples = 0
-        self.SeatSensors = None
+        self.SeatSensors = False
+        self.Inboard = 'n/a'
+        self.Outboard = 'n/a'
         
         self.data = {
             'Rating': [],
