@@ -353,6 +353,8 @@
             <p><strong>Strokes Recorded:</strong> {{ boat_data.tstrokes }}</p>
             <p><strong>Distance (m):</strong> {{ boat_data.distance | round(2) }}</p>
             <p><strong>Time Elapsed (h:m:s):</strong> {{ boat_data.timeelapsed }}</p>
+            <p><strong>Inboard (cm): </strong> {{ boat_data.inboard }}</p>
+            <p><strong>Oar Length (cm): </strong> {{ boat_data.oarlength }}</p>
           </div>
         </div>
 
@@ -368,6 +370,7 @@
                 <th>Side</th>
                 <th>Name</th>
                 <th>User</th>
+                <th>Strokes Validated</th>
               </tr>
             </thead>
             <tbody>
@@ -383,6 +386,7 @@
                     Unassigned
                   {% endif %}
                 </td>
+                <td>{{ rower.telemetry.strokes }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -711,18 +715,32 @@
         {% if boat_data.seat_sensors %}
         <div class="plot-wrapper">
           <div class="row g-4">
-            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.handlevelocity | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocitygateangle | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
+
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity_seatposn | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.legsvelocity_gateangle | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.bodyarmsvelocity_gateangle | safe }}</div></div>
+          </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
         <div class="plot-wrapper">
           <div class="row g-4">
             <div class="col-lg-6"><div class="panel">{{ graphs.seatposition | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.legs_velocity_seatposn | safe }}</div></div>
           </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
@@ -738,6 +756,11 @@
         </div>
 
         {% endif %}
+
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.gateforcepercent | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
         <div class="plot-wrapper">
           <div class="panel mb-4">{{ graphs.gateanglevelocitydeg | safe }}</div>
@@ -977,10 +1000,24 @@
         {% if boat_data.seat_sensors %}
         <div class="plot-wrapper">
           <div class="row g-4">
-            <div class="col-lg-6"><div class="panel">{{ graphs.sample_gateanglevelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_handlevelocity | safe }}</div></div>
             <div class="col-lg-6"><div class="panel">{{ graphs.sample_legsvelocity | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.sample_legsvelocitygateangle | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        <div class="plot-wrapper">
+          <div class="row g-4">
             <div class="col-lg-6"><div class="panel">{{ graphs.sample_bodyarmsvelocity | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_bodyarmsvelocity_seatposn | safe }}</div></div>
+          </div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
+        <div class="plot-wrapper">
+          <div class="row g-4">
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_legsvelocity_gateangle | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_bodyarmsvelocity_gateangle | safe }}</div></div>
           </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
@@ -988,7 +1025,7 @@
         <div class="plot-wrapper">
           <div class="row g-4">
             <div class="col-lg-6"><div class="panel">{{ graphs.sample_seatposition | safe }}</div></div>
-            <div class="col-lg-6"><div class="panel">{{ graphs.sample_gateforcepercent | safe }}</div></div>
+            <div class="col-lg-6"><div class="panel">{{ graphs.sample_legs_velocity_seatposn | safe }}</div></div>
           </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
@@ -1004,6 +1041,11 @@
         </div>
 
         {% endif %}
+
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.sample_gateforcepercent | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
 
         <div class="plot-wrapper">
           <div class="panel mb-4">{{ graphs.sample_gateanglevelocitydeg | safe }}</div>

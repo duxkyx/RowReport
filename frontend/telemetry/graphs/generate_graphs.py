@@ -138,12 +138,12 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
             pdf=isPdf
         )
 
-        returned_graphs['gateanglevelocity'] = get_avg_line_plot(
+        returned_graphs['handlevelocity'] = get_avg_line_plot(
             session_data=session_data, 
             athlete_data=rowing_data, 
             x_axis_values=session_data['normalizedtime'], 
             y_axis_values='gate_angle_vel', 
-            title='GateAngle Velocity', 
+            title='Handle Velocity', 
             x_label='Normalized Time (%)', 
             y_label='Gate Angle Velocity (deg)', 
             names=name_array,
@@ -170,7 +170,7 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
             athlete_data=rowing_data, 
             x_axis_values='gate_angle',
             y_axis_values='gate_angle_vel',
-            title='GateAngle Velocity',
+            title='Handle Velocity',
             x_label='GateAngle (deg)',
             y_label='Gate Angle Velocity (deg/s) ',
             percentage_x=False,
@@ -188,7 +188,50 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 y_axis_values='seat_posn_vel', 
                 title='Legs Velocity',
                 x_label='Normalized Time (%)', 
-                y_label='Legs Velocity (deg/s)', 
+                y_label='Legs Velocity (mm/s)', 
+                names=name_array,
+                pdf=isPdf,
+                highlight_Effective=True
+            )
+
+            returned_graphs['bodyarmsvelocity'] = get_avg_line_plot(
+                session_data=session_data, 
+                athlete_data=rowing_data, 
+                x_axis_values=session_data['normalizedtime'], 
+                y_axis_values='body_arms_vel', 
+                title='Body + Arms Velocity',
+                x_label='Normalized Time (%)', 
+                y_label='Body + Arms Velocity (deg/s)', 
+                names=name_array,
+                pdf=isPdf,
+                highlight_Effective=True
+            )
+
+            returned_graphs['bodyarmsvelocity_seatposn'] = get_avg_line_plot(
+                session_data=session_data, 
+                athlete_data=rowing_data, 
+                x_axis_values='seat_posn', 
+                y_axis_values='body_arms_vel', 
+                title='Body + Arms Velocity',
+                x_label='Seat Drive Length (%)', 
+                y_label='Body + Arms Velocity (deg/s)', 
+                percentage_x=True,
+                percentage_y=False, 
+                names=name_array,
+                pdf=isPdf,
+                highlight_Effective=True
+            )
+
+            returned_graphs['legs_velocity_seatposn'] = get_avg_line_plot(
+                session_data=session_data, 
+                athlete_data=rowing_data, 
+                x_axis_values='seat_posn', 
+                y_axis_values='seat_posn_vel', 
+                title='Legs Velocity',
+                x_label='Seat Drive Length (%)', 
+                y_label='Legs Velocity (mm/s)', 
+                percentage_x=True,
+                percentage_y=False, 
                 names=name_array,
                 pdf=isPdf,
                 highlight_Effective=True
@@ -207,14 +250,14 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 highlight_Effective=True
             )
 
-            returned_graphs['legsvelocitygateangle'] = get_avg_line_plot(
+            returned_graphs['legsvelocity_gateangle'] = get_avg_line_plot(
                 session_data=session_data, 
                 athlete_data=rowing_data, 
                 x_axis_values='gate_angle', 
                 y_axis_values='seat_posn_vel', 
                 title='Legs Velocity', 
                 x_label='Drive Length (%)', 
-                y_label='Legs Velocity (deg/s)', 
+                y_label='Legs Velocity (mm/s)', 
                 percentage_x=True,
                 percentage_y=False, 
                 names=name_array,
@@ -222,7 +265,7 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 highlight_Effective=True
             )
 
-            returned_graphs['bodyarmsvelocity'] = get_avg_line_plot(
+            returned_graphs['bodyarmsvelocity_gateangle'] = get_avg_line_plot(
                 session_data=session_data, 
                 athlete_data=rowing_data, 
                 x_axis_values='gate_angle', 
@@ -274,7 +317,7 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
             pdf=isPdf,
         )
 
-        returned_graphs['sample_gateanglevelocity'] = get_sample_line_plots(
+        returned_graphs['sample_handlevelocity'] = get_sample_line_plots(
             session_data=session_data, 
             athlete_data=rowing_data, 
             x_axis_values=session_data['normalizedtime'], 
@@ -326,57 +369,103 @@ def return_Graphs(page_name, session_data, rowing_data, name_array, request, sel
                 y_axis_values='seat_posn_vel', 
                 title='Legs Velocity',
                 x_label='Normalized Time (%)', 
-                y_label='Legs Velocity (deg)', 
-                names=name_array,
+                y_label='Legs Velocity (mm/s)', 
                 sample=selected_sample,
+                names=name_array,
                 pdf=isPdf,
-                highlight_Effective=True,
+                highlight_Effective=True
+            )
+
+            returned_graphs['sample_bodyarmsvelocity'] = get_sample_line_plots(
+                session_data=session_data, 
+                athlete_data=rowing_data, 
+                x_axis_values=session_data['normalizedtime'], 
+                y_axis_values='body_arms_vel', 
+                title='Body + Arms Velocity',
+                x_label='Normalized Time (%)', 
+                y_label='Body + Arms Velocity (deg/s)', 
+                sample=selected_sample,
+                names=name_array,
+                pdf=isPdf,
+                highlight_Effective=True
+            )
+
+            returned_graphs['sample_bodyarmsvelocity_seatposn'] = get_sample_line_plots(
+                session_data=session_data, 
+                athlete_data=rowing_data, 
+                x_axis_values='seat_posn', 
+                y_axis_values='body_arms_vel', 
+                title='Body + Arms Velocity',
+                x_label='Seat Drive Length (%)', 
+                y_label='Body + Arms Velocity (deg/s)', 
+                percentage_x=True,
+                percentage_y=False, 
+                sample=selected_sample,
+                names=name_array,
+                pdf=isPdf,
+                highlight_Effective=True
+            )
+
+            returned_graphs['sample_legs_velocity_seatposn'] = get_sample_line_plots(
+                session_data=session_data, 
+                athlete_data=rowing_data, 
+                x_axis_values='seat_posn', 
+                y_axis_values='seat_posn_vel', 
+                title='Legs Velocity',
+                x_label='Seat Drive Length (%)', 
+                y_label='Legs Velocity (mm/s)', 
+                percentage_x=True,
+                percentage_y=False, 
+                sample=selected_sample,
+                names=name_array,
+                pdf=isPdf,
+                highlight_Effective=True
             )
 
             returned_graphs['sample_seatposition'] = get_sample_line_plots(
                 session_data=session_data, 
-                athlete_data=rowing_data,  
+                athlete_data=rowing_data, 
                 x_axis_values='gate_angle', 
                 y_axis_values='seat_posn', 
                 title='Seat Position', 
                 x_label='Gate Angle (deg)', 
                 y_label='Seat Position', 
-                names=name_array,
                 sample=selected_sample,
+                names=name_array,
                 pdf=isPdf,
-                highlight_Effective=True,
+                highlight_Effective=True
             )
 
-            returned_graphs['sample_legsvelocitygateangle'] = get_sample_line_plots(
+            returned_graphs['sample_legsvelocity_gateangle'] = get_sample_line_plots(
                 session_data=session_data, 
                 athlete_data=rowing_data, 
                 x_axis_values='gate_angle', 
                 y_axis_values='seat_posn_vel', 
                 title='Legs Velocity', 
                 x_label='Drive Length (%)', 
-                y_label='Legs Velocity', 
+                y_label='Legs Velocity (mm/s)', 
                 percentage_x=True,
                 percentage_y=False, 
-                names=name_array,
                 sample=selected_sample,
+                names=name_array,
                 pdf=isPdf,
-                highlight_Effective=True,
+                highlight_Effective=True
             )
 
-            returned_graphs['sample_bodyarmsvelocity'] = get_sample_line_plots(
+            returned_graphs['sample_bodyarmsvelocity_gateangle'] = get_sample_line_plots(
                 session_data=session_data, 
                 athlete_data=rowing_data, 
                 x_axis_values='gate_angle', 
                 y_axis_values='body_arms_vel', 
                 title='Body + Arms Velocity', 
                 x_label='Drive Length (%)', 
-                y_label='Body Arms Vel', 
+                y_label='Body + Arms Velocity (deg/s)', 
                 percentage_x=True,
                 percentage_y=False, 
-                names=name_array,
                 sample=selected_sample,
+                names=name_array,
                 pdf=isPdf,
-                highlight_Effective=True,
+                highlight_Effective=True
             )
 
     return returned_graphs
