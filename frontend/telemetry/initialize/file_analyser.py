@@ -49,7 +49,6 @@ def get_session_data(file):
                 return position
             else:
                 position += 1
-        return False
 
     column_cache = {}
 
@@ -61,7 +60,7 @@ def get_session_data(file):
             else:
                 column_cache[name] = get_Column_Pos(layout['Big_Data_Headers'], name)
         return column_cache[name]
-    
+        
     # Seat sides and names
     seat_side_map = {}
     seat_name_map = {}
@@ -173,7 +172,7 @@ def get_session_data(file):
                 blade_Locked = False
                 blade_unLocked = False
 
-                seat_Sensors = False
+                seat_Sensors = True
 
                 # Iterates through the rows in a single stroke.
                 for stroke_row in current_stroke_rows:
@@ -198,10 +197,10 @@ def get_session_data(file):
                         # Appends all SeatPosVel values to a list
                         seat_Pos_Vel = stroke_row[column('Seat Posn Vel') + seat_Number]
                         List_SeatPosVel.append(float(seat_Pos_Vel))
-                        seat_Sensors = True
                         session_SeatSensors = True
                     except:
                         seat_Sensors = False
+
 
                 # Checks if the stroke found is a full stroke. If a half stroke is found then it won't be recorded.
                 if ((min(List_NormalizedTime)) < -40 and (max(List_NormalizedTime) > 40)):
@@ -496,7 +495,7 @@ def get_session_data(file):
                     # Seat Sensor Data
                     seat_Length = None
                     catch_Factor = None
-                    try:
+                    if seat_Sensors:
                         # Seat Length calculation
                         cm_List = []
                         for pos in List_SeatPos:
@@ -545,8 +544,6 @@ def get_session_data(file):
                             body_arms_vel = linear_handle_vel - seat_position_velocity
                             List_BodyArmsVel.append(body_arms_vel)
                             count += 1
-                    except:
-                        pass
 
                     # Stroke segment timing data.
                     stroke_Time = calculate_time(len(List_GateAngles)) / 1000
@@ -638,9 +635,9 @@ def get_session_data(file):
                     data_container['Finish Force Gradient'].append(finishForceGradient)
 
                     # Seat Data
+                    data_container['Catch Factor'].append(catch_Factor)
+                    data_container['SeatLength'].append(seat_Length)
                     if seat_Sensors:
-                        data_container['Catch Factor'].append(catch_Factor)
-                        data_container['SeatLength'].append(seat_Length)
                         data_container['SeatMaxVel'].append((max(List_SeatPosVel) / 1000)) # converts mm/s to m/s
                         data_container['BodyArmsVel'].append(List_BodyArmsVel)
                         data_container['SeatPosn'].append(List_SeatPos)
@@ -648,10 +645,11 @@ def get_session_data(file):
                     else:
                         same_length_list_holder = []
                         for i in List_GateAngleVel:
-                            same_length_list_holder.append(1)
+                            same_length_list_holder.append(None)
                         data_container['SeatPosn'].append(same_length_list_holder)
                         data_container['SeatPosnVel'].append(same_length_list_holder)
                         data_container['BodyArmsVel'].append(same_length_list_holder)
+                        data_container['SeatMaxVel'].append(None)
 
                     data_container['Position_Of_CSlip'].append(position_Of_CSlip)
                     data_container['Position_Of_70MaxF'].append(position_Of_70MaxF)

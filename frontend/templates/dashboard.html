@@ -339,29 +339,89 @@
         </div>
       </div>
 
-      <div class="card-modern p-4">
-        <div class="row">
-          <div class="col-md-6">
-            <p><strong>Title:</strong> {{boat_data.title }}</p>
-            <p><strong>File Name:</strong> {{ boat_data.filename }}</p>
-            <p><strong>Date:</strong> {{ boat_data.date }}</p>
-            <p><strong>Training Zone:</strong> {{ boat_data.state }}</p>
-            <p><strong>Seat Sensors:</strong> {{ boat_data.seat_sensors }}</p>
+      <div class="card-modern p-4 shadow-sm rounded-4">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="mb-1">{{ boat_data.title }}</h4>
+            <small class="text-muted">{{ boat_data.date }} • {{ boat_data.state }}</small>
           </div>
-          <div class="col-md-6">
-            <p><strong>Number of Rowers:</strong> {{ boat_data.seats }}</p>
-            <p><strong>Strokes Recorded:</strong> {{ boat_data.tstrokes }}</p>
-            <p><strong>Distance (m):</strong> {{ boat_data.distance | round(2) }}</p>
-            <p><strong>Time Elapsed (h:m:s):</strong> {{ boat_data.timeelapsed }}</p>
-            <p><strong>Inboard (cm): </strong> {{ boat_data.inboard }}</p>
-            <p><strong>Oar Length (cm): </strong> {{ boat_data.oarlength }}</p>
-            <p><strong>Logger Serial: </strong> {{ boat_data.serial }}</p>
+          <span class="badge bg-primary fs-6 px-3 py-2">
+            {{ boat_data.filename }}
+          </span>
+        </div>
+
+        <!-- KEY METRICS -->
+        <div class="row text-center mb-4">
+          <div class="col-md-4 mb-3">
+            <div class="metric-box p-3 rounded-3 bg-light">
+              <h6 class="text-muted">Distance</h6>
+              <h3 class="fw-bold">{{ boat_data.distance | round(2) }} m</h3>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="metric-box p-3 rounded-3 bg-light">
+              <h6 class="text-muted">Time Elapsed</h6>
+              <h3 class="fw-bold">{{ boat_data.timeelapsed }}</h3>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="metric-box p-3 rounded-3 bg-light">
+              <h6 class="text-muted">Strokes</h6>
+              <h3 class="fw-bold">{{ boat_data.tstrokes }}</h3>
+            </div>
           </div>
         </div>
 
-        <h5 class="mt-4">Coach Feedback | Session Description</h5>
-        <p>{{ boat_data.description }}</p>
+        <!-- DETAILS GRID -->
+        <div class="row">
 
+          <!-- Crew Info -->
+          <div class="col-md-6 mb-3">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="text-uppercase text-muted mb-3">Session Description</h6>
+              <p>{{ boat_data.description }}</p>
+            </div>
+          </div>
+
+          <!-- Equipment Info -->
+          <div class="col-md-6 mb-3">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="text-uppercase text-muted mb-3">Equipment</h6>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Inboard</span>
+                <strong>{{ boat_data.inboard }} cm</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Oar Length</span>
+                <strong>{{ boat_data.oarlength }} cm</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Logger Serial</span>
+                <strong>{{ boat_data.serial }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Seat Sensors</span>
+                <strong>{{ boat_data.seat_sensors }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Seats</span>
+                <strong>{{ boat_data.seats }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Rigging</span>
+                <strong>{{ boat_data.boattype }}</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card-modern p-4 shadow-sm rounded-4">
         <h4 class="mt-4">Crew List</h4>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
@@ -393,7 +453,9 @@
             </tbody>
           </table>
         </div>
+      </div>
 
+      <div class="card-modern p-4 shadow-sm rounded-4">
         <div class="plot-wrapper">
           <div class="panel mb-4">{{ graphs.map | safe }}</div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
@@ -407,7 +469,6 @@
           </form>
           {% endif %}
         </div>
-
       </div>
 
       <!-- Session Analysis Page | Session -->
@@ -746,22 +807,22 @@
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
+        <div class="plot-wrapper">
+          <div class="panel mb-4">{{ graphs.gateforcepercent | safe }}</div>
+          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+
         {% else %}
 
         <div class="plot-wrapper">
           <div class="row g-4">
-            <div class="col-lg-6"><div class="panel">{{ graphs.gateanglevelocity | safe }}</div></div>  
+            <div class="col-lg-6"><div class="panel">{{ graphs.handlevelocity | safe }}</div></div>  
             <div class="col-lg-6"><div class="panel">{{ graphs.gateforcepercent | safe }}</div></div>
           </div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
         </div>
 
         {% endif %}
-
-        <div class="plot-wrapper">
-          <div class="panel mb-4">{{ graphs.gateforcepercent | safe }}</div>
-          <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
-        </div>
 
         <div class="plot-wrapper">
           <div class="panel mb-4">{{ graphs.gateanglevelocitydeg | safe }}</div>

@@ -102,6 +102,7 @@ class Rower_Data():
             'SeatLength': [],
             'SeatMaxVel': [],
             'BodyArmsVel': [],
+            'Catch Factor': [],
 
             'PercentageForce': [],
             'PercentageAngle': [],
@@ -115,7 +116,6 @@ class Rower_Data():
 
             'Catch Force Gradient': [],
             'Finish Force Gradient': [],
-            'Catch Factor': [],
 
             'Time_To_25%': [],
             'Time_To_50%': [],
