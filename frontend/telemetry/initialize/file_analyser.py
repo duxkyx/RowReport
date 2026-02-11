@@ -39,6 +39,7 @@ def get_session_data(file):
     boat_Data.Date = layout['Date']
     boat_Data.Inboard = layout['Inboard']
     boat_Data.Outboard = layout['OarLength']
+    boat_Data.Serial = layout['Serial']
 
     # Column cache.
     def get_Column_Pos(headers, expected):

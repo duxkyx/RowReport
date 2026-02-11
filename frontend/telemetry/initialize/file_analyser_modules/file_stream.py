@@ -19,6 +19,7 @@ def scan_file_layout(file):
         "Crew_Info_Line": None,
         "Date_Line": None,
         "Serial_Line": None,
+        "Serial": None,
         "Seats": None,
         "RowingType": None,
         "GPS_Origin": None,
@@ -81,6 +82,9 @@ def scan_file_layout(file):
         if len(row) > 7:
             if row[0] == 'Serial #':
                 layout['Serial_Line'] = i + 1
+
+        if i == layout['Serial_Line']:
+            layout['Serial'] = row[0]
 
         if len(row) > 10:
             if row[1] == 'GateAngle':
