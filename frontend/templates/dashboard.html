@@ -519,24 +519,22 @@
                   <td>Coxswain</td>
                   <td></td>
                   <td></td>
-                  {% if coxswain_data %}
                   <td>
-                      {% if user.is_coach or user.is_admin %}
+                    {% if user.is_coach or user.is_admin %}
                       <select name="coxswain_id" class="form-select form-select-sm crew-select" data-placeholder="Search users..." style="width:100%">
                         <option value="">Unassigned</option>
                         {% for u in all_users %}
-                          <option value="{{ u.id }}" {% if coxswain_data.user_id and coxswain_data.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
+                          <option value="{{ u.id }}" {% if coxswain_data and coxswain_data.user_id and coxswain_data.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
                         {% endfor %}
                       </select>
                     {% else %}
-                      {% if coxswain_data.user_id %}
+                      {% if coxswain_data and coxswain_data.user_id %}
                         {{ coxswain_data.first_name }} {{coxswain_data.last_name }} ({{ coxswain_data.email }})
                       {% else %}
                         Unassigned
                       {% endif %}
                     {% endif %}
                   </td>
-                  {% endif %}
                   <td></td>
                 </tr>
               </tbody>
