@@ -65,9 +65,9 @@ def track_activity():
 def login_required(origin):
     @wraps(origin)
     def decorated_function(*args, **kwargs): # Positional arguments and key word arguments, returns the data passed.
-        # Track user as online
-        requests.post(f'{api_routes.update_last_activity}/{session["user"]["id"]}')
         if 'user' in session:
+            # Track user as online
+            requests.post(f'{api_routes.update_last_activity}/{session["user"]["id"]}')
             return origin(*args, **kwargs)
         else:
             return redirect(url_for('login'))
