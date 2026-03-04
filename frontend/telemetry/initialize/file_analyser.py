@@ -330,7 +330,11 @@ def get_session_data(file):
 
                         iteration += 1
 
-                    Average_GateForceX = getAverage(drive_GateForceX)
+                    if len(drive_GateForceX) > 0:
+                        Average_GateForceX = getAverage(drive_GateForceX)
+                    else:
+                        Average_GateForceX = 0
+                    
                     AvgGateForce_MaxGateForce = getPercentage(max_GateForceX, Average_GateForceX)
 
                     # Stroke time

@@ -1,5 +1,6 @@
 from sqlmodel import Session, select, or_
 from database_directory.models import account_table, rowing_session_table, user_telemetry_data, permissions_table
+from datetime import datetime, timedelta, timezone
 
 # Add user to database
 def create_user(session: Session, data):
@@ -33,6 +34,12 @@ def authenticate_user(session: Session, data):
     user, permissions = result
     if user.password != data.password:
         return None
+    
+    # Update last login and activity
+    user.last_login = datetime.utcnow()
+    user.last_activity = datetime.utcnow()
+    session.commit()
+    session.refresh(user)
     
     return {
         "id": user.id,
@@ -136,3 +143,47 @@ def update_permission(session: Session, user_id: int, user_type: str):
     
     session.commit()
     return {"status": "success", "user_id": user_id}
+
+def update_last_activity(session: Session, user_id: int):
+    """Update the last_activity timestamp for a user."""
+    statement = select(account_table).where(account_table.id == user_id)
+    user = session.exec(statement).first()
+    if user:
+        user.last_activity = datetime.now(timezone.utc)
+        session.commit()
+        session.refresh(user)
+    return user
+
+def get_online_users(session: Session, timeout_minutes: int = 15):
+    """Get users active within the last X minutes."""
+    now = datetime.now(timezone.utc)
+    cutoff_time = now - timedelta(minutes=timeout_minutes)
+    
+    statement = (
+        select(account_table, permissions_table)
+        .join(permissions_table, account_table.id == permissions_table.user_id)
+        .where(account_table.last_activity >= cutoff_time)
+        .order_by(account_table.last_activity.desc())
+    )
+    
+    results = session.exec(statement).all()
+    
+    return [
+        {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "is_athlete": permissions.is_athlete,
+            "is_coach": permissions.is_coach,
+            "is_admin": permissions.is_admin,
+            "last_activity": (
+                (
+                    lambda delta: f"{int(delta.total_seconds() // 60):02d}:{int(delta.total_seconds() % 60):02d}"
+                )(now - user.last_activity)
+                if user.last_activity
+                else None
+            )
+        }
+        for user, permissions in results
+    ]

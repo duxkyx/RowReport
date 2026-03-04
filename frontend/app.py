@@ -5,6 +5,7 @@ from flask_session import Session
 from functools import wraps
 import requests
 import io
+from datetime import datetime, timedelta
 
 # API Routes
 import api_routes
@@ -48,10 +49,24 @@ app.config["SESSION_PERMANENT"] = False  # optional
 # Initialize the filesystem session
 Session(app)
 
+# Track user activity on each request
+@app.before_request
+def track_activity():
+    """Update last activity time for logged-in users via API."""
+    if 'user' in session:
+        try:
+            user_id = session['user']['id']
+            requests.post(f'{api_routes.update_last_activity}/{user_id}')
+        except:
+            # Silently fail if API is not available
+            pass
+
 # Define login required decorator
 def login_required(origin):
     @wraps(origin)
     def decorated_function(*args, **kwargs): # Positional arguments and key word arguments, returns the data passed.
+        # Track user as online
+        requests.post(f'{api_routes.update_last_activity}/{session["user"]["id"]}')
         if 'user' in session:
             return origin(*args, **kwargs)
         else:
@@ -556,6 +571,20 @@ def account():
 def logout():
     session.pop('user', None)
     return redirect(url_for('login'))
+
+# View online users page
+@app.route('/online-users')
+@login_required
+def view_online_users():
+    # Get users who were active in the last 15 minutes
+    users_online = requests.get(api_routes.get_online_users).json()
+    
+    return render_template(
+        'dashboard.html',
+        user=session['user'],
+        page='online_users',
+        users_online=users_online
+    )
 
 # Run the app
 if __name__ == '__main__':

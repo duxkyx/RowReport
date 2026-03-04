@@ -90,3 +90,20 @@ def update_permissions(user_id: int, permission: str, session: Session = Depends
         return crud.update_permission(session, user_id, permission)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+# Update user's last activity
+@router.post('/update_last_activity/{user_id}')
+def update_last_activity(user_id: int, session: Session = Depends(get_session)):
+    try:
+        crud.update_last_activity(session, user_id)
+        return {"status": "success", "user_id": user_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# Get online users
+@router.get('/get_online_users')
+def get_online_users(timeout_minutes: int = 15, session: Session = Depends(get_session)):
+    try:
+        return crud.get_online_users(session, timeout_minutes)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

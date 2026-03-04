@@ -23,6 +23,10 @@
     color: #9aa4b2;
     border-radius: 8px;
 }
+.sidebar .nav-link i {
+    width: 24px;
+    text-align: center;
+}
 .sidebar .nav-link.active,
 .sidebar .nav-link:hover {
     color: #fff;

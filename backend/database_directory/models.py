@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field, Column, JSON
 from typing import Optional, List
-from datetime import date
+from datetime import date, datetime
 
 # User Table
 class account_table(SQLModel, table=True):
@@ -9,6 +9,8 @@ class account_table(SQLModel, table=True):
     last_name: str
     email: str = Field(index=True, unique=True, nullable=False)
     password: str
+    last_login: Optional[datetime] = None
+    last_activity: Optional[datetime] = None
 
 # Permissions Table
 class permissions_table(SQLModel, table=True):

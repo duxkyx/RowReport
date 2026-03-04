@@ -20,6 +20,8 @@ delete_session = api_route('/delete/session')
 delete_user = api_route('/delete/user')
 get_user_information = api_route('/get_user_information')
 update_permissions = api_route('/update_permissions')
+update_last_activity = api_route('/update_last_activity')
+get_online_users = api_route('/get_online_users')
 
 get_averages = api_route('/user_data/get_averages')
 get_summary = api_route('/user_data/get_summary')
