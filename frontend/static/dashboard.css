@@ -658,3 +658,35 @@ body .form-select optgroup {
 .select2-container {
   width: 100% !important;
 }
+
+/* Crew preview list items */
+.crew-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 12px;
+  padding: 10px 12px 10px 12px !important;
+  padding-right: 140px !important;
+}
+
+.crew-info {
+  flex: 1;
+  min-width: 0;
+  word-wrap: break-word;
+}
+
+.badge-undefined {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}

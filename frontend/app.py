@@ -1,5 +1,6 @@
 # Main imports
 from flask import Flask, render_template, url_for, request, session, flash, redirect, send_file
+from flask import jsonify
 from flask_session import Session
 from functools import wraps
 import requests
@@ -316,6 +317,23 @@ def sessions():
         sessions=all_sessions,
         user=session['user'],
     )
+
+
+@app.route('/dashboard/sessions/session_crew/<int:session_id>', methods=['GET'])
+@login_required
+def session_crew(session_id):
+    # Return rower data and coxswain info for a given session as JSON
+    try:
+        rowing_data = get_rower_data(session_id)
+        coxswain_resp = requests.get(api_routes.get_coxswain_data + f'/{session_id}')
+        coxswain = coxswain_resp.json() if coxswain_resp.status_code == 200 else None
+
+        return jsonify({
+            'rowers': rowing_data,
+            'coxswain': coxswain
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Session analytics page
 @app.route('/dashboard/sessions/session_id=<int:session_id>/page=<page_name>', methods=['GET', 'POST'])

@@ -342,9 +342,15 @@
           </div>
 
           <div class="session-card-footer">
-            <a href="/dashboard/sessions/session_id={{ session.id }}/page=overview" class="btn btn-sm btn-primary w-100">
-              Analyze Session
-            </a>
+            <div class="d-grid gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary view-crew-btn" data-session-id="{{ session.id }}">View Crew</button>
+              <a href="/dashboard/sessions/session_id={{ session.id }}/page=overview" class="btn btn-sm btn-primary">Analyze Session</a>
+            </div>
+
+            <div class="crew-preview mt-2" id="crew-preview-{{ session.id }}" style="display:none;">
+              <div class="crew-loading muted-sm">Loading...</div>
+              <ul class="list-group crew-list mt-2"></ul>
+            </div>
           </div>
         </div>
         {% endfor %}
@@ -1378,6 +1384,99 @@
           });
         });
       }
+    });
+  </script>
+  <script>
+    // Fetch and display crew preview for a session
+    $(document).on('click', '.view-crew-btn', function (e) {
+      e.preventDefault();
+      const sessionId = $(this).data('session-id');
+      const container = $(`#crew-preview-${sessionId}`);
+
+      if (container.is(':visible')) {
+        container.slideUp();
+        return;
+      }
+
+      // If already loaded, just show
+      if (container.data('loaded')) {
+        container.slideDown();
+        return;
+      }
+
+      container.find('.crew-list').empty();
+      container.find('.crew-loading').show();
+
+      fetch(`/dashboard/sessions/session_crew/${sessionId}`)
+        .then(res => res.json())
+        .then(data => {
+          container.find('.crew-loading').hide();
+          if (data.error) {
+            container.find('.crew-list').append(`<li class="list-group-item text-danger">${data.error}</li>`);
+            container.slideDown();
+            return;
+          }
+
+          const rowers = Array.isArray(data.rowers) ? data.rowers : [];
+          const cox = data.coxswain || null;
+
+          // Render coxswain even if DB record doesn't exist or undefined
+          let coxLabel = 'Unassigned';
+          let coxMeta = '';
+          let coxAssigned = false;
+          if (cox) {
+            if (cox.user && (cox.user.first_name || cox.user.last_name)) {
+              coxLabel = `${cox.user.first_name || ''} ${cox.user.last_name || ''}`.trim();
+              coxMeta = cox.user.email ? ` <small class="text-muted">${cox.user.email}</small>` : '';
+              coxAssigned = !!cox.user.user_id;  // Only assigned if real DB user
+            } else if (cox.first_name || cox.last_name) {
+              coxLabel = `${cox.first_name || ''} ${cox.last_name || ''}`.trim();
+              // coxAssigned stays false - not a real user
+            } else if (cox.name) {
+              coxLabel = cox.name;
+              // coxAssigned stays false
+            } else if (cox.user_id) {
+              coxLabel = `User ID ${cox.user_id}`;
+              coxAssigned = !!cox.user_id;
+            }
+          }
+
+          const coxRight = coxAssigned ? '' : '<span class="badge badge-undefined">User undefined</span>';
+          container.find('.crew-list').append(`<li class="list-group-item crew-item"><div class="crew-info"><strong>Coxswain:</strong> ${coxLabel}${coxMeta}</div>${coxRight}</li>`);
+
+          if (rowers.length > 0) {
+            rowers.forEach(r => {
+              const seat = r.seat ?? (r.telemetry && r.telemetry.seat) ?? 'N/A';
+              const side = r.side ?? (r.telemetry && r.telemetry.side) ?? '';
+
+              let name = 'Unassigned';
+              let assigned = false;
+              if (r.user && (r.user.first_name || r.user.last_name)) {
+                name = `${r.user.first_name || ''} ${r.user.last_name || ''}`.trim();
+                assigned = !!r.user.user_id;  // Only assigned if real DB user
+              } else if (r.name) {
+                name = r.name;
+                // assigned stays false - file name is not a real user assignment
+              } else if (r.telemetry && r.telemetry.name) {
+                name = r.telemetry.name;
+                // assigned stays false - telemetry name is not a real user assignment
+              }
+
+              const right = assigned ? '' : '<span class="badge badge-undefined">User undefined</span>';
+              container.find('.crew-list').append(`<li class="list-group-item crew-item"><div class="crew-info"><strong>Seat ${seat}:</strong> ${name} <small class="text-muted">${side}</small></div>${right}</li>`);
+            });
+          } else {
+            container.find('.crew-list').append('<li class="list-group-item text-muted">No rowers data</li>');
+          }
+
+          container.data('loaded', true);
+          container.slideDown();
+        })
+        .catch(err => {
+          container.find('.crew-loading').hide();
+          container.find('.crew-list').append('<li class="list-group-item text-danger">Failed to load crew</li>');
+          container.slideDown();
+        });
     });
   </script>
 </body>
