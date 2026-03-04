@@ -32,11 +32,10 @@
   <div class="d-flex" style="min-height:100vh;">
     <!-- SIDEBAR -->
     <aside class="sidebar d-flex flex-column p-3 text-white vh-100">
-      <button id="sidebarToggle" class="sidebar-toggle">
-        <span class="chevron">‹</span>
-      </button>
-      <div class="brand mb-3">
-        <img src="{{ url_for('static', filename='media/heading_resize.png') }}" alt="RowReport">
+      <div class="mb-3">
+        <div class="brand">
+          <img src="{{ url_for('static', filename='media/heading_resize.png') }}" alt="RowReport">
+        </div>
       </div>
 
       <nav class="nav flex-column mb-3">
@@ -77,6 +76,11 @@
       </div>
       
     </aside>
+
+    <!-- Sidebar toggle button (outside sidebar to always be visible) -->
+    <button id="sidebarToggle" class="sidebar-toggle">
+      <span class="chevron">‹</span>
+    </button>
 
     <!-- MAIN -->
     <main class="flex-grow-1 app-main">
@@ -246,6 +250,11 @@
                   {% endif %}
                 </div>
 
+                <label class="form-label">Select Coxswain</label>
+                <select class="form-control user-dropdown" name="coxswain_search" style="width:100%">
+                  <option value="">Select user...</option>
+                </select>
+
                 <hr style="border-color:rgba(255,255,255,0.03)">
 
                 <div class="mb-3">
@@ -281,51 +290,88 @@
         </div>
       </div>
 
-      <div class="card-modern p-3">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th>Session ID</th>
-                <th>Coach</th>
-                <th>Title</th>
-                <th>Training Zone</th>
-                <th>Date</th>
-                <th>Seats</th>
-                <th>Strokes Recorded</th>
-                <th>Distance (m)</th>
-                <th>Time Elapsed</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for session in sessions %}
-              <tr>
-                <td>{{ session.id }}</td>
-                <td>{{ session.coach_name }}</td>
-                <td>{{ session.title }}</td>
-                <td>{{ session.state }}</td>
-                <td>{{ session.date }}</td>
-                <td>{{ session.seats }}</td>
-                <td>{{ session.tstrokes }}</td>
-                <td>{{ session.distance | round | int }} (m)</td>
-                <td>{{ session.timeelapsed }}</td>
-                <td><a href="/dashboard/sessions/session_id={{ session.id }}/page=overview" class="btn btn-sm btn-info">View</a></td>
-              </tr>
-              {% endfor %}
-              {% if sessions | length == 0 %}
-              <tr>
-                <td colspan="9" class="text-center">No sessions available. <br> Data will be avaliable once your coach has uploaded a session.</td>
-              </tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
+      {% if sessions | length == 0 %}
+      <div class="card-modern p-5 text-center">
+        <i class="fa fa-calendar-days" style="font-size: 3rem; color: #9aa4b2; margin-bottom: 20px;"></i>
+        <h4 class="text-muted mb-2">No sessions available</h4>
+        <p class="text-muted">Data will be available once your coach has uploaded a session.</p>
       </div>
+      {% else %}
+      <div class="sessions-grid">
+        {% for session in sessions %}
+        <div class="session-card">
+          <div class="session-card-header">
+            <div class="session-zone {% if session.state == 'UT1' %}zone-ut1{% else %}zone-ut2{% endif %}">
+              {{ session.state }}
+            </div>
+            <span class="session-id">#{{ session.id }}</span>
+          </div>
+
+          <div class="session-card-body">
+            <h5 class="session-title">{{ session.title }}</h5>
+            
+            <div class="session-meta">
+              <div class="meta-item">
+                <span class="meta-label">Coach</span>
+                <span class="meta-value">{{ session.coach_name or 'N/A' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Date</span>
+                <span class="meta-value">{{ session.date }}</span>
+              </div>
+            </div>
+
+            <div class="session-stats">
+              <div class="stat">
+                <span class="stat-value">{{ session.distance | round | int }}</span>
+                <span class="stat-label">meters</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ session.tstrokes }}</span>
+                <span class="stat-label">strokes</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ session.seats }}</span>
+                <span class="stat-label">crew</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ session.timeelapsed }}</span>
+                <span class="stat-label">time</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="session-card-footer">
+            <a href="/dashboard/sessions/session_id={{ session.id }}/page=overview" class="btn btn-sm btn-primary w-100">
+              Analyze Session
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
 
       <!-- Session Analysis Page | Overview -->
       {% elif page == 'overview' %}
 
+      <!-- Top: Back + Delete -->
+      <div class="d-flex gap-2">
+        <a href="/dashboard/sessions" class="btn btn-sm btn-ghost">
+          ← Back
+        </a>
+
+        {% if user.is_coach or user.is_admin %}
+        <form action="/dashboard/sessions/session_id={{ boat_data.id }}/page=overview" method="POST" style="display:inline;">
+          <button type="submit"
+                  name="action"
+                  value="delete_session"
+                  class="btn btn-sm btn-outline-danger"
+                  onclick="return confirm('Are you sure you want to delete this session?');">
+            Delete Session
+          </button>
+        </form>
+        {% endif %}
+      </div>
       <div class="header-row">
         <div>
           <div class="title">Session Details — ID {{ boat_data.id }}</div>
@@ -339,7 +385,7 @@
         </div>
       </div>
 
-      <div class="card-modern p-4 shadow-sm rounded-4">
+      <div class="card-modern crew-card p-4 shadow-sm rounded-4">
 
         <!-- HEADER -->
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -421,53 +467,94 @@
         </div>
       </div>
 
-      <div class="card-modern p-4 shadow-sm rounded-4">
-        <h4 class="mt-4">Crew List</h4>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th>Seat</th>
-                <th>Side</th>
-                <th>Name</th>
-                <th>User</th>
-                <th>Strokes Validated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for rower in rowers %}
-              <tr>
-                <td>{{ rower.telemetry.seat }}</td>
-                <td>{{ rower.telemetry.side }}</td>
-                <td>{{ rower.telemetry.name }}</td>
-                <td>
-                  {% if rower.user.user_id %}
-                    {{ rower.user.first_name }} {{rower.user.last_name }} ({{ rower.user.email }})
-                  {% else %}
-                    Unassigned
-                  {% endif %}
-                </td>
-                <td>{{ rower.telemetry.strokes }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+      <div class="card-modern p-4 shadow-sm rounded-4 crew-card">
+        <div class="crew-card-header d-flex align-items-start gap-3 mb-3">
+          <div class="crew-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center" style="width:44px;height:44px;">
+            <i class="fa fa-users" style="font-size:18px"></i>
+          </div>
+          <div>
+            <h4 class="mb-1">Crew List</h4>
+            <div class="subtle">Assign users to seats and choose the coxswain. Affected users will be emailed.</div>
+          </div>
         </div>
+        <form method="POST">
+          <input type="hidden" name="action" value="update_assignments">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Seat</th>
+                  <th>Side</th>
+                  <th>Name</th>
+                  <th>User</th>
+                  <th>Strokes Validated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rower in rowers %}
+                <tr>
+                  <td>{{ rower.telemetry.seat }}</td>
+                  <td>{{ rower.telemetry.side }}</td>
+                  <td>{{ rower.telemetry.name }}</td>
+                  <td>
+                      {% if user.is_coach or user.is_admin %}
+                      <select name="user_for_seat_{{ rower.telemetry.seat }}" class="form-select form-select-sm crew-select" data-placeholder="Search users..." style="width:100%">
+                        <option value="">Unassigned</option>
+                        {% for u in all_users %}
+                          <option value="{{ u.id }}" {% if rower.user.user_id and rower.user.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
+                        {% endfor %}
+                      </select>
+                    {% else %}
+                      {% if rower.user.user_id %}
+                        {{ rower.user.first_name }} {{rower.user.last_name }} ({{ rower.user.email }})
+                      {% else %}
+                        Unassigned
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                  <td>{{ rower.telemetry.strokes }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                  <td>Coxswain</td>
+                  <td></td>
+                  <td></td>
+                  {% if coxswain_data %}
+                  <td>
+                      {% if user.is_coach or user.is_admin %}
+                      <select name="coxswain_id" class="form-select form-select-sm crew-select" data-placeholder="Search users..." style="width:100%">
+                        <option value="">Unassigned</option>
+                        {% for u in all_users %}
+                          <option value="{{ u.id }}" {% if coxswain_data.user_id and coxswain_data.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
+                        {% endfor %}
+                      </select>
+                    {% else %}
+                      {% if coxswain_data.user_id %}
+                        {{ coxswain_data.first_name }} {{coxswain_data.last_name }} ({{ coxswain_data.email }})
+                      {% else %}
+                        Unassigned
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                  {% endif %}
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {% if user.is_coach or user.is_admin %}
+          <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+          {% endif %}
+        </form>
       </div>
 
       <div class="card-modern p-4 shadow-sm rounded-4">
         <div class="plot-wrapper">
           <div class="panel mb-4">{{ graphs.map | safe }}</div>
           <button class="plot-fullscreen-btn" title="Fullscreen">⛶</button>
-        </div>
-
-        <div class="d-flex gap-2 mt-3">
-          <a href="/dashboard/sessions" class="btn btn-ghost">Back to Sessions</a>
-          {% if user.is_coach or user.is_admin %}
-          <form action="/dashboard/sessions/session_id={{ boat_data.id }}/page=overview" method="POST" style="display:inline;">
-            <button type="submit" name='action' value="delete_session" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this session?');">Delete Session</button>
-          </form>
-          {% endif %}
         </div>
       </div>
 
@@ -1279,5 +1366,21 @@
   <script src="{{ url_for('static', filename='js/loading.js') }}"></script>
   <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
   <script src="{{ url_for('static', filename='js/graph_fullscreen.js') }}"></script>
+  <script>
+    // Initialize searchable crew selects using Select2
+    $(document).ready(function() {
+      if (window.jQuery && $.fn.select2) {
+        $('.crew-select').each(function() {
+          var placeholder = $(this).data('placeholder') || 'Select user...';
+          $(this).select2({
+            placeholder: placeholder,
+            allowClear: true,
+            width: 'resolve',
+            dropdownAutoWidth: true
+          });
+        });
+      }
+    });
+  </script>
 </body>
 </html>

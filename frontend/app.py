@@ -258,6 +258,23 @@ def upload():
                             "session_id": session_id
                         }
                         requests.post(api_routes.email_user, json=payload)
+
+            # Coxswain permissions
+            coxswain_id = request.form.get("coxswain_search")
+            if coxswain_id:
+                coxswain_payload = {
+                    "session_id": session_id,
+                    "coxswain_id": int(coxswain_id)
+                }
+                response = requests.post(api_routes.assign_coxswain, json=coxswain_payload)
+
+                if response.status_code == 200:
+                    payload = {
+                        "user_id": int(coxswain_id),
+                        "boat_data": Boat_Data,
+                        "session_id": session_id
+                    }
+                    requests.post(api_routes.email_user, json=payload)
             
             # Email coach that upload was successful
             payload = {
@@ -306,6 +323,7 @@ def sessions():
 def session_page(session_id, page_name):
     # Get session data from API
     session_data = requests.get(api_routes.get_session + f'/{session_id}').json()
+    coxswain_data = requests.get(api_routes.get_coxswain_data + f'/{session_id}')
 
     # If not session found
     if not session_data:
@@ -332,11 +350,22 @@ def session_page(session_id, page_name):
     # Get Rower Data
     rowing_data = get_rower_data(session_id)
 
+    # Get list of all users for assignment dropdowns
+    users_response = requests.get(api_routes.get_all_users)
+    if users_response.status_code == 200:
+        all_users = users_response.json()
+    else:
+        all_users = []
+
     # Checks if user is valid in session
     if not session['user']['is_coach'] and not session['user']['is_admin']:
         is_Authenticated = False
         for rower in rowing_data:
             if rower['telemetry']['user_id'] == session['user']['id']:
+                is_Authenticated = True
+
+        if not coxswain_data.status_code == 404:
+            if coxswain_data.json()['user_id'] == session['user']['id']:
                 is_Authenticated = True
 
         if not is_Authenticated:
@@ -365,6 +394,36 @@ def session_page(session_id, page_name):
     )
 
     if request.method == 'POST':
+        # Handle assignment updates from overview page
+        if request.form.get('action') == 'update_assignments':
+            # iterate seats and submit updates
+            try:
+                for rower in rowing_data:
+                    seat = rower['telemetry']['seat']
+                    user_field = request.form.get(f'user_for_seat_{seat}')
+                    user_id = int(user_field) if user_field else None
+                    payload = {
+                        'session_id': session_id,
+                        'seat': seat,
+                        'user_id': user_id,
+                        'boat_data': session_data
+                    }
+                    requests.post(api_routes.api_route('/update/assign_rower'), json=payload)
+
+                # coxswain
+                cox_field = request.form.get('coxswain_id')
+                cox_id = int(cox_field) if cox_field else None
+                cox_payload = {
+                    'session_id': session_id,
+                    'coxswain_id': cox_id,
+                    'boat_data': session_data
+                }
+                requests.post(api_routes.api_route('/update/assign_coxswain'), json=cox_payload)
+
+                flash('Assignments updated', 'success')
+            except Exception as e:
+                flash(f'Failed to update assignments: {str(e)}', 'danger')
+            return redirect(url_for('session_page', session_id=session_id, page_name=page_name))
         if page_name == 'export' and request.form.get('action') == 'download':
             pdf_bytes = generate_pdf(session_data, rowing_data, name_array, request)
 
@@ -389,7 +448,9 @@ def session_page(session_id, page_name):
         rowers=rowing_data,
         boat_data=session_data,
         user=session['user'],
+        coxswain_data=coxswain_data.json() if coxswain_data.status_code != 404 else None,
         graphs=returned_graphs,
+        all_users=all_users,
         sample_selected=selected_sample
     )
 

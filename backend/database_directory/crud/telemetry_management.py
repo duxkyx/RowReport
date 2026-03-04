@@ -1,5 +1,5 @@
 from sqlmodel import Session, select, or_
-from database_directory.models import account_table, rowing_session_table, user_telemetry_data, permissions_table
+from database_directory.models import account_table, rowing_session_table, user_telemetry_data, permissions_table, coxswain_in_session_table
 from database_directory.crud.user_management import get_account_information
 
 # Add session to database
@@ -211,10 +211,21 @@ def get_user_sessions(session: Session, user_id: int):
         session_statement = (global_Select)
         session_result = session.exec(session_statement).mappings().all()
     else:
+        # normal users should see any sessions they have telemetry data for
+        # *and* any sessions where they were recorded as the coxswain
         session_statement = (
             global_Select
-            .join(user_telemetry_data, rowing_session_table.id == user_telemetry_data.session_id)
-            .where(user_telemetry_data.user_id == user_id)
+            # join telemetry data so that users who rowed are included
+            .join(user_telemetry_data, rowing_session_table.id == user_telemetry_data.session_id, isouter=True)
+            # also outer‑join the coxswain table so we can filter by coxswain id
+            .join(coxswain_in_session_table, rowing_session_table.id == coxswain_in_session_table.session_id, isouter=True)
+            .where(
+                or_(
+                    user_telemetry_data.user_id == user_id,
+                    coxswain_in_session_table.coxswain_id == user_id
+                )
+            )
+            .distinct(rowing_session_table.id)
         )
         session_result = session.exec(session_statement).mappings().all()
     
@@ -267,6 +278,78 @@ def get_rower_data(session: Session, session_id: int):
         })
 
     return rower_data
+
+def add_coxswain_data(session: Session, data):
+    db_obj = coxswain_in_session_table(**data.dict())
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
+
+def get_coxswain_in_session(session: Session, session_id: int):
+    statement = (
+        select(coxswain_in_session_table, account_table)
+        .join(account_table, coxswain_in_session_table.coxswain_id == account_table.id)
+        .where(coxswain_in_session_table.session_id == session_id)
+    )
+    result = session.exec(statement).first()
+    if result:
+        coxswain_info = {
+            "user_id": result.account_table.id,
+            "first_name": result.account_table.first_name,
+            "last_name": result.account_table.last_name,
+            "email": result.account_table.email
+        }
+        return coxswain_info
+    else:
+        return None
+
+
+def update_rower_assignment(session: Session, session_id: int, seat: int, user_id: int | None):
+    """
+    Update the `user_id` for a specific seat in a session's user_telemetry_data record.
+    If user_id is None the assignment is cleared.
+    Returns the updated row or None if not found.
+    """
+    statement = (
+        select(user_telemetry_data)
+        .where(user_telemetry_data.session_id == session_id)
+        .where(user_telemetry_data.seat == seat)
+    )
+    db_obj = session.exec(statement).first()
+    if not db_obj:
+        return None
+
+    db_obj.user_id = user_id
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
+
+
+def update_coxswain(session: Session, session_id: int, coxswain_id: int | None):
+    """
+    Set or clear the coxswain for a session.
+    Creates a record if none exists.
+    """
+    statement = (
+        select(coxswain_in_session_table)
+        .where(coxswain_in_session_table.session_id == session_id)
+    )
+    db_obj = session.exec(statement).first()
+    if db_obj:
+        db_obj.coxswain_id = coxswain_id
+        session.add(db_obj)
+        session.commit()
+        session.refresh(db_obj)
+        return db_obj
+    else:
+        new_obj = coxswain_in_session_table(session_id=session_id, coxswain_id=coxswain_id)
+        session.add(new_obj)
+        session.commit()
+        session.refresh(new_obj)
+        return new_obj
+
 
 def delete_session(session: Session, session_id: int):
     # Deletes all user_telemetry_data records first, due to foriegn keys blocking the deletion of rowing_session_table

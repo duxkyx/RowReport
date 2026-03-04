@@ -15,6 +15,7 @@ email_user = api_route("/email_user")
 
 upload_session = api_route('/upload/session')
 upload_user_data = api_route('/upload/user_data')
+assign_coxswain = api_route('/upload/coxswain_data')
 delete_session = api_route('/delete/session')
 delete_user = api_route('/delete/user')
 get_user_information = api_route('/get_user_information')
@@ -27,3 +28,5 @@ get_telemetry_data_training_zones = api_route('/user_data/get_telemetry_data')
 get_session = api_route('/user_data/get_session')
 get_sessions = api_route('/user_data/get_sessions')
 get_rower_data = api_route('/user_data/get_rower_data')
+get_coxswain_data = api_route('/user_data/get_coxswain_data')
+

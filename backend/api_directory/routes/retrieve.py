@@ -56,6 +56,13 @@ def get_rower_data(session_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="Rower data not found for session")
     return data
 
+@router.get("/user_data/get_coxswain_data/{session_id}")
+def get_coxswain_data(session_id: int, session: Session = Depends(get_session)):
+    data = crud.get_coxswain_in_session(session, session_id)
+    if data is None:
+        raise HTTPException(status_code=404, detail="Coxswain data not found for session")
+    return data
+
 # Landing page statistics
 @router.get("/get_statistics")
 def get_statistics(session: Session = Depends(get_session)):

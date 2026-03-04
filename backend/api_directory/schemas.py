@@ -54,6 +54,9 @@ class BoatTelemetryData(BaseModel):
     # GPS 3D Array
     gps: List[List[List[float]]]
 
+class CoxswainData(BaseModel):
+    session_id: int
+    coxswain_id: int
 
 class UserTelemetryData(BaseModel):
     user_id: Optional[int] = None

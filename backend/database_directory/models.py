@@ -60,6 +60,10 @@ class rowing_session_table(SQLModel, table=True):
     # GPS 3D array
     gps: List[List[List[float]]] = Field(sa_column=Column(JSON))
 
+class coxswain_in_session_table(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    session_id: int = Field(foreign_key='rowing_session_table.id') # Session the data belongs to
+    coxswain_id: int = Field(foreign_key='account_table.id', nullable=True) # Coxswain who the data belongs to
 
 # Rower Profiles Table
 class user_telemetry_data(SQLModel, table=True):
