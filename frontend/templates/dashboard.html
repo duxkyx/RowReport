@@ -78,7 +78,7 @@
     </aside>
 
     <!-- Sidebar toggle button (outside sidebar to always be visible) -->
-    <button id="sidebarToggle" class="sidebar-toggle">
+    <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle navigation">
       <span class="chevron">‹</span>
     </button>
 
@@ -237,8 +237,7 @@
                       <div class="row align-items-center mb-3">
                         <div class="col-md-3"><strong>{{ rower.name }}</strong></div>
                         <div class="col-md-2">Seat: {{ rower.seat }}</div>
-                        <div class="col-md-2">Side: {{ rower.side }}</div>
-                        <div class="col-md-5">
+                          <div class="col-md-5">
                           <select class="form-control user-dropdown" name="user_search_{{ rower.seat }}" style="width:100%">
                             <option value="">Select user...</option>
                           </select>
@@ -478,13 +477,17 @@
           <div class="crew-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center" style="width:44px;height:44px;">
             <i class="fa fa-users" style="font-size:18px"></i>
           </div>
-          <div>
+          <div class="flex-grow-1">
             <h4 class="mb-1">Crew List</h4>
             <div class="subtle">Assign users to seats and choose the coxswain. Affected users will be emailed.</div>
           </div>
+          {% if user.is_coach or user.is_admin %}
+          <button id="editCrewBtn" type="button" class="btn btn-outline-secondary btn-sm">Edit Crewlist</button>
+          {% endif %}
         </div>
         <form method="POST">
           <input type="hidden" name="action" value="update_assignments">
+
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead>
@@ -504,19 +507,28 @@
                   <td>{{ rower.telemetry.name }}</td>
                   <td>
                       {% if user.is_coach or user.is_admin %}
-                      <select name="user_for_seat_{{ rower.telemetry.seat }}" class="form-select form-select-sm crew-select" data-placeholder="Search users..." style="width:100%">
-                        <option value="">Unassigned</option>
-                        {% for u in all_users %}
-                          <option value="{{ u.id }}" {% if rower.user.user_id and rower.user.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
-                        {% endfor %}
-                      </select>
-                    {% else %}
-                      {% if rower.user.user_id %}
-                        {{ rower.user.first_name }} {{rower.user.last_name }} ({{ rower.user.email }})
+                        <div class="crew-display">
+                          {% if rower.user.user_id %}
+                            {{ rower.user.first_name }} {{rower.user.last_name }} ({{ rower.user.email }})
+                          {% else %}
+                            Unassigned
+                          {% endif %}
+                        </div>
+                        <div class="crew-editable d-none">
+                          <select name="user_for_seat_{{ rower.telemetry.seat }}" class="form-select form-select-sm crew-select" data-placeholder="Search users..." style="width:100%" disabled>
+                            <option value="">Unassigned</option>
+                            {% for u in all_users %}
+                              <option value="{{ u.id }}" {% if rower.user.user_id and rower.user.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
+                            {% endfor %}
+                          </select>
+                        </div>
                       {% else %}
-                        Unassigned
+                        {% if rower.user.user_id %}
+                          {{ rower.user.first_name }} {{rower.user.last_name }} ({{ rower.user.email }})
+                        {% else %}
+                          Unassigned
+                        {% endif %}
                       {% endif %}
-                    {% endif %}
                   </td>
                   <td>{{ rower.telemetry.strokes }}</td>
                 </tr>
@@ -527,12 +539,21 @@
                   <td></td>
                   <td>
                     {% if user.is_coach or user.is_admin %}
-                      <select name="coxswain_id" class="form-select form-select-sm crew-select" data-placeholder="Search users..." style="width:100%">
-                        <option value="">Unassigned</option>
-                        {% for u in all_users %}
-                          <option value="{{ u.id }}" {% if coxswain_data and coxswain_data.user_id and coxswain_data.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
-                        {% endfor %}
-                      </select>
+                      <div class="crew-display">
+                        {% if coxswain_data and coxswain_data.user_id %}
+                          {{ coxswain_data.first_name }} {{coxswain_data.last_name }} ({{ coxswain_data.email }})
+                        {% else %}
+                          Unassigned
+                        {% endif %}
+                      </div>
+                      <div class="crew-editable d-none">
+                        <select name="coxswain_id" class="form-select form-select-sm crew-select" data-placeholder="Search users..." style="width:100%" disabled>
+                          <option value="">Unassigned</option>
+                          {% for u in all_users %}
+                            <option value="{{ u.id }}" {% if coxswain_data and coxswain_data.user_id and coxswain_data.user_id == u.id %}selected{% endif %}>{{ u.first_name }} {{ u.last_name }} ({{ u.email }})</option>
+                          {% endfor %}
+                        </select>
+                      </div>
                     {% else %}
                       {% if coxswain_data and coxswain_data.user_id %}
                         {{ coxswain_data.first_name }} {{coxswain_data.last_name }} ({{ coxswain_data.email }})
@@ -548,7 +569,7 @@
           </div>
 
           {% if user.is_coach or user.is_admin %}
-          <div class="d-flex justify-content-end mt-3">
+          <div id="saveCrewContainer" class="d-none d-flex justify-content-end mt-3">
             <button type="submit" class="btn btn-primary">Save Changes</button>
           </div>
           {% endif %}
@@ -1385,6 +1406,38 @@
         });
       }
     });
+
+    // Crew list editing toggle for coaches/admins
+    $(function(){
+      let editing = false;
+      const editBtn = $('#editCrewBtn');
+      const saveContainer = $('#saveCrewContainer');
+
+      editBtn.on('click', function(){
+        editing = !editing;
+        if(editing){
+          // store originals
+          $('select.crew-select').each(function(){
+            $(this).data('originalVal', $(this).val());
+          });
+          $('.crew-display').addClass('d-none');
+          $('.crew-editable').removeClass('d-none');
+          $('select.crew-select').prop('disabled', false).trigger('change.select2');
+          saveContainer.removeClass('d-none');
+          editBtn.text('Cancel');
+        } else {
+          // revert selects to original values
+          $('select.crew-select').each(function(){
+            $(this).val($(this).data('originalVal')).trigger('change.select2');
+          });
+          $('.crew-display').removeClass('d-none');
+          $('.crew-editable').addClass('d-none');
+          $('select.crew-select').prop('disabled', true).trigger('change.select2');
+          saveContainer.addClass('d-none');
+          editBtn.text('Edit Crewlist');
+        }
+      });
+    });
   </script>
   <script>
     // Fetch and display crew preview for a session
@@ -1422,16 +1475,15 @@
 
           // Render coxswain even if DB record doesn't exist or undefined
           let coxLabel = 'Unassigned';
-          let coxMeta = '';
           let coxAssigned = false;
           if (cox) {
             if (cox.user && (cox.user.first_name || cox.user.last_name)) {
               coxLabel = `${cox.user.first_name || ''} ${cox.user.last_name || ''}`.trim();
-              coxMeta = cox.user.email ? ` <small class="text-muted">${cox.user.email}</small>` : '';
               coxAssigned = !!cox.user.user_id;  // Only assigned if real DB user
             } else if (cox.first_name || cox.last_name) {
+              // when cox comes from the API it is returned directly as a user object
               coxLabel = `${cox.first_name || ''} ${cox.last_name || ''}`.trim();
-              // coxAssigned stays false - not a real user
+              coxAssigned = !!cox.user_id; // mark as assigned since we have an actual DB user
             } else if (cox.name) {
               coxLabel = cox.name;
               // coxAssigned stays false
@@ -1441,13 +1493,16 @@
             }
           }
 
-          const coxRight = coxAssigned ? '' : '<span class="badge badge-undefined">User undefined</span>';
-          container.find('.crew-list').append(`<li class="list-group-item crew-item"><div class="crew-info"><strong>Coxswain:</strong> ${coxLabel}${coxMeta}</div>${coxRight}</li>`);
+          const coxRight = coxAssigned
+            ? '<span class="badge badge-defined">User defined</span>'
+            : '<span class="badge badge-undefined">User undefined</span>';
+          container.find('.crew-list').append(`<li class="list-group-item crew-item"><div class="crew-info"><strong>Coxswain:</strong> ${coxLabel}</div>${coxRight}</li>`);
 
           if (rowers.length > 0) {
             rowers.forEach(r => {
               const seat = r.seat ?? (r.telemetry && r.telemetry.seat) ?? 'N/A';
-              const side = r.side ?? (r.telemetry && r.telemetry.side) ?? '';
+              // side information removed per user request
+              // const side = r.side ?? (r.telemetry && r.telemetry.side) ?? '';
 
               let name = 'Unassigned';
               let assigned = false;
@@ -1462,8 +1517,10 @@
                 // assigned stays false - telemetry name is not a real user assignment
               }
 
-              const right = assigned ? '' : '<span class="badge badge-undefined">User undefined</span>';
-              container.find('.crew-list').append(`<li class="list-group-item crew-item"><div class="crew-info"><strong>Seat ${seat}:</strong> ${name} <small class="text-muted">${side}</small></div>${right}</li>`);
+              const right = assigned
+                ? '<span class="badge badge-defined">User defined</span>'
+                : '<span class="badge badge-undefined">User undefined</span>';
+              container.find('.crew-list').append(`<li class="list-group-item crew-item"><div class="crew-info"><strong>Seat ${seat}:</strong> ${name}</div>${right}</li>`);
             });
           } else {
             container.find('.crew-list').append('<li class="list-group-item text-muted">No rowers data</li>');

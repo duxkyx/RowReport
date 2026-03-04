@@ -299,3 +299,22 @@ footer {
         height: 250px;
     }
 }
+
+/* additional breakpoints for smaller phones */
+@media (max-width: 600px) {
+    header {
+        padding: 8px 20px;
+    }
+    header .logo img {
+        height: 70px;
+    }
+    .main {
+        padding: 40px 12px 120px;
+    }
+    .main h5 {
+        font-size: 2rem;
+    }
+    .statistic_container {
+        padding: 60px 12px;
+    }
+}

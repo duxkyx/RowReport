@@ -318,7 +318,7 @@ def sessions():
         user=session['user'],
     )
 
-
+# Retrieve session crew data (rowers and coxswain) as JSON for a given session ID
 @app.route('/dashboard/sessions/session_crew/<int:session_id>', methods=['GET'])
 @login_required
 def session_crew(session_id):
