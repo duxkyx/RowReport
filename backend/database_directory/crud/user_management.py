@@ -75,7 +75,8 @@ def get_all_users(session: Session, order: str = None):
             "email": user.email,
             "is_athlete": permissions.is_athlete,
             "is_coach": permissions.is_coach,
-            "is_admin": permissions.is_admin
+            "is_admin": permissions.is_admin,
+            "last_activity": user.last_activity.isoformat() if user.last_activity else None
         }
         for user, permissions in results
     ]

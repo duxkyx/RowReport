@@ -5,7 +5,7 @@ from flask_session import Session
 from functools import wraps
 import requests
 import io
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # API Routes
 import api_routes
@@ -576,14 +576,52 @@ def logout():
 @app.route('/online-users')
 @login_required
 def view_online_users():
-    # Get users who were active in the last 15 minutes
-    users_online = requests.get(api_routes.get_online_users).json()
+    # Get all users
+    all_users = requests.get(api_routes.get_all_users).json()
+    
+    # Get current time
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(minutes=15)
+    
+    users_online = []
+    users_offline = []
+    
+    for user in all_users:
+        if user.get('last_activity'):
+            last_act = datetime.fromisoformat(user['last_activity'])
+            delta = now - last_act
+            total_seconds = delta.total_seconds()
+            
+            if last_act >= cutoff:
+                # Online - show minutes:seconds ago
+                user['last_activity_formatted'] = f"{int(total_seconds // 60):02d}:{int(total_seconds % 60):02d} ago"
+                users_online.append(user)
+            else:
+                # Offline - show minutes ago or hours ago
+                total_minutes = total_seconds / 60
+                if total_minutes < 60:
+                    user['last_activity_formatted'] = f"{int(total_minutes)} minutes ago"
+                else:
+                    total_hours = total_minutes / 60
+                    user['last_activity_formatted'] = f"{int(total_hours)} hours ago"
+                users_offline.append(user)
+        else:
+            # Never logged in, consider offline
+            user['last_activity_formatted'] = 'Never'
+            users_offline.append(user)
+    
+    # Sort online by last_activity desc (most recent first)
+    users_online.sort(key=lambda x: datetime.fromisoformat(x['last_activity']), reverse=True)
+    
+    # Sort offline by last_activity desc (most recent first)
+    users_offline.sort(key=lambda x: (x.get('last_activity') is None, datetime.fromisoformat(x['last_activity']) if x.get('last_activity') else datetime.min.replace(tzinfo=timezone.utc)), reverse=True)
     
     return render_template(
         'dashboard.html',
         user=session['user'],
         page='online_users',
-        users_online=users_online
+        users_online=users_online,
+        users_offline=users_offline
     )
 
 # Run the app
