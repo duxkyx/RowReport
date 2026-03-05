@@ -614,7 +614,10 @@ def view_online_users():
     users_online.sort(key=lambda x: datetime.fromisoformat(x['last_activity']), reverse=True)
     
     # Sort offline by last_activity desc (most recent first)
-    users_offline.sort(key=lambda x: (x.get('last_activity') is None, datetime.fromisoformat(x['last_activity']) if x.get('last_activity') else datetime.min.replace(tzinfo=timezone.utc)), reverse=True)
+    users_offline.sort(
+        key=lambda x: datetime.fromisoformat(x['last_activity']) if x.get('last_activity') else datetime.min.replace(tzinfo=timezone.utc),
+        reverse=True
+    )    
     
     return render_template(
         'dashboard.html',
